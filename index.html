@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TraderLog — Diário WIN &amp; WDO</title>
+  <meta name="description" content="Diário de operações profissional para contratos futuros WIN e WDO da B3. Controle suas operações, calcule resultados e acompanhe estatísticas." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@200;300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ====== LOGIN OVERLAY ====== -->
+  <div class="login-overlay" id="login-overlay">
+    <div class="login-card">
+      <div class="login-header">
+        <span class="logo-title" style="font-size:28px;"><span class="logo-bold">Trader</span><span class="logo-light">Log</span></span>
+        <p class="login-sub">Acesse o seu diário e acompanhe resultados</p>
+      </div>
+      <form id="form-login" onsubmit="fazerLogin(event)" autocomplete="off">
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label class="form-label" for="login-email">E-mail de Cadastro</label>
+          <input type="email" id="login-email" class="form-input" required placeholder="estudante@dominio.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-senha">Senha</label>
+          <input type="password" id="login-senha" class="form-input" required placeholder="••••••••" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 24px; padding: 12px; font-size: 14px;">Entrar na Plataforma</button>
+      </form>
+      <div class="login-footer">
+        <p>Acesso restrito. Sem credenciais conectadas?</p>
+        <div style="display: flex; gap: 8px; justify-content: center; margin-top: 14px;">
+          <button type="button" class="btn btn-secondary" onclick="demoLogin('admin')" style="font-size:11px;">👑 Demo ADM</button>
+          <button type="button" class="btn btn-ghost" onclick="demoLogin('estudante')" style="font-size:11px;">🎓 Demo Aluno</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SIDEBAR NAV ====== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">
+        <span class="logo-title"><span class="logo-bold">Trader</span><span class="logo-light">Log</span></span>
+        <span class="logo-sub">WIN &amp; WDO</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" id="nav-dashboard" onclick="showSection('dashboard')">
+        <span class="nav-icon">⚡</span>
+        <span>Dashboard</span>
+      </a>
+      <a href="#" class="nav-item" id="nav-nova" onclick="showSection('nova')">
+        <span class="nav-icon">➕</span>
+        <span>Nova Operação</span>
+      </a>
+      <a href="#" class="nav-item" id="nav-historico" onclick="showSection('historico')">
+        <span class="nav-icon">📋</span>
+        <span>Histórico</span>
+      </a>
+      <a href="#" class="nav-item" id="nav-config" onclick="showSection('config')">
+        <span class="nav-icon">⚙️</span>
+        <span>Configurações</span>
+      </a>
+      <a href="#" class="nav-item nav-item--admin" id="nav-admin" onclick="showSection('admin')" style="display: none; border-top: 1px solid var(--border); margin-top: 8px; padding-top: 12px;">
+        <span class="nav-icon">👑</span>
+        <span style="color: var(--brand); font-weight: 600;">Painel do Professor</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn-export" id="btn-export" onclick="exportData()">
+        <span>⬇️</span> Exportar JSON
+      </button>
+      <label class="btn-import" for="import-file">
+        <span>⬆️</span> Importar JSON
+      </label>
+      <input type="file" id="import-file" accept=".json" onchange="importData(event)" style="display:none" />
+    </div>
+  </aside>
+
+  <!-- ====== MAIN ====== -->
+  <main class="main-content">
+
+    <!-- HEADER -->
+    <header class="top-bar">
+      <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+      <div class="top-bar-title" id="top-bar-title">Dashboard</div>
+      <div class="top-bar-right">
+        <span class="date-badge" id="date-today"></span>
+        <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema">
+          <div class="theme-toggle-track">
+            <span class="theme-icon theme-icon--sun">☀️</span>
+            <span class="theme-icon theme-icon--moon">🌙</span>
+            <div class="theme-toggle-thumb"></div>
+          </div>
+        </button>
+      </div>
+    </header>
+
+    <!-- ============================= DASHBOARD ============================= -->
+    <section class="section active" id="section-dashboard">
+      <div class="section-header">
+        <h1>Dashboard</h1>
+        <p class="section-desc">Resumo da sua performance</p>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="kpi-card kpi-capital">
+          <div class="kpi-label">Capital Atual</div>
+          <div class="kpi-value" id="kpi-capital">R$ 0,00</div>
+          <div class="kpi-delta" id="kpi-capital-delta"></div>
+        </div>
+        <div class="kpi-card kpi-ops">
+          <div class="kpi-label">Operações</div>
+          <div class="kpi-value" id="kpi-ops">0</div>
+          <div class="kpi-delta" id="kpi-ops-delta">Total realizadas</div>
+        </div>
+        <div class="kpi-card kpi-acerto">
+          <div class="kpi-label">Taxa de Acerto</div>
+          <div class="kpi-value" id="kpi-acerto">—</div>
+          <div class="kpi-delta" id="kpi-acerto-delta"></div>
+        </div>
+        <div class="kpi-card kpi-payoff">
+          <div class="kpi-label">Payoff Médio</div>
+          <div class="kpi-value" id="kpi-payoff">—</div>
+          <div class="kpi-delta" id="kpi-payoff-delta"></div>
+        </div>
+        <div class="kpi-card kpi-wins">
+          <div class="kpi-label">Gains</div>
+          <div class="kpi-value gain-text" id="kpi-gains">0</div>
+          <div class="kpi-delta" id="kpi-gains-media"></div>
+        </div>
+        <div class="kpi-card kpi-loss">
+          <div class="kpi-label">Losses</div>
+          <div class="kpi-value loss-text" id="kpi-losses">0</div>
+          <div class="kpi-delta" id="kpi-losses-media"></div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title">Curva de Capital (R$)</div>
+          <canvas id="chart-capital" height="220"></canvas>
+          <div class="chart-empty" id="chart-capital-empty">Sem operações registradas ainda</div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Resultado por Dia (R$)</div>
+          <canvas id="chart-dias" height="220"></canvas>
+          <div class="chart-empty" id="chart-dias-empty">Sem operações registradas ainda</div>
+        </div>
+      </div>
+
+      <!-- Últimas operações -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <span class="table-card-title">Últimas Operações</span>
+          <button class="btn-link" onclick="showSection('historico')">Ver todas →</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="ops-table" id="table-recentes">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Data</th>
+                <th>Ativo</th>
+                <th>Tipo</th>
+                <th>PE</th>
+                <th>Stop</th>
+                <th>Saída</th>
+                <th>Risco pts</th>
+                <th>Pts Final</th>
+                <th>Qtde</th>
+                <th>R$ Final</th>
+                <th>Situação</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-recentes">
+              <tr class="empty-row"><td colspan="12">Nenhuma operação registrada</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= NOVA OPERAÇÃO ============================= -->
+    <section class="section" id="section-nova">
+      <div class="section-header">
+        <h1>Nova Operação</h1>
+        <p class="section-desc">Registre uma operação com cálculo automático</p>
+      </div>
+
+      <div class="form-container">
+        <form id="form-op" onsubmit="salvarOperacao(event)" autocomplete="off">
+
+          <!-- Row 1: Ativo + Data + Tipo -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Ativo</label>
+              <div class="toggle-group" id="toggle-ativo">
+                <button type="button" class="toggle-btn active" id="btn-win" onclick="setAtivo('WIN')">WIN</button>
+                <button type="button" class="toggle-btn" id="btn-wdo" onclick="setAtivo('WDO')">WDO</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="input-data">Data</label>
+              <input type="date" id="input-data" class="form-input" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Direção</label>
+              <div class="toggle-group" id="toggle-tipo">
+                <button type="button" class="toggle-btn toggle-compra active" id="btn-compra" onclick="setTipo('Compra')">▲ Compra</button>
+                <button type="button" class="toggle-btn toggle-venda" id="btn-venda" onclick="setTipo('Venda')">▼ Venda</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 2: PE + Stop + (auto) Risco + Alvo1 -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="input-pe">PE (Entrada)</label>
+              <input type="number" id="input-pe" class="form-input mono" placeholder="ex: 130.000" step="1" required oninput="calcular()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-stop">Stop</label>
+              <input type="number" id="input-stop" class="form-input mono" placeholder="ex: 129.500" step="1" required oninput="calcular()" />
+            </div>
+            <div class="form-group form-group--auto">
+              <label class="form-label">Risco (pts) <span class="auto-badge">AUTO</span></label>
+              <div class="auto-value" id="auto-risco">—</div>
+            </div>
+            <div class="form-group form-group--auto">
+              <label class="form-label">Alvo 1 <span class="auto-badge">AUTO</span></label>
+              <div class="auto-value" id="auto-alvo">—</div>
+            </div>
+          </div>
+
+          <!-- Row 3: Qtde RP + Saída Final + (auto) Pts Final + Qtde Final -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="input-qtde-rp">Qtde Contratos (RP)</label>
+              <input type="number" id="input-qtde-rp" class="form-input mono" placeholder="ex: 1" min="0" step="1" value="1" oninput="calcular()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-qtde-total">Qtde Total Contratos</label>
+              <input type="number" id="input-qtde-total" class="form-input mono" placeholder="ex: 2" min="1" step="1" value="1" oninput="calcular()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-saida">Saída Final</label>
+              <input type="number" id="input-saida" class="form-input mono" placeholder="ex: 130.100" step="1" oninput="calcular()" />
+            </div>
+            <div class="form-group form-group--auto">
+              <label class="form-label">Qtde Final <span class="auto-badge">AUTO</span></label>
+              <div class="auto-value" id="auto-qtde-final">—</div>
+            </div>
+          </div>
+
+          <!-- Row 4: Situação + Pts Final + R$ Final + % Risco -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Situação <span class="auto-badge">AUTO</span></label>
+              <div class="situacao-display" id="situacao-display">—</div>
+            </div>
+            <div class="form-group form-group--auto">
+              <label class="form-label">Pts Final <span class="auto-badge">AUTO</span></label>
+              <div class="auto-value" id="auto-pts-final">—</div>
+            </div>
+            <div class="form-group form-group--auto">
+              <label class="form-label">R$ Final <span class="auto-badge">AUTO</span></label>
+              <div class="auto-value large-value" id="auto-rs-final">—</div>
+            </div>
+            <div class="form-group form-group--auto">
+              <label class="form-label">% Risco <span class="auto-badge">AUTO</span></label>
+              <div class="auto-value" id="auto-pct-risco">—</div>
+            </div>
+          </div>
+
+          <!-- Setup/Observações -->
+          <div class="form-row">
+            <div class="form-group form-group--wide">
+              <label class="form-label" for="input-setup">Setup (opcional)</label>
+              <input type="text" id="input-setup" class="form-input" placeholder="ex: IFR2, Rompimento, Topo Duplo..." />
+            </div>
+            <div class="form-group form-group--wide">
+              <label class="form-label" for="input-obs">Observações (opcional)</label>
+              <input type="text" id="input-obs" class="form-input" placeholder="Notas sobre a operação..." />
+            </div>
+          </div>
+
+          <!-- Preview card -->
+          <div class="preview-card" id="preview-card">
+            <div class="preview-title">Preview da Operação</div>
+            <div class="preview-grid" id="preview-grid"></div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="limparFormulario()">🗑 Limpar</button>
+            <button type="submit" class="btn btn-primary" id="btn-salvar">✅ Salvar Operação</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============================= HISTÓRICO ============================= -->
+    <section class="section" id="section-historico">
+      <div class="section-header">
+        <h1>Histórico de Operações</h1>
+        <p class="section-desc">Todas as operações registradas</p>
+      </div>
+
+      <!-- Filtros -->
+      <div class="filters-bar">
+        <div class="filter-group">
+          <label>Ativo</label>
+          <select id="filter-ativo" class="filter-select" onchange="renderHistorico()">
+            <option value="">Todos</option>
+            <option value="WIN">WIN</option>
+            <option value="WDO">WDO</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Situação</label>
+          <select id="filter-situacao" class="filter-select" onchange="renderHistorico()">
+            <option value="">Todas</option>
+            <option value="Gain">Gain</option>
+            <option value="Loss">Loss</option>
+            <option value="PE">PE</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>De</label>
+          <input type="date" id="filter-de" class="filter-input" onchange="renderHistorico()" />
+        </div>
+        <div class="filter-group">
+          <label>Até</label>
+          <input type="date" id="filter-ate" class="filter-input" onchange="renderHistorico()" />
+        </div>
+        <button class="btn btn-ghost" onclick="limparFiltros()">✕ Limpar filtros</button>
+      </div>
+
+      <!-- Resumo do filtro -->
+      <div class="filter-summary" id="filter-summary"></div>
+
+      <!-- Tabela -->
+      <div class="table-card">
+        <div class="table-wrapper">
+          <table class="ops-table ops-table--full" id="table-historico">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Data</th>
+                <th>Dia</th>
+                <th>Ativo</th>
+                <th>Tipo</th>
+                <th>PE</th>
+                <th>Stop</th>
+                <th>Risco pts</th>
+                <th>Alvo 1</th>
+                <th>Qtde RP</th>
+                <th>Qtde Total</th>
+                <th>Saída</th>
+                <th>Pts Final</th>
+                <th>Qtde Final</th>
+                <th>Situação</th>
+                <th>R$ Final</th>
+                <th>% Risco</th>
+                <th>Setup</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-historico">
+              <tr class="empty-row"><td colspan="19">Nenhuma operação registrada</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= CONFIG ============================= -->
+    <section class="section" id="section-config">
+      <div class="section-header">
+        <h1>Configurações</h1>
+        <p class="section-desc">Parâmetros da sua conta</p>
+      </div>
+
+      <div class="config-container">
+        <div class="config-card">
+          <h2 class="config-card-title">💰 Gestão de Capital</h2>
+
+          <div class="config-row">
+            <div class="config-group">
+              <label class="form-label" for="cfg-capital">Capital Inicial (R$)</label>
+              <input type="number" id="cfg-capital" class="form-input mono" placeholder="ex: 2000" min="0" step="100" oninput="updateConfigPreview()" />
+            </div>
+            <div class="config-group">
+              <label class="form-label" for="cfg-risco-pct">% Risco por Operação</label>
+              <input type="number" id="cfg-risco-pct" class="form-input mono" placeholder="ex: 3" min="0" max="100" step="0.5" oninput="updateConfigPreview()" />
+            </div>
+            <div class="config-group config-group--auto">
+              <label class="form-label">Risco R$ <span class="auto-badge">AUTO</span></label>
+              <div class="auto-value large-value" id="cfg-risco-rs">—</div>
+            </div>
+          </div>
+
+          <div class="config-info">
+            <div class="info-item">
+              <span class="info-label">WIN</span>
+              <span class="info-value">R$ 0,20 / ponto</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">WDO</span>
+              <span class="info-value">R$ 10,00 / ponto</span>
+            </div>
+          </div>
+
+          <div class="config-actions">
+            <button class="btn btn-primary" onclick="salvarConfig()">✅ Salvar Capital</button>
+          </div>
+        </div>
+
+        <div class="config-card">
+          <h2 class="config-card-title">⚙️ Setup Operacional</h2>
+
+          <div class="config-row">
+            <div class="config-group" style="flex:2;">
+              <label class="form-label">Estratégia de Controle</label>
+              <div class="toggle-group" id="toggle-estrategia">
+                <button type="button" class="toggle-btn active" id="btn-cfg-risco" onclick="setEstrategiaConfig('risco')">Risco Variável (%)</button>
+                <button type="button" class="toggle-btn" id="btn-cfg-fixa" onclick="setEstrategiaConfig('fixa')">Mão Fixa</button>
+              </div>
+            </div>
+            
+            <div class="config-group" id="group-cfg-contratos" style="display:none; transition: all var(--transition);">
+              <label class="form-label" for="cfg-contratos">Contratos Padrão (Qtde)</label>
+              <input type="number" id="cfg-contratos" class="form-input mono" placeholder="ex: 5" min="1" step="1" />
+            </div>
+
+            <div class="config-group">
+              <label class="form-label" for="cfg-alvo-mult">Alvo / Risk-Reward Ex:(2)</label>
+              <input type="number" id="cfg-alvo-mult" class="form-input mono" placeholder="ex: 1.5" min="0.1" step="0.1" />
+            </div>
+          </div>
+          <p class="section-desc" style="font-size:11px; margin-top:-10px; margin-bottom:18px;">
+            Este multiplicador ajustará o 'Alvo 1' padrão na boleta com base na distância do Stop (Ex: Digite 2.0 para Alvo 2x maior que Stop).
+          </p>
+          <div class="config-actions">
+            <button class="btn btn-primary" onclick="salvarConfig()">✅ Atualizar Setup</button>
+          </div>
+        </div>
+
+        <div class="config-card">
+          <h2 class="config-card-title">📊 Estatísticas Gerais</h2>
+          <div class="stats-grid" id="stats-config-grid">
+            <div class="stat-item">
+              <span class="stat-label">Total de operações</span>
+              <span class="stat-val" id="stat-total">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Gains</span>
+              <span class="stat-val gain-text" id="stat-gains">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Losses</span>
+              <span class="stat-val loss-text" id="stat-losses">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Empates (PE)</span>
+              <span class="stat-val" id="stat-pe">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Taxa de acerto</span>
+              <span class="stat-val" id="stat-acerto">—</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">R$ Total</span>
+              <span class="stat-val" id="stat-rs-total">R$ 0,00</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Média Gain</span>
+              <span class="stat-val gain-text" id="stat-media-gain">—</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Média Loss</span>
+              <span class="stat-val loss-text" id="stat-media-loss">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="config-card config-card--danger">
+          <h2 class="config-card-title">⚠️ Zona de Perigo</h2>
+          <p class="danger-desc">Apagar todos os dados não pode ser desfeito.</p>
+          <button class="btn btn-danger" onclick="confirmarLimparTudo()">🗑 Apagar Todos os Dados</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= ADMIN PANEL ============================= -->
+    <section class="section" id="section-admin">
+      <div class="section-header">
+        <h1>Painel Geral de Alunos (ADM)</h1>
+        <p class="section-desc">Acompanhe e audite remotamente a performance em tempo real de cada aluno cadastrado.</p>
+      </div>
+      
+      <div class="table-card">
+        <div class="table-wrapper">
+          <table class="ops-table ops-table--full" id="table-admin">
+            <thead>
+              <tr>
+                <th>Estudante</th>
+                <th>Operações no Dia</th>
+                <th>Win Rate</th>
+                <th>Risco Exposição Médio</th>
+                <th>Acumulado D-0 (R$)</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-admin">
+              <!-- Mock Content para Demonstração de ADM -->
+              <tr>
+                <td style="font-family: 'Inter Tight', sans-serif; font-weight: 600;">João Pedro</td>
+                <td>6</td>
+                <td class="gain-text">66.6%</td>
+                <td>R$ 150,00</td>
+                <td class="gain-text">R$ 540,00</td>
+                <td><span class="badge badge-gain">Estável</span></td>
+                <td><button class="btn btn-secondary" style="padding: 4px 10px; font-size: 10px;">Ver Diário Completo</button></td>
+              </tr>
+              <tr>
+                <td style="font-family: 'Inter Tight', sans-serif; font-weight: 600;">Maria Souza</td>
+                <td>2</td>
+                <td class="gain-text">100.0%</td>
+                <td>R$ 60,00</td>
+                <td class="gain-text">R$ 280,00</td>
+                <td><span class="badge badge-gain">Estável</span></td>
+                <td><button class="btn btn-secondary" style="padding: 4px 10px; font-size: 10px;">Ver Diário Completo</button></td>
+              </tr>
+              <tr>
+                <td style="font-family: 'Inter Tight', sans-serif; font-weight: 600;">Carlos Vieira</td>
+                <td>12 (Overtrade)</td>
+                <td class="loss-text">16.6%</td>
+                <td>R$ 480,00</td>
+                <td class="loss-text">- R$ 1.250,00</td>
+                <td><span class="badge badge-loss">Bloqueado Operacionalmente</span></td>
+                <td><button class="btn btn-secondary" style="padding: 4px 10px; font-size: 10px;">Ver Diário Completo</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== MODAL DE CONFIRMAÇÃO ===== -->
+  <div class="modal-overlay" id="modal-overlay" onclick="fecharModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-icon" id="modal-icon">⚠️</div>
+      <div class="modal-title" id="modal-title">Confirmar ação</div>
+      <div class="modal-desc" id="modal-desc">Tem certeza?</div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+        <button class="btn btn-danger" id="modal-confirm-btn" onclick="">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
