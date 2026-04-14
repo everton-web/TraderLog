@@ -42,7 +42,7 @@ function fazerLogin(e) {
 function demoLogin(role) {
   currentUserRole = role;
   document.getElementById('login-overlay').style.display = 'none'; // Desbloqueia sistema
-  
+
   const admNavBtn = document.getElementById('nav-admin');
   if (role === 'admin') {
     admNavBtn.style.display = 'flex';
@@ -51,8 +51,15 @@ function demoLogin(role) {
     admNavBtn.style.display = 'none';
     showSection('dashboard');
   }
-  
+
   showToast('Autenticado com sucesso como ' + role.toUpperCase(), 'success');
+}
+
+function fazerLogout() {
+  currentUserRole = null;
+  document.getElementById('login-overlay').style.display = '';
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-senha').value = '';
 }
 
 // ===================== INIT =====================

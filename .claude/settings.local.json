@@ -4,7 +4,8 @@
       "Bash(gh repo *)",
       "WebFetch(domain:github.com)",
       "Bash(npm --version)",
-      "Bash(npx aiox-core:*)"
+      "Bash(npx aiox-core:*)",
+      "Bash(cmdkey *)"
     ]
   }
 }

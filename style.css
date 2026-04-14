@@ -212,6 +212,27 @@ input, select, textarea { font-family: inherit; }
   border-color: var(--border-active);
   color: var(--text-secondary);
 }
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(239,68,68,0.2);
+  background: transparent;
+  color: var(--loss);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  justify-content: center;
+  letter-spacing: 0.02em;
+  margin-top: 2px;
+}
+.btn-logout:hover {
+  background: var(--loss-bg);
+  border-color: var(--loss);
+}
 
 /* ===== MAIN ===== */
 .main-content {
