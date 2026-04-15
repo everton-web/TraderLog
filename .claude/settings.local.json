@@ -14,7 +14,8 @@
       "Bash(npm install *)",
       "Bash(npm run *)",
       "Bash(rm \"D:/00. AGENCIA/TraderLog/index.html\" \"D:/00. AGENCIA/TraderLog/app.js\" \"D:/00. AGENCIA/TraderLog/style.css\" \"D:/00. AGENCIA/TraderLog/supabase_template.js\")",
-      "Bash(cp -r app components eslint.config.mjs lib next.config.ts next-env.d.ts package.json package-lock.json proxy.ts public supabase tsconfig.json utils .env.local AGENTS.md CLAUDE.md README.md \"D:/00. AGENCIA/TraderLog/\")"
+      "Bash(cp -r app components eslint.config.mjs lib next.config.ts next-env.d.ts package.json package-lock.json proxy.ts public supabase tsconfig.json utils .env.local AGENTS.md CLAUDE.md README.md \"D:/00. AGENCIA/TraderLog/\")",
+      "WebFetch(domain:trader-log-gamma.vercel.app)"
     ]
   }
 }
