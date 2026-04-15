@@ -94,7 +94,7 @@ body { font-family: var(--font); background: var(--bg-base); color: var(--text-p
 .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius); color: var(--text-secondary); text-decoration: none; font-size: 13px; font-weight: 500; transition: background var(--transition), color var(--transition); cursor: pointer; border: none; background: none; width: 100%; text-align: left; }
 .nav-item:hover { background: var(--bg-card-hover); color: var(--text-primary); }
 .nav-item.active { background: var(--brand-subtle); color: var(--brand); border: 1px solid var(--brand-border); }
-.nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+.nav-icon { width: 16px; height: 16px; flex-shrink: 0; }
 .nav-admin-divider { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 8px; }
 .sidebar-footer { padding: 12px 8px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
 .btn-sidebar { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: var(--radius); border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 500; cursor: pointer; width: 100%; transition: border-color var(--transition), color var(--transition); font-family: var(--font); }
@@ -235,7 +235,7 @@ body { font-family: var(--font); background: var(--bg-base); color: var(--text-p
 .config-container { max-width: 860px; display: flex; flex-direction: column; gap: 20px; }
 .config-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px 24px; }
 .config-card--danger { border-color: rgba(239,68,68,0.2); }
-.config-card-title { font-size: 14px; font-weight: 700; margin-bottom: 18px; }
+.config-card-title { font-size: 14px; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
 .config-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 16px; }
 .config-group { display: flex; flex-direction: column; gap: 6px; }
 .config-actions { margin-top: 4px; }

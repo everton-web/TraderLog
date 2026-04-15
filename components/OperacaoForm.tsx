@@ -4,6 +4,7 @@ import { salvarOperacao } from '@/lib/actions';
 import { calcular } from '@/lib/calculations';
 import { useToast } from './Toast';
 import { hojeISO, diaSemana, fmtRS, fmtPts, fmtPct } from '@/lib/formatters';
+import { Trash2, Check, TrendingUp, TrendingDown } from 'lucide-react';
 import type { Ativo, TipoOp, Configuracao } from '@/lib/types';
 
 export default function OperacaoForm({ config }: { config: Configuracao | null }) {
@@ -86,8 +87,8 @@ export default function OperacaoForm({ config }: { config: Configuracao | null }
         <div className="form-group">
           <label className="form-label">Direção</label>
           <div className="toggle-group">
-            <button type="button" className={`toggle-btn toggle-compra${tipo === 'Compra' ? ' active' : ''}`} onClick={() => setTipo('Compra')}>▲ Compra</button>
-            <button type="button" className={`toggle-btn toggle-venda${tipo === 'Venda' ? ' active' : ''}`} onClick={() => setTipo('Venda')}>▼ Venda</button>
+            <button type="button" className={`toggle-btn toggle-compra${tipo === 'Compra' ? ' active' : ''}`} onClick={() => setTipo('Compra')}><TrendingUp size={13} strokeWidth={2} /> Compra</button>
+            <button type="button" className={`toggle-btn toggle-venda${tipo === 'Venda' ? ' active' : ''}`} onClick={() => setTipo('Venda')}><TrendingDown size={13} strokeWidth={2} /> Venda</button>
           </div>
         </div>
       </div>
@@ -141,7 +142,7 @@ export default function OperacaoForm({ config }: { config: Configuracao | null }
         <div className="form-group">
           <label className="form-label">Situação <span className="auto-badge">AUTO</span></label>
           <div className={`situacao-display${calc.situacao ? ' ' + calc.situacao.toLowerCase() : ''}`}>
-            {calc.situacao === 'Gain' ? '✅ GAIN' : calc.situacao === 'Loss' ? '❌ LOSS' : calc.situacao === 'PE' ? '🟡 PE' : '—'}
+            {calc.situacao === 'Gain' ? 'GAIN' : calc.situacao === 'Loss' ? 'LOSS' : calc.situacao === 'PE' ? 'PE' : '—'}
           </div>
         </div>
         <div className="form-group">
@@ -202,9 +203,9 @@ export default function OperacaoForm({ config }: { config: Configuracao | null }
       )}
 
       <div className="form-actions">
-        <button type="button" className="btn btn-secondary" onClick={reset}>🗑 Limpar</button>
+        <button type="button" className="btn btn-secondary" onClick={reset}><Trash2 size={13} strokeWidth={1.75} /> Limpar</button>
         <button type="submit" className="btn btn-primary" disabled={saving}>
-          {saving ? 'Salvando...' : '✅ Salvar Operação'}
+          <Check size={13} strokeWidth={2.5} /> {saving ? 'Salvando...' : 'Salvar Operação'}
         </button>
       </div>
     </form>

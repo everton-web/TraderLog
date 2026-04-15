@@ -3,6 +3,7 @@ import { useState, useMemo } from 'react';
 import OperacoesTable from '@/components/OperacoesTable';
 import { calcEstatisticas, gerarCSV } from '@/lib/calculations';
 import { fmtRS, fmtPct } from '@/lib/formatters';
+import { X, Download } from 'lucide-react';
 import type { Operacao } from '@/lib/types';
 
 export default function HistoricoClient({ ops }: { ops: Operacao[] }) {
@@ -66,10 +67,10 @@ export default function HistoricoClient({ ops }: { ops: Operacao[] }) {
           <input type="date" className="filter-input" value={filterAte} onChange={e => setFilterAte(e.target.value)} />
         </div>
         <button className="btn btn-ghost" onClick={() => { setFilterAtivo(''); setFilterSit(''); setFilterDe(''); setFilterAte(''); }}>
-          ✕ Limpar
+          <X size={12} strokeWidth={2} /> Limpar
         </button>
         <button className="btn btn-secondary" onClick={downloadCSV} style={{ marginLeft: 'auto' }}>
-          ⬇️ Baixar CSV
+          <Download size={13} strokeWidth={1.75} /> Baixar CSV
         </button>
       </div>
 

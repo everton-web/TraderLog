@@ -2,6 +2,7 @@
 import { useState, useRef } from 'react';
 import { atualizarPerfil, uploadAvatar } from '@/lib/actions';
 import { useToast } from '@/components/Toast';
+import { Camera, Check } from 'lucide-react';
 import type { Profile } from '@/lib/types';
 
 export default function PerfilClient({ profile, email }: { profile: Profile; email: string }) {
@@ -66,7 +67,7 @@ export default function PerfilClient({ profile, email }: { profile: Profile; ema
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
               >
-                {uploading ? 'Enviando...' : '📷 Trocar foto'}
+                {uploading ? 'Enviando...' : <><Camera size={12} strokeWidth={1.75} /> Trocar foto</>}
               </button>
             </div>
             <input
@@ -99,7 +100,7 @@ export default function PerfilClient({ profile, email }: { profile: Profile; ema
             </div>
             <div className="form-actions">
               <button type="submit" className="btn btn-primary" disabled={saving}>
-                {saving ? 'Salvando...' : '✅ Salvar Alterações'}
+                {saving ? 'Salvando...' : <><Check size={13} strokeWidth={2.5} /> Salvar Alterações</>}
               </button>
             </div>
           </form>

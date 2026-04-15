@@ -3,6 +3,7 @@ import { useActionState, useState } from 'react';
 import { salvarConfig } from '@/lib/actions';
 import { useToast } from '@/components/Toast';
 import { fmtRS } from '@/lib/formatters';
+import { DollarSign, SlidersHorizontal, BarChart2, Check } from 'lucide-react';
 import type { Configuracao, Estatisticas } from '@/lib/types';
 
 export default function ConfigClient({ config, stat }: { config: Configuracao | null; stat: Estatisticas }) {
@@ -43,7 +44,7 @@ export default function ConfigClient({ config, stat }: { config: Configuracao | 
         {/* Capital */}
         <form onSubmit={handleSave}>
           <div className="config-card">
-            <h2 className="config-card-title">💰 Gestão de Capital</h2>
+            <h2 className="config-card-title"><DollarSign size={15} strokeWidth={1.75} /> Gestão de Capital</h2>
             <div className="config-row">
               <div className="config-group">
                 <label className="form-label" htmlFor="capital">Capital Inicial (R$)</label>
@@ -65,13 +66,13 @@ export default function ConfigClient({ config, stat }: { config: Configuracao | 
               <div className="info-item"><span className="info-label">WDO</span><span className="info-value">R$ 10,00 / ponto</span></div>
             </div>
             <div className="config-actions">
-              <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Salvando...' : '✅ Salvar Capital'}</button>
+              <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Salvando...' : <><Check size={13} strokeWidth={2.5} /> Salvar Capital</>}</button>
             </div>
           </div>
 
           {/* Setup */}
           <div className="config-card" style={{ marginTop: 20 }}>
-            <h2 className="config-card-title">⚙️ Setup Operacional</h2>
+            <h2 className="config-card-title"><SlidersHorizontal size={15} strokeWidth={1.75} /> Setup Operacional</h2>
             <div className="config-row">
               <div className="config-group" style={{ flex: 2 }}>
                 <label className="form-label">Estratégia</label>
@@ -92,14 +93,14 @@ export default function ConfigClient({ config, stat }: { config: Configuracao | 
               </div>
             </div>
             <div className="config-actions">
-              <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Salvando...' : '✅ Atualizar Setup'}</button>
+              <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Salvando...' : <><Check size={13} strokeWidth={2.5} /> Atualizar Setup</>}</button>
             </div>
           </div>
         </form>
 
         {/* Stats */}
         <div className="config-card">
-          <h2 className="config-card-title">📊 Estatísticas Gerais</h2>
+          <h2 className="config-card-title"><BarChart2 size={15} strokeWidth={1.75} /> Estatísticas Gerais</h2>
           <div className="stats-grid">
             <div className="stat-item"><span className="stat-label">Total</span><span className="stat-val">{stat.total}</span></div>
             <div className="stat-item"><span className="stat-label">Gains</span><span className="stat-val gain-text">{stat.gains}</span></div>

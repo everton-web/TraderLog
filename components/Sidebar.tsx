@@ -2,14 +2,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/lib/actions';
+import { LayoutDashboard, Plus, ClipboardList, Settings, User, Crown, LogOut } from 'lucide-react';
 import type { Profile } from '@/lib/types';
 
 const NAV = [
-  { href: '/dashboard', icon: '⚡', label: 'Dashboard' },
-  { href: '/nova',      icon: '➕', label: 'Nova Operação' },
-  { href: '/historico', icon: '📋', label: 'Histórico' },
-  { href: '/config',    icon: '⚙️', label: 'Configurações' },
-  { href: '/perfil',    icon: '👤', label: 'Meu Perfil' },
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/nova',      icon: Plus,            label: 'Nova Operação' },
+  { href: '/historico', icon: ClipboardList,   label: 'Histórico' },
+  { href: '/config',    icon: Settings,        label: 'Configurações' },
+  { href: '/perfil',    icon: User,            label: 'Meu Perfil' },
 ];
 
 export default function Sidebar({ profile }: { profile: Profile | null }) {
@@ -29,13 +30,13 @@ export default function Sidebar({ profile }: { profile: Profile | null }) {
       </div>
 
       <nav className="sidebar-nav">
-        {NAV.map(({ href, icon, label }) => (
+        {NAV.map(({ href, icon: Icon, label }) => (
           <Link
             key={href}
             href={href}
             className={`nav-item${pathname.startsWith(href) ? ' active' : ''}`}
           >
-            <span className="nav-icon">{icon}</span>
+            <Icon size={16} className="nav-icon" strokeWidth={1.75} />
             <span className="nav-label">{label}</span>
           </Link>
         ))}
@@ -44,7 +45,7 @@ export default function Sidebar({ profile }: { profile: Profile | null }) {
             href="/admin"
             className={`nav-item nav-admin-divider${pathname.startsWith('/admin') ? ' active' : ''}`}
           >
-            <span className="nav-icon">👑</span>
+            <Crown size={16} className="nav-icon" strokeWidth={1.75} />
             <span className="nav-label" style={{ color: 'var(--brand)', fontWeight: 600 }}>
               Painel do Professor
             </span>
@@ -55,7 +56,7 @@ export default function Sidebar({ profile }: { profile: Profile | null }) {
       <div className="sidebar-footer">
         <form action={logout}>
           <button type="submit" className="btn-logout">
-            🚪 Sair
+            <LogOut size={14} strokeWidth={1.75} /> Sair
           </button>
         </form>
       </div>

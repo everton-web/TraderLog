@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { deletarOperacao } from '@/lib/actions';
 import { useToast } from './Toast';
+import { Trash2 } from 'lucide-react';
 import type { Operacao } from '@/lib/types';
 import { formatDate, fmtRS, fmtPts, fmtPct } from '@/lib/formatters';
 
@@ -66,7 +67,7 @@ export default function OperacoesTable({ ops, limit }: { ops: Operacao[]; limit?
                   onClick={() => handleDelete(op.id)}
                   disabled={deletingId === op.id}
                 >
-                  {deletingId === op.id ? '...' : '✕'}
+                  {deletingId === op.id ? '...' : <Trash2 size={12} strokeWidth={1.75} />}
                 </button>
               </td>
             </tr>
