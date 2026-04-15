@@ -14,7 +14,7 @@ export default function LoginPage() {
         <div className="auth-card">
           <div className="auth-header">
             <div className="auth-title">
-              <span className="logo-bold">Trader</span>
+              <span className="logo-bold">Trade</span>
               <span className="logo-light">Log</span>
             </div>
             <p className="auth-sub">Acesse o seu diário e acompanhe resultados</p>

@@ -14,7 +14,7 @@ export default function CadastroPage() {
         <div className="auth-card">
           <div className="auth-header">
             <div className="auth-title">
-              <span className="logo-bold">Trader</span>
+              <span className="logo-bold">Trade</span>
               <span className="logo-light">Log</span>
             </div>
             <p className="auth-sub">Crie sua conta e comece a registrar operações</p>

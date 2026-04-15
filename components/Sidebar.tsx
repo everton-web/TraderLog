@@ -22,7 +22,7 @@ export default function Sidebar({ profile }: { profile: Profile | null }) {
       <div className="sidebar-logo">
         <div className="logo-text">
           <span className="logo-title">
-            <span className="logo-bold">Trader</span>
+            <span className="logo-bold">Trade</span>
             <span className="logo-light">Log</span>
           </span>
           <span className="logo-sub">WIN &amp; WDO</span>
