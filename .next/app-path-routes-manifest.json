@@ -1,0 +1,14 @@
+{
+  "/(app)/admin/page": "/admin",
+  "/(app)/config/page": "/config",
+  "/(app)/dashboard/page": "/dashboard",
+  "/(app)/historico/page": "/historico",
+  "/(app)/nova/page": "/nova",
+  "/(app)/perfil/page": "/perfil",
+  "/(auth)/cadastro/page": "/cadastro",
+  "/(auth)/login/page": "/login",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/"
+}

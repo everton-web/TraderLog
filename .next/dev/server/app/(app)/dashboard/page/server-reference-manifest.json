@@ -1,0 +1,29 @@
+{
+  "node": {
+    "009d97eaf833b69dcadfdee92125ea11e5a346cdfc": {
+      "workers": {
+        "app/(app)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(app)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/lib/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "logout",
+          "filename": "lib/actions.ts"
+        }
+      },
+      "exportedName": "logout",
+      "filename": "lib/actions.ts"
+    },
+    "40903f318ae7f565964579902abb3fb65b503009bd": {
+      "workers": {
+        "app/(app)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(app)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/lib/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "deletarOperacao",
+          "filename": "lib/actions.ts"
+        }
+      },
+      "exportedName": "deletarOperacao",
+      "filename": "lib/actions.ts"
+    }
+  },
+  "edge": {}
+}

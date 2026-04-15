@@ -1,0 +1,29 @@
+{
+  "node": {
+    "0098d4caddcf0698e2d9eaa862a6f91d11ae423741": {
+      "workers": {
+        "app/(app)/config/page": {
+          "moduleId": 10433,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "lib/actions.ts"
+        }
+      },
+      "exportedName": "logout",
+      "filename": "lib/actions.ts"
+    },
+    "60e320ef6258b2fc04acf756c3bc1d3c267128977a": {
+      "workers": {
+        "app/(app)/config/page": {
+          "moduleId": 10433,
+          "async": false,
+          "exportedName": "salvarConfig",
+          "filename": "lib/actions.ts"
+        }
+      },
+      "exportedName": "salvarConfig",
+      "filename": "lib/actions.ts"
+    }
+  },
+  "edge": {}
+}

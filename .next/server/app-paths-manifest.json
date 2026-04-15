@@ -1,0 +1,14 @@
+{
+  "/(app)/admin/page": "app/(app)/admin/page.js",
+  "/(app)/config/page": "app/(app)/config/page.js",
+  "/(app)/dashboard/page": "app/(app)/dashboard/page.js",
+  "/(app)/historico/page": "app/(app)/historico/page.js",
+  "/(app)/nova/page": "app/(app)/nova/page.js",
+  "/(app)/perfil/page": "app/(app)/perfil/page.js",
+  "/(auth)/cadastro/page": "app/(auth)/cadastro/page.js",
+  "/(auth)/login/page": "app/(auth)/login/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js"
+}

@@ -1,0 +1,17 @@
+{
+  "node": {
+    "608d24be8d7e9e950a7d3dcaba33eb09fac478aec1": {
+      "workers": {
+        "app/(auth)/cadastro/page": {
+          "moduleId": 89893,
+          "async": false,
+          "exportedName": "cadastro",
+          "filename": "lib/actions.ts"
+        }
+      },
+      "exportedName": "cadastro",
+      "filename": "lib/actions.ts"
+    }
+  },
+  "edge": {}
+}

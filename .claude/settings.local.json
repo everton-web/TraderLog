@@ -5,7 +5,16 @@
       "WebFetch(domain:github.com)",
       "Bash(npm --version)",
       "Bash(npx aiox-core:*)",
-      "Bash(cmdkey *)"
+      "Bash(cmdkey *)",
+      "Bash(gh api *)",
+      "Bash(npx create-next-app@latest . --typescript --eslint --app --no-tailwind --no-src-dir --import-alias \"@/*\" --no-git)",
+      "Read(//d/00. AGENCIA/**)",
+      "Bash(npx create-next-app@latest traderlog --typescript --eslint --app --no-tailwind --no-src-dir --import-alias \"@/*\" --no-git)",
+      "Bash(npx create-next-app@latest traderlog-app --typescript --eslint --app --no-tailwind --no-src-dir --import-alias \"@/*\" --no-git)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(rm \"D:/00. AGENCIA/TraderLog/index.html\" \"D:/00. AGENCIA/TraderLog/app.js\" \"D:/00. AGENCIA/TraderLog/style.css\" \"D:/00. AGENCIA/TraderLog/supabase_template.js\")",
+      "Bash(cp -r app components eslint.config.mjs lib next.config.ts next-env.d.ts package.json package-lock.json proxy.ts public supabase tsconfig.json utils .env.local AGENTS.md CLAUDE.md README.md \"D:/00. AGENCIA/TraderLog/\")"
     ]
   }
 }

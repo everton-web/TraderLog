@@ -1,0 +1,17 @@
+{
+  "node": {
+    "0098d4caddcf0698e2d9eaa862a6f91d11ae423741": {
+      "workers": {
+        "app/(app)/admin/page": {
+          "moduleId": 62986,
+          "async": false,
+          "exportedName": "logout",
+          "filename": "lib/actions.ts"
+        }
+      },
+      "exportedName": "logout",
+      "filename": "lib/actions.ts"
+    }
+  },
+  "edge": {}
+}

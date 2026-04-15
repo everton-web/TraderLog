@@ -1,0 +1,72 @@
+{
+  "node": {
+    "60385da1efa19b75f03df024e5ac8d47ecbc4ad319": {
+      "workers": {
+        "app/(auth)/login/page": {
+          "moduleId": "[project]/.next-internal/server/app/(auth)/login/page/actions.js { ACTIONS_MODULE0 => \"[project]/lib/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "login",
+          "filename": "lib/actions.ts"
+        }
+      },
+      "filename": "lib/actions.ts",
+      "exportedName": "login"
+    },
+    "009d97eaf833b69dcadfdee92125ea11e5a346cdfc": {
+      "workers": {
+        "app/(app)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(app)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/lib/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "logout",
+          "filename": "lib/actions.ts"
+        },
+        "app/(app)/perfil/page": {
+          "moduleId": "[project]/.next-internal/server/app/(app)/perfil/page/actions.js { ACTIONS_MODULE0 => \"[project]/lib/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "logout",
+          "filename": "lib/actions.ts"
+        }
+      },
+      "filename": "lib/actions.ts",
+      "exportedName": "logout"
+    },
+    "40903f318ae7f565964579902abb3fb65b503009bd": {
+      "workers": {
+        "app/(app)/dashboard/page": {
+          "moduleId": "[project]/.next-internal/server/app/(app)/dashboard/page/actions.js { ACTIONS_MODULE0 => \"[project]/lib/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "deletarOperacao",
+          "filename": "lib/actions.ts"
+        }
+      },
+      "filename": "lib/actions.ts",
+      "exportedName": "deletarOperacao"
+    },
+    "607c15e93797689917ff9ed4fd6337bd0a45183ac1": {
+      "workers": {
+        "app/(app)/perfil/page": {
+          "moduleId": "[project]/.next-internal/server/app/(app)/perfil/page/actions.js { ACTIONS_MODULE0 => \"[project]/lib/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "atualizarPerfil",
+          "filename": "lib/actions.ts"
+        }
+      },
+      "filename": "lib/actions.ts",
+      "exportedName": "atualizarPerfil"
+    },
+    "60b93ef00c2fb51e9449d7fa0585a0bf0ee6688e14": {
+      "workers": {
+        "app/(app)/perfil/page": {
+          "moduleId": "[project]/.next-internal/server/app/(app)/perfil/page/actions.js { ACTIONS_MODULE0 => \"[project]/lib/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "uploadAvatar",
+          "filename": "lib/actions.ts"
+        }
+      },
+      "filename": "lib/actions.ts",
+      "exportedName": "uploadAvatar"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "c+bAZblOYGJ9WLyAPhmD6pCVMEr7rzoZOf46h2RrxDI="
+}
