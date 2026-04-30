@@ -21,7 +21,14 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  } catch {
+    // Se o Supabase falhar (env vars ausentes, timeout, etc.), trata como não autenticado
+  }
+
   const { pathname } = request.nextUrl;
 
   const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/cadastro');
