@@ -19,7 +19,8 @@
       "Bash(curl *)",
       "Bash(git -C \"D:/00. AGENCIA/TraderLog\" status)",
       "Bash(git -C \"D:/00. AGENCIA/TraderLog\" diff HEAD -- proxy.ts)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "WebFetch(domain:trader-7ufuukxn9-evertons-projects-1291f748.vercel.app)"
     ]
   }
 }
