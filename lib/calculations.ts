@@ -53,7 +53,7 @@ export function calcular(input: CalcInput): CalcResult {
   return { riscoPts, alvo1, qtdeFinal, ptsFinal, situacao, rsFinal, pctRisco };
 }
 
-export function calcEstatisticas(ops: Operacao[]): Estatisticas {
+export function calcEstatisticas(ops: Operacao[], capitalInicial = 0): Estatisticas {
   const total  = ops.length;
   const gains  = ops.filter(o => o.situacao === 'Gain').length;
   const losses = ops.filter(o => o.situacao === 'Loss').length;
@@ -71,7 +71,28 @@ export function calcEstatisticas(ops: Operacao[]): Estatisticas {
   const payoff = mediaGain != null && mediaLoss != null && mediaLoss > 0
     ? mediaGain / mediaLoss : null;
 
-  return { total, gains, losses, pes, acerto, rsTotal, mediaGain, mediaLoss, payoff };
+  // Expectativa Matemática: (Média Gains × Acerto) − (Média Loss × Taxa de erro)
+  const expectativa = mediaGain != null && mediaLoss != null && acerto != null
+    ? (mediaGain * acerto) - (mediaLoss * (1 - acerto))
+    : null;
+
+  // Drawdown máximo: maior queda percentual desde o pico acumulado de capital
+  let drawdown: number | null = null;
+  if (ops.length > 0) {
+    const diasMap: Record<string, number> = {};
+    ops.forEach(o => { diasMap[o.data] = (diasMap[o.data] || 0) + (o.rs_final || 0); });
+    let peak = capitalInicial;
+    let acc  = capitalInicial;
+    let maxDd = 0;
+    Object.keys(diasMap).sort().forEach(d => {
+      acc += diasMap[d];
+      if (acc > peak) peak = acc;
+      if (peak > 0) maxDd = Math.max(maxDd, (peak - acc) / peak);
+    });
+    if (maxDd > 0) drawdown = maxDd;
+  }
+
+  return { total, gains, losses, pes, acerto, rsTotal, mediaGain, mediaLoss, payoff, expectativa, drawdown };
 }
 
 export function gerarCSV(ops: Operacao[]): string {

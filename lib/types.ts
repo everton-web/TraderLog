@@ -65,4 +65,6 @@ export interface Estatisticas {
   mediaGain: number | null;
   mediaLoss: number | null;
   payoff: number | null;
+  expectativa: number | null;
+  drawdown: number | null;
 }

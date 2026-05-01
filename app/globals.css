@@ -203,6 +203,7 @@ body { font-family: var(--font); background: var(--bg-base); color: var(--text-p
 .chart-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 14px; }
 .chart-empty { display: none; text-align: center; color: var(--text-muted); font-size: 12px; padding: 40px 0; }
 .chart-empty.visible { display: block; }
+.chart-card--sm { max-width: 380px; }
 
 /* ─── TABLES ────────────────────────────────────────────── */
 .table-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 24px; }

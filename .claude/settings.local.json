@@ -32,7 +32,11 @@
       "PowerShell(Get-Content *)",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('token' if 'token' in d else list\\(d.keys\\(\\)\\)\\)\")",
       "Bash(node *)",
-      "PowerShell($auth = Get-Content \"C:\\\\Users\\\\evert\\\\AppData\\\\Roaming\\\\com.vercel.cli\\\\Data\\\\auth.json\" | ConvertFrom-Json; $auth.PSObject.Properties.Name)"
+      "PowerShell($auth = Get-Content \"C:\\\\Users\\\\evert\\\\AppData\\\\Roaming\\\\com.vercel.cli\\\\Data\\\\auth.json\" | ConvertFrom-Json; $auth.PSObject.Properties.Name)",
+      "PowerShell(npm install *)",
+      "PowerShell(node \"D:\\\\00. AGENCIA\\\\TraderLog\\\\read-xlsx.mjs\" 2>&1)",
+      "PowerShell(node \"D:\\\\00. AGENCIA\\\\TraderLog\\\\read-xlsx.cjs\" 2>&1)",
+      "PowerShell(node \"D:\\\\00. AGENCIA\\\\TraderLog\\\\read-xlsx2.cjs\" 2>&1)"
     ]
   }
 }

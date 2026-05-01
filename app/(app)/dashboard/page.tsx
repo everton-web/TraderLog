@@ -18,9 +18,14 @@ export default async function DashboardPage() {
   const operacoes = (ops || []) as Operacao[];
   const config    = cfg as Configuracao | null;
   const capital   = config?.capital ?? 2000;
-  const stat      = calcEstatisticas(operacoes);
+  const stat      = calcEstatisticas(operacoes, capital);
   const capitalAtual = capital + stat.rsTotal;
   const delta        = capitalAtual - capital;
+
+  const ddColor = stat.drawdown == null ? undefined
+    : stat.drawdown > 0.20 ? 'var(--loss)'
+    : stat.drawdown > 0.10 ? 'var(--pe-color)'
+    : 'var(--gain)';
 
   return (
     <>
@@ -36,29 +41,39 @@ export default async function DashboardPage() {
         <div className="kpi-card">
           <div className="kpi-label">Operações</div>
           <div className="kpi-value">{stat.total}</div>
-          <div className="kpi-delta">Total realizadas</div>
-        </div>
-        <div className="kpi-card">
-          <div className="kpi-label">Taxa de Acerto</div>
-          <div className="kpi-value">{stat.acerto !== null ? (stat.acerto * 100).toFixed(1) + '%' : '—'}</div>
           <div className="kpi-delta">
-            {stat.total > 0 ? `${stat.gains} G / ${stat.losses} L${stat.pes > 0 ? ` / ${stat.pes} PE` : ''}` : ''}
+            {stat.total > 0 ? `${stat.gains} G · ${stat.losses} L${stat.pes > 0 ? ` · ${stat.pes} PE` : ''}` : 'Total realizadas'}
           </div>
         </div>
         <div className="kpi-card">
-          <div className="kpi-label">Payoff Médio</div>
-          <div className="kpi-value">{stat.payoff !== null ? stat.payoff.toFixed(2) + 'x' : '—'}</div>
+          <div className="kpi-label">Taxa de Acerto</div>
+          <div className="kpi-value" style={{ color: stat.acerto != null ? (stat.acerto >= 0.5 ? 'var(--gain)' : 'var(--loss)') : undefined }}>
+            {stat.acerto !== null ? (stat.acerto * 100).toFixed(1) + '%' : '—'}
+          </div>
           <div className="kpi-delta">{stat.mediaGain ? 'Média G: ' + fmtRS(stat.mediaGain) : ''}</div>
         </div>
         <div className="kpi-card">
-          <div className="kpi-label">Gains</div>
-          <div className="kpi-value gain-text">{stat.gains}</div>
-          <div className="kpi-delta">{stat.mediaGain ? 'Média: ' + fmtRS(stat.mediaGain) : ''}</div>
+          <div className="kpi-label">Payoff</div>
+          <div className="kpi-value" style={{ color: stat.payoff != null ? (stat.payoff >= 1 ? 'var(--gain)' : 'var(--loss)') : undefined }}>
+            {stat.payoff !== null ? stat.payoff.toFixed(2) + 'x' : '—'}
+          </div>
+          <div className="kpi-delta">{stat.mediaLoss ? 'Média L: ' + fmtRS(stat.mediaLoss) : ''}</div>
         </div>
         <div className="kpi-card">
-          <div className="kpi-label">Losses</div>
-          <div className="kpi-value loss-text">{stat.losses}</div>
-          <div className="kpi-delta">{stat.mediaLoss ? 'Média: ' + fmtRS(stat.mediaLoss) : ''}</div>
+          <div className="kpi-label">Expect. Matemática</div>
+          <div className="kpi-value" style={{ color: stat.expectativa != null ? (stat.expectativa > 0 ? 'var(--gain)' : 'var(--loss)') : undefined }}>
+            {stat.expectativa !== null ? fmtRS(stat.expectativa) : '—'}
+          </div>
+          <div className="kpi-delta">por operação (média)</div>
+        </div>
+        <div className="kpi-card">
+          <div className="kpi-label">Drawdown Máx.</div>
+          <div className="kpi-value" style={{ color: ddColor }}>
+            {stat.drawdown !== null ? fmtPct(stat.drawdown) : '—'}
+          </div>
+          <div className="kpi-delta">
+            {stat.drawdown != null ? (stat.drawdown > 0.20 ? 'Alto — revisar risco' : stat.drawdown > 0.10 ? 'Moderado' : 'Controlado') : 'sem operações'}
+          </div>
         </div>
       </div>
 
