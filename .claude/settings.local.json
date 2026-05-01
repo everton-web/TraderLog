@@ -26,7 +26,9 @@
       "Read(//c/Users/evert/**)",
       "Read(//c/Users/evert/.config/**)",
       "PowerShell(Get-ChildItem *)",
-      "Bash(npx plugins *)"
+      "Bash(npx plugins *)",
+      "PowerShell(cd \"D:\\\\00. AGENCIA\\\\TraderLog\"; Start-Process powershell -ArgumentList '-NoExit', '-Command', 'cd \"D:\\\\00. AGENCIA\\\\TraderLog\"; npm run dev 2>&1 | Tee-Object -FilePath \"dev-output.txt\"' -PassThru | Select-Object Id)",
+      "PowerShell(Get-ChildItem \"D:\\\\00. AGENCIA\\\\TraderLog\\\\node_modules\\\\next\\\\dist\\\\docs\\\\01-app\\\\03-api-reference\" -Recurse | Where-Object { $_.Name -match \"redirect|action\" } | Format-Table FullName)"
     ]
   }
 }
