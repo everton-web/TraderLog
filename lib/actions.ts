@@ -46,14 +46,13 @@ export async function salvarOperacao(op: {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Não autenticado' };
-  const { data: inserted, error } = await supabase
+  const { error } = await supabase
     .from('operacoes')
-    .insert([{ ...op, user_id: user.id }])
-    .select('id');
+    .insert([{ ...op, user_id: user.id }]);
   if (error) return { error: error.message };
   revalidatePath('/dashboard');
   revalidatePath('/historico');
-  return { success: true, id: inserted?.[0]?.id ?? null };
+  return { success: true };
 }
 
 export async function deletarOperacao(id: string) {

@@ -64,7 +64,6 @@ export default function OperacaoForm({ config }: { config: Configuracao | null }
     });
     setSaving(false);
     if (res?.error) showToast('Erro: ' + res.error, 'error');
-    else if (!res?.id) showToast('Salvo mas sem ID retornado — verifique o banco', 'error');
     else { showToast('Operação salva!', 'success'); window.location.href = '/historico'; }
   };
 

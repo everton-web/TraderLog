@@ -23,14 +23,15 @@ create policy "Usuário atualiza próprio perfil"
   on public.profiles for update
   using (auth.uid() = id);
 
+-- Função security definer evita recursão infinita no RLS de profiles
+create or replace function public.is_admin()
+returns boolean language sql security definer stable as $$
+  select exists (select 1 from public.profiles where id = auth.uid() and role = 'admin');
+$$;
+
 create policy "Admin lê todos os perfis"
   on public.profiles for select
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
+  using (public.is_admin());
 
 -- Trigger: cria perfil automaticamente ao registrar usuário
 create or replace function public.handle_new_user()
@@ -102,12 +103,7 @@ create policy "Usuário gerencia próprias operações"
 
 create policy "Admin lê todas as operações"
   on public.operacoes for select
-  using (
-    exists (
-      select 1 from public.profiles p
-      where p.id = auth.uid() and p.role = 'admin'
-    )
-  );
+  using (public.is_admin());
 
 -- Índice para performance
 create index operacoes_user_data_idx on public.operacoes (user_id, data desc);
