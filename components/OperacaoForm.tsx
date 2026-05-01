@@ -1,6 +1,5 @@
 'use client';
 import { useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { salvarOperacao } from '@/lib/actions';
 import { calcular } from '@/lib/calculations';
 import { useToast } from './Toast';
@@ -10,7 +9,6 @@ import type { Ativo, TipoOp, Configuracao } from '@/lib/types';
 
 export default function OperacaoForm({ config }: { config: Configuracao | null }) {
   const { showToast } = useToast();
-  const router = useRouter();
   const [ativo, setAtivo]       = useState<Ativo>('WIN');
   const [tipo, setTipo]         = useState<TipoOp>('Compra');
   const [data, setData]         = useState(hojeISO());
@@ -66,7 +64,7 @@ export default function OperacaoForm({ config }: { config: Configuracao | null }
     });
     setSaving(false);
     if (res?.error) showToast('Erro: ' + res.error, 'error');
-    else { showToast('Operação salva!', 'success'); router.push('/historico'); }
+    else { showToast('Operação salva!', 'success'); window.location.href = '/historico'; }
   };
 
   const showPreview = pe || saida;
