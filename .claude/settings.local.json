@@ -28,7 +28,11 @@
       "PowerShell(Get-ChildItem *)",
       "Bash(npx plugins *)",
       "PowerShell(cd \"D:\\\\00. AGENCIA\\\\TraderLog\"; Start-Process powershell -ArgumentList '-NoExit', '-Command', 'cd \"D:\\\\00. AGENCIA\\\\TraderLog\"; npm run dev 2>&1 | Tee-Object -FilePath \"dev-output.txt\"' -PassThru | Select-Object Id)",
-      "PowerShell(Get-ChildItem \"D:\\\\00. AGENCIA\\\\TraderLog\\\\node_modules\\\\next\\\\dist\\\\docs\\\\01-app\\\\03-api-reference\" -Recurse | Where-Object { $_.Name -match \"redirect|action\" } | Format-Table FullName)"
+      "PowerShell(Get-ChildItem \"D:\\\\00. AGENCIA\\\\TraderLog\\\\node_modules\\\\next\\\\dist\\\\docs\\\\01-app\\\\03-api-reference\" -Recurse | Where-Object { $_.Name -match \"redirect|action\" } | Format-Table FullName)",
+      "PowerShell(Get-Content *)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('token' if 'token' in d else list\\(d.keys\\(\\)\\)\\)\")",
+      "Bash(node *)",
+      "PowerShell($auth = Get-Content \"C:\\\\Users\\\\evert\\\\AppData\\\\Roaming\\\\com.vercel.cli\\\\Data\\\\auth.json\" | ConvertFrom-Json; $auth.PSObject.Properties.Name)"
     ]
   }
 }
