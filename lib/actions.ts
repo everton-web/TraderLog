@@ -45,9 +45,13 @@ export async function salvarOperacao(op: {
 }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  console.log('[salvarOperacao] user:', user?.id ?? 'NULL');
   if (!user) return { error: 'Não autenticado' };
-  const { error } = await supabase.from('operacoes').insert([{ ...op, user_id: user.id }]);
-  if (error) { console.error('[salvarOperacao]', error); return { error: error.message }; }
+  const payload = { ...op, user_id: user.id };
+  console.log('[salvarOperacao] inserindo:', JSON.stringify(payload));
+  const { data: inserted, error } = await supabase.from('operacoes').insert([payload]).select('id');
+  console.log('[salvarOperacao] resultado:', inserted, error);
+  if (error) return { error: error.message };
   revalidatePath('/dashboard');
   revalidatePath('/historico');
   return { success: true };
