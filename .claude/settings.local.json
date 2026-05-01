@@ -36,7 +36,11 @@
       "PowerShell(npm install *)",
       "PowerShell(node \"D:\\\\00. AGENCIA\\\\TraderLog\\\\read-xlsx.mjs\" 2>&1)",
       "PowerShell(node \"D:\\\\00. AGENCIA\\\\TraderLog\\\\read-xlsx.cjs\" 2>&1)",
-      "PowerShell(node \"D:\\\\00. AGENCIA\\\\TraderLog\\\\read-xlsx2.cjs\" 2>&1)"
+      "PowerShell(node \"D:\\\\00. AGENCIA\\\\TraderLog\\\\read-xlsx2.cjs\" 2>&1)",
+      "Bash(Get-ChildItem -Path \"D:\\\\00. AGENCIA\\\\TraderLog\\\\app\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "PowerShell(head *)",
+      "Bash(npx next *)"
     ]
   }
 }
