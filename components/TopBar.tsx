@@ -26,7 +26,11 @@ export default function TopBar({ profile }: { profile: Profile | null }) {
     <header className="top-bar">
       <button className="menu-toggle" onClick={() => {
         const sb = document.getElementById('sidebar');
-        if (sb) sb.classList.toggle('open');
+        const mc = document.querySelector('.main-content');
+        const tb = document.querySelector('.top-bar');
+        sb?.classList.toggle('collapsed');
+        mc?.classList.toggle('expanded');
+        tb?.classList.toggle('expanded');
       }}>☰</button>
 
       <div className="top-bar-right">

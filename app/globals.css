@@ -193,9 +193,9 @@ body { font-family: var(--font); background: var(--bg-base); color: var(--text-p
 /* ─── KPI CARDS ─────────────────────────────────────────── */
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-bottom: 24px; }
 .kpi-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; }
-.kpi-label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
-.kpi-value { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin: 6px 0 4px; font-family: var(--font-mono); }
-.kpi-delta { font-size: 13px; color: var(--text-muted); }
+.kpi-label { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi-value { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin: 6px 0 4px; font-family: var(--font-mono); }
+.kpi-delta { font-size: 12px; color: var(--text-muted); }
 
 /* ─── CHARTS ────────────────────────────────────────────── */
 .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-bottom: 24px; }
