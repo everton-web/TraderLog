@@ -47,7 +47,7 @@ export async function salvarOperacao(op: {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Não autenticado' };
   const { error } = await supabase.from('operacoes').insert([{ ...op, user_id: user.id }]);
-  if (error) return { error: error.message };
+  if (error) { console.error('[salvarOperacao]', error); return { error: error.message }; }
   revalidatePath('/dashboard');
   revalidatePath('/historico');
   return { success: true };
