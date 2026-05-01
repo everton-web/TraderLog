@@ -2,6 +2,8 @@ import { createClient } from '@/utils/supabase/server';
 import HistoricoClient from './HistoricoClient';
 import type { Operacao } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HistoricoPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

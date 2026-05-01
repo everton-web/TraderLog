@@ -1,5 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { calcEstatisticas } from '@/lib/calculations';
+
+export const dynamic = 'force-dynamic';
 import { fmtRS, fmtPct } from '@/lib/formatters';
 import OperacoesTable from '@/components/OperacoesTable';
 import DashboardCharts from '@/components/charts/DashboardCharts';
