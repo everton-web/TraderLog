@@ -128,6 +128,7 @@ export default function DashboardClient({ ops, capitalInicial }: { ops: Operacao
                   borderColor: 'var(--sidebar-bg)',
                   borderWidth: 3,
                   hoverOffset: 4,
+                  pointStyle: 'circle' as const,
                 }],
               }}
               options={{

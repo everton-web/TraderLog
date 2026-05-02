@@ -10,7 +10,7 @@ const NAV_SECTIONS = [
     label: 'Principal',
     items: [
       { href: '/dashboard', icon: LayoutDashboard, label: 'Visão Geral' },
-      { href: '/nova',      icon: Plus,            label: 'Nova Operação', badge: true },
+      { href: '/nova',      icon: Plus,            label: 'Nova Operação' },
     ],
   },
   {

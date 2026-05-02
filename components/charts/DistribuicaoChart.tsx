@@ -28,6 +28,7 @@ export default function DistribuicaoChart({ ops }: { ops: Operacao[] }) {
             backgroundColor: ['rgba(16,185,129,0.75)', 'rgba(239,68,68,0.75)', 'rgba(245,158,11,0.75)'],
             borderColor:     ['#10b981', '#ef4444', '#f59e0b'],
             borderWidth: 1,
+            pointStyle: 'circle' as const,
           }],
         }}
         options={{
