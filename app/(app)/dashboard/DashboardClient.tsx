@@ -137,7 +137,7 @@ export default function DashboardClient({ ops, capitalInicial }: { ops: Operacao
                 plugins: {
                   legend: {
                     position: 'bottom',
-                    labels: { color: '#666', font: { size: 11 }, padding: 10, usePointStyle: true, pointStyleWidth: 8 },
+                    labels: { color: '#666', font: { size: 11 }, padding: 10, usePointStyle: true, pointStyle: 'circle', pointStyleWidth: 8 },
                   },
                   tooltip: {
                     backgroundColor: '#1a1a1a',

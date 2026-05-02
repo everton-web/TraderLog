@@ -37,7 +37,7 @@ export default function DistribuicaoChart({ ops }: { ops: Operacao[] }) {
           plugins: {
             legend: {
               position: 'bottom',
-              labels: { color: textColor, font: { size: 11 }, padding: 10, boxWidth: 10 },
+              labels: { color: textColor, font: { size: 11 }, padding: 10, usePointStyle: true, pointStyle: 'circle', pointStyleWidth: 8 },
             },
             tooltip: {
               callbacks: {

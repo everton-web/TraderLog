@@ -64,10 +64,12 @@ export default function TopBar({ profile }: { profile: Profile | null }) {
 
         <ThemeToggle />
 
-        <Link href="/nova" className="btn-cta-top">
-          <Plus size={13} strokeWidth={2.5} />
-          Nova Operação
-        </Link>
+        {pathname !== '/nova' && (
+          <Link href="/nova" className="btn-cta-top">
+            <Plus size={13} strokeWidth={2.5} />
+            Nova Operação
+          </Link>
+        )}
       </div>
     </header>
   );
