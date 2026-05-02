@@ -40,7 +40,10 @@
       "Bash(Get-ChildItem -Path \"D:\\\\00. AGENCIA\\\\TraderLog\\\\app\" -Recurse -Directory)",
       "Bash(Select-Object -ExpandProperty FullName)",
       "PowerShell(head *)",
-      "Bash(npx next *)"
+      "Bash(npx next *)",
+      "Bash(Get-ChildItem -Path \"D:\\\\00. AGENCIA\\\\TraderLog\" -Recurse -Force)",
+      "Bash(Select-Object -First 50)",
+      "Bash(Format-Table FullName)"
     ]
   }
 }
