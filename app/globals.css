@@ -318,10 +318,10 @@ body { font-family: var(--font); background: var(--bg-base); color: var(--text-p
 .bento-dd       { grid-column: span 4; }
 
 /* Chart spans */
-.bento-curva    { grid-column: span 8; height: 160px; }
-.bento-distrib  { grid-column: span 4; height: 160px; }
-.bento-meses    { grid-column: span 6; height: 150px; }
-.bento-dias     { grid-column: span 6; height: 150px; }
+.bento-curva    { grid-column: span 8; height: 260px; }
+.bento-distrib  { grid-column: span 4; height: 260px; }
+.bento-meses    { grid-column: span 6; height: 220px; }
+.bento-dias     { grid-column: span 6; height: 220px; }
 .bento-tabela   { grid-column: span 12; padding: 0; overflow: hidden; }
 
 /* KPI internals */

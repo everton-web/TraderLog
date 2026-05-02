@@ -27,29 +27,32 @@ export default function CapitalChart({ ops, capitalInicial }: { ops: Operacao[];
   const textColor = isDark ? '#555' : '#9ca3af';
 
   return (
-    <Line
-      data={{
-        labels,
-        datasets: [{
-          label: 'Capital',
-          data: curve,
-          borderColor: '#3b82f6',
-          backgroundColor: 'rgba(59,130,246,0.08)',
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: '#3b82f6',
-          pointRadius: 4,
-          borderWidth: 2,
-        }],
-      }}
-      options={{
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: textColor, font: { size: 10 } }, grid: { color: gridColor } },
-          y: { ticks: { color: textColor, font: { size: 10 }, callback: v => `R$${Number(v).toLocaleString('pt-BR')}` }, grid: { color: gridColor } },
-        },
-      }}
-    />
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <Line
+        data={{
+          labels,
+          datasets: [{
+            label: 'Capital',
+            data: curve,
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59,130,246,0.08)',
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#3b82f6',
+            pointRadius: sorted.length > 60 ? 0 : 3,
+            borderWidth: 2,
+          }],
+        }}
+        options={{
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: textColor, font: { size: 10 }, maxTicksLimit: 8 }, grid: { color: gridColor } },
+            y: { ticks: { color: textColor, font: { size: 10 }, callback: v => `R$${Number(v).toLocaleString('pt-BR')}` }, grid: { color: gridColor } },
+          },
+        }}
+      />
+    </div>
   );
 }

@@ -31,26 +31,29 @@ export default function MesesChart({ ops }: { ops: Operacao[] }) {
   const textColor = isDark ? '#555' : '#9ca3af';
 
   return (
-    <Bar
-      data={{
-        labels,
-        datasets: [{
-          label: 'Resultado',
-          data: values,
-          backgroundColor: values.map(v => v >= 0 ? 'rgba(16,185,129,0.6)' : 'rgba(239,68,68,0.6)'),
-          borderColor:      values.map(v => v >= 0 ? '#10b981' : '#ef4444'),
-          borderWidth: 1,
-          borderRadius: 3,
-        }],
-      }}
-      options={{
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: textColor, font: { size: 10 } }, grid: { color: gridColor } },
-          y: { ticks: { color: textColor, font: { size: 10 }, callback: v => `R$${Number(v).toLocaleString('pt-BR')}` }, grid: { color: gridColor } },
-        },
-      }}
-    />
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <Bar
+        data={{
+          labels,
+          datasets: [{
+            label: 'Resultado',
+            data: values,
+            backgroundColor: values.map(v => v >= 0 ? 'rgba(16,185,129,0.6)' : 'rgba(239,68,68,0.6)'),
+            borderColor:      values.map(v => v >= 0 ? '#10b981' : '#ef4444'),
+            borderWidth: 1,
+            borderRadius: 3,
+          }],
+        }}
+        options={{
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: textColor, font: { size: 10 } }, grid: { color: gridColor } },
+            y: { ticks: { color: textColor, font: { size: 10 }, callback: v => `R$${Number(v).toLocaleString('pt-BR')}` }, grid: { color: gridColor } },
+          },
+        }}
+      />
+    </div>
   );
 }
