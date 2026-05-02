@@ -286,3 +286,77 @@ body { font-family: var(--font); background: var(--bg-base); color: var(--text-p
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 2px; }
+
+/* ─── BENTO GRID — DASHBOARD ────────────────────────────── */
+.dash-filter { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+.dash-filter-group { display: flex; flex-direction: column; gap: 5px; }
+.dash-filter-group label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+.dash-filter-count { font-size: 13px; color: var(--text-muted); margin-left: auto; align-self: flex-end; }
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.bento-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 20px 22px;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* KPI spans */
+.bento-capital  { grid-column: span 5; }
+.bento-ops      { grid-column: span 3; }
+.bento-acerto   { grid-column: span 4; }
+.bento-payoff   { grid-column: span 4; }
+.bento-expect   { grid-column: span 4; }
+.bento-dd       { grid-column: span 4; }
+
+/* Chart spans */
+.bento-curva    { grid-column: span 8; min-height: 240px; }
+.bento-distrib  { grid-column: span 4; min-height: 240px; }
+.bento-meses    { grid-column: span 6; min-height: 220px; }
+.bento-dias     { grid-column: span 6; min-height: 220px; }
+.bento-tabela   { grid-column: span 12; padding: 0; overflow: hidden; }
+
+/* KPI internals */
+.bento-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bento-value { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; font-family: var(--font-mono); margin: 8px 0 4px; line-height: 1; }
+.bento-value--md { font-size: 22px; }
+.bento-delta { font-size: 12px; color: var(--text-muted); margin-top: auto; }
+
+/* Chart card internals */
+.bento-chart-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 12px; }
+.bento-chart-body  { flex: 1; min-height: 0; }
+
+/* Table card internals */
+.bento-table-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+
+/* Responsive: tablet */
+@media (max-width: 1024px) {
+  .bento-capital  { grid-column: span 6; }
+  .bento-ops      { grid-column: span 6; }
+  .bento-acerto   { grid-column: span 4; }
+  .bento-payoff   { grid-column: span 4; }
+  .bento-expect   { grid-column: span 4; }
+  .bento-dd       { grid-column: span 4; }
+  .bento-curva    { grid-column: span 12; }
+  .bento-distrib  { grid-column: span 12; min-height: 200px; }
+  .bento-meses    { grid-column: span 12; }
+  .bento-dias     { grid-column: span 12; }
+}
+
+/* Responsive: mobile */
+@media (max-width: 640px) {
+  .bento-grid { gap: 8px; }
+  .bento-capital, .bento-ops, .bento-acerto,
+  .bento-payoff, .bento-expect, .bento-dd { grid-column: span 6; }
+  .bento-value { font-size: 20px; }
+  .bento-value--md { font-size: 18px; }
+}
