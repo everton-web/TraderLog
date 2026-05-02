@@ -55,12 +55,15 @@ export default function DistribuicaoChart({ ops }: { ops: Operacao[] }) {
         />
       </div>
       <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', paddingTop: '8px', flexShrink: 0 }}>
-        {ITEMS.map(({ key, color }) => (
-          <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div style={{ width: '8px', height: '8px', backgroundColor: color, borderRadius: '2px', flexShrink: 0 }} />
-            <span style={{ color: '#888', fontSize: '11px' }}>{key} ({counts[key]})</span>
-          </div>
-        ))}
+        {ITEMS.map(({ key, color }) => {
+          const pct = total > 0 ? ((counts[key] / total) * 100).toFixed(1) : '0.0';
+          return (
+            <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ display: 'inline-block', width: '10px', height: '10px', minWidth: '10px', minHeight: '10px', backgroundColor: color, borderRadius: '50%' }} />
+              <span style={{ color: '#888', fontSize: '11px' }}>{key}: {counts[key]} ({pct}%)</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
