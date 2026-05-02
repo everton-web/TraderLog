@@ -86,11 +86,11 @@ BEGIN
     v_rand := random();
     IF v_rand < 0.56 THEN
       v_situacao  := 'Gain';
-      v_pts_fin   := ROUND(v_risco_pts * (0.7 + random() * 1.6), 2); -- 0.7R a 2.3R
+      v_pts_fin   := ROUND((v_risco_pts * (0.7 + random() * 1.6))::numeric, 2);
       v_saida     := CASE WHEN v_tipo = 'Compra' THEN v_pe + v_pts_fin ELSE v_pe - v_pts_fin END;
     ELSIF v_rand < 0.92 THEN
       v_situacao  := 'Loss';
-      v_pts_fin   := ROUND(-v_risco_pts * (0.6 + random() * 0.5), 2); -- 0.6R a 1.1R
+      v_pts_fin   := ROUND((-v_risco_pts * (0.6 + random() * 0.5))::numeric, 2);
       v_saida     := CASE WHEN v_tipo = 'Compra' THEN v_pe + v_pts_fin ELSE v_pe - v_pts_fin END;
     ELSE
       v_situacao  := 'PE';
@@ -98,8 +98,8 @@ BEGIN
       v_saida     := v_pe;
     END IF;
 
-    v_rs_fin    := CASE WHEN v_situacao = 'PE' THEN 0 ELSE ROUND(v_pts_fin * v_qtde_tot * v_tick, 2) END;
-    v_pct_risco := ROUND((v_risco_pts * v_qtde_tot * v_tick) / v_capital, 6);
+    v_rs_fin    := CASE WHEN v_situacao = 'PE' THEN 0 ELSE ROUND((v_pts_fin * v_qtde_tot * v_tick)::numeric, 2) END;
+    v_pct_risco := ROUND(((v_risco_pts * v_qtde_tot * v_tick) / v_capital)::numeric, 6);
 
     INSERT INTO public.operacoes (
       user_id, data, dia_semana, ativo, tipo,
