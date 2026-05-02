@@ -142,7 +142,8 @@ export default function DashboardClient({ ops, capitalInicial }: { ops: Operacao
                       font: { size: 11 },
                       padding: 10,
                       usePointStyle: true,
-                      pointStyleWidth: 8,
+                      boxWidth: 8,
+                      boxHeight: 8,
                       generateLabels: (chart) => {
                         const bg = chart.data.datasets[0].backgroundColor as string[];
                         return (chart.data.labels as string[]).map((label, i) => ({
