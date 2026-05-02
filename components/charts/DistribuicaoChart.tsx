@@ -57,7 +57,9 @@ export default function DistribuicaoChart({ ops }: { ops: Operacao[] }) {
       <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', paddingTop: '8px', flexShrink: 0 }}>
         {ITEMS.map(({ key, color }) => (
           <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: color, flexShrink: 0, display: 'inline-block' }} />
+            <svg width={10} height={10} viewBox="0 0 10 10" style={{ flexShrink: 0 }}>
+              <circle cx={5} cy={5} r={5} fill={color} />
+            </svg>
             <span style={{ color: '#888', fontSize: '11px' }}>{key} ({counts[key]})</span>
           </div>
         ))}
