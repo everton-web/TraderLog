@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirme seu acesso — TraderLog</title>
+</head>
+<body style="margin:0;padding:0;background-color:#0f0f0f;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#0f0f0f;padding:48px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
+
+          <!-- Logo -->
+          <tr>
+            <td align="center" style="padding-bottom:32px;">
+              <span style="font-size:22px;font-weight:700;letter-spacing:-0.5px;color:#e2e2e2;">
+                Trader<span style="color:#10b981;">Log</span>
+              </span>
+            </td>
+          </tr>
+
+          <!-- Card -->
+          <tr>
+            <td style="background-color:#161616;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:40px 36px;">
+
+              <!-- Título -->
+              <p style="margin:0 0 8px;font-size:20px;font-weight:600;color:#e2e2e2;letter-spacing:-0.3px;">
+                Confirme seu cadastro
+              </p>
+              <p style="margin:0 0 28px;font-size:14px;color:#666;line-height:1.6;">
+                Clique no botão abaixo para ativar sua conta e começar a registrar suas operações.
+              </p>
+
+              <!-- Botão -->
+              <table cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+                <tr>
+                  <td style="border-radius:8px;background-color:#10b981;">
+                    <a href="{{ .ConfirmationURL }}"
+                       style="display:inline-block;padding:13px 28px;font-size:14px;font-weight:600;color:#fff;text-decoration:none;letter-spacing:0.1px;">
+                      Confirmar minha conta
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Divider -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+                <tr>
+                  <td style="border-top:1px solid rgba(255,255,255,0.06);"></td>
+                </tr>
+              </table>
+
+              <!-- Link alternativo -->
+              <p style="margin:0 0 6px;font-size:12px;color:#555;">
+                Se o botão não funcionar, copie e cole o link abaixo no seu navegador:
+              </p>
+              <p style="margin:0;font-size:11px;color:#444;word-break:break-all;font-family:'Courier New',monospace;">
+                {{ .ConfirmationURL }}
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="padding-top:28px;">
+              <p style="margin:0 0 4px;font-size:12px;color:#444;">
+                Se você não criou uma conta no TraderLog, ignore este e-mail.
+              </p>
+              <p style="margin:0;font-size:12px;color:#333;">
+                &copy; TraderLog
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
