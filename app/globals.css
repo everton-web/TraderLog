@@ -15,9 +15,9 @@
   --text-muted:     #555555;
   --sidebar-bg:     #0c0c0c;
   --topbar-bg:      #080808;
-  --brand:          #2563eb;
-  --brand-subtle:   rgba(37,99,235,0.1);
-  --brand-border:   rgba(37,99,235,0.25);
+  --brand:          #ffffff;
+  --brand-subtle:   rgba(255,255,255,0.06);
+  --brand-border:   rgba(255,255,255,0.14);
   --gain:           #10b981;
   --gain-bg:        rgba(16,185,129,0.08);
   --loss:           #ef4444;
@@ -43,9 +43,9 @@
   --text-muted:     #9ca3af;
   --sidebar-bg:     #ffffff;
   --topbar-bg:      #f3f4f6;
-  --brand:          #1d4ed8;
-  --brand-subtle:   rgba(29,78,216,0.06);
-  --brand-border:   rgba(29,78,216,0.15);
+  --brand:          #111827;
+  --brand-subtle:   rgba(0,0,0,0.05);
+  --brand-border:   rgba(0,0,0,0.14);
   --gain:           #059669;
   --gain-bg:        rgba(5,150,105,0.06);
   --loss:           #dc2626;
@@ -178,7 +178,7 @@ body { font-family: var(--font); background: var(--bg-base); color: var(--text-p
 /* ─── BUTTONS ───────────────────────────────────────────── */
 .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--radius); font-size: 14px; font-weight: 600; cursor: pointer; border: none; font-family: var(--font); transition: opacity var(--transition), background var(--transition); text-decoration: none; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-primary { background: var(--brand); color: #fff; }
+.btn-primary { background: var(--gain); color: #fff; }
 .btn-primary:hover:not(:disabled) { opacity: 0.88; }
 .btn-secondary { background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border); }
 .btn-secondary:hover:not(:disabled) { border-color: var(--border-active); color: var(--text-primary); }
