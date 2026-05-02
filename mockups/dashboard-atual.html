@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TraderLog — Dashboard Atual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@200;300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --sidebar-w: 220px;
+      --topbar-h: 52px;
+      --radius-sm: 2px;
+      --radius: 4px;
+      --radius-lg: 8px;
+      --transition: 0.15s ease;
+      --font: 'Hanken Grotesk', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    [data-theme="dark"] {
+      --bg-base: #080808;
+      --bg-surface: #111111;
+      --bg-card: #141414;
+      --bg-card-hover: #1a1a1a;
+      --border: rgba(255,255,255,0.06);
+      --border-active: rgba(255,255,255,0.15);
+      --text-primary: #e2e2e2;
+      --text-secondary: #888888;
+      --text-muted: #555555;
+      --sidebar-bg: #0c0c0c;
+      --topbar-bg: #080808;
+      --brand: #ffffff;
+      --brand-subtle: rgba(255,255,255,0.06);
+      --brand-border: rgba(255,255,255,0.14);
+      --gain: #10b981;
+      --gain-bg: rgba(16,185,129,0.08);
+      --loss: #ef4444;
+      --loss-bg: rgba(239,68,68,0.08);
+      --pe-color: #f59e0b;
+      --pe-bg: rgba(245,158,11,0.08);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.5);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body { font-family: var(--font); background: var(--bg-base); color: var(--text-primary); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* ── SHELL ── */
+    .app-wrapper { display: flex; min-height: 100vh; }
+    .main-content { flex: 1; margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
+    .page-content { flex: 1; padding: 16px 20px; margin-top: var(--topbar-h); }
+
+    /* ── SIDEBAR ── */
+    .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-w); background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 100; }
+    .sidebar-logo { padding: 18px 14px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; min-height: 60px; }
+    .logo-icon { width: 28px; height: 28px; background: var(--brand-subtle); border: 1px solid var(--brand-border); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+    .logo-title { font-size: 17px; letter-spacing: -0.5px; }
+    .logo-bold { font-weight: 600; color: var(--text-primary); }
+    .logo-light { font-weight: 200; font-style: italic; color: var(--text-secondary); }
+    .logo-sub { font-size: 9px; letter-spacing: 0.15em; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; display: block; }
+    .sidebar-nav { flex: 1; padding: 10px 8px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius); color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .nav-item:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+    .nav-item.active { background: var(--brand-subtle); color: var(--brand); border: 1px solid var(--brand-border); }
+    .nav-icon { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.7; }
+    .nav-item.active .nav-icon { opacity: 1; }
+    .sidebar-footer { padding: 12px 8px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+    .btn-sidebar { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: var(--radius); border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 500; cursor: pointer; width: 100%; font-family: var(--font); }
+    .btn-logout { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: var(--radius); border: 1px solid rgba(239,68,68,0.2); background: transparent; color: var(--loss); font-size: 12px; font-weight: 500; cursor: pointer; width: 100%; justify-content: center; font-family: var(--font); }
+
+    /* ── TOPBAR ── */
+    .top-bar { position: fixed; top: 0; right: 0; left: var(--sidebar-w); height: var(--topbar-h); background: var(--topbar-bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; padding: 0 20px; z-index: 50; }
+    .top-bar-title { font-size: 16px; font-weight: 600; color: var(--text-primary); flex: 1; }
+    .top-bar-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+    .date-badge { font-size: 13px; color: var(--text-muted); font-family: var(--font-mono); }
+    .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--brand-subtle); border: 1px solid var(--brand-border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--brand); }
+
+    /* ── FILTROS ── */
+    .dash-filter { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .dash-filter-group { display: flex; flex-direction: column; gap: 4px; }
+    .dash-filter-group label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .filter-input { padding: 7px 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-primary); font-family: var(--font); font-size: 13px; outline: none; }
+    .dash-filter-count { font-size: 13px; color: var(--text-muted); margin-left: auto; align-self: flex-end; }
+
+    /* ── BENTO GRID ── */
+    .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; margin-bottom: 16px; }
+    .bento-card { background: var(--bg-card); border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 10px 14px; display: flex; flex-direction: column; border: 1px solid var(--border); }
+    .bento-capital { grid-column: span 5; }
+    .bento-ops     { grid-column: span 3; }
+    .bento-acerto  { grid-column: span 4; }
+    .bento-payoff  { grid-column: span 4; }
+    .bento-expect  { grid-column: span 4; }
+    .bento-dd      { grid-column: span 4; }
+    .bento-curva   { grid-column: span 8; height: 260px; }
+    .bento-distrib { grid-column: span 4; height: 260px; }
+    .bento-meses   { grid-column: span 6; height: 220px; }
+    .bento-dias    { grid-column: span 6; height: 220px; }
+    .bento-tabela  { grid-column: span 12; padding: 0; overflow: hidden; }
+
+    .bento-label { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bento-value { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; font-family: var(--font-mono); margin: 4px 0 2px; line-height: 1; }
+    .bento-value--md { font-size: 20px; }
+    .bento-delta { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+    .bento-chart-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; }
+    .bento-chart-body { flex: 1; min-height: 0; overflow: hidden; position: relative; }
+    .bento-table-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+    .gain-text { color: var(--gain); }
+    .loss-text { color: var(--loss); }
+
+    /* ── TABLE ── */
+    .ops-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .ops-table th, .ops-table td { padding: 10px 14px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border); }
+    .ops-table th { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); background: var(--bg-surface); }
+    .ops-table tbody tr:last-child td { border-bottom: none; }
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .badge-gain { background: var(--gain-bg); color: var(--gain); }
+    .badge-loss { background: var(--loss-bg); color: var(--loss); }
+    .badge-pe   { background: var(--pe-bg);   color: var(--pe-color); }
+
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">📈</div>
+      <div>
+        <div class="logo-title">
+          <span class="logo-bold">Trader</span><span class="logo-light">Log</span>
+        </div>
+        <span class="logo-sub">WIN &amp; WDO · B3</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item active" href="#">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" href="#">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova Operação
+      </a>
+      <a class="nav-item" href="#">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Histórico
+      </a>
+      <a class="nav-item" href="#">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+        Configurações
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-sidebar">🌙 Tema escuro</button>
+      <button class="btn-logout">Sair</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="top-bar">
+      <span class="top-bar-title">Dashboard</span>
+      <div class="top-bar-right">
+        <span class="date-badge">Sex, 02 Mai 2026</span>
+        <div class="user-avatar">EB</div>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <!-- FILTRO -->
+      <div class="dash-filter">
+        <div class="dash-filter-group">
+          <label>De</label>
+          <input type="date" class="filter-input" value="2026-01-01">
+        </div>
+        <div class="dash-filter-group">
+          <label>Até</label>
+          <input type="date" class="filter-input" value="2026-05-02">
+        </div>
+        <span class="dash-filter-count">47 operações</span>
+      </div>
+
+      <!-- BENTO GRID -->
+      <div class="bento-grid">
+
+        <!-- KPI 1 -->
+        <div class="bento-card bento-capital">
+          <div class="bento-label">Capital Atual</div>
+          <div class="bento-value">R$12.450</div>
+          <div class="bento-delta gain-text">▲ +R$ 2.450,00</div>
+        </div>
+
+        <div class="bento-card bento-ops">
+          <div class="bento-label">Operações</div>
+          <div class="bento-value bento-value--md">47</div>
+          <div class="bento-delta">30 G · 15 L · 2 PE</div>
+        </div>
+
+        <div class="bento-card bento-acerto">
+          <div class="bento-label">Taxa de Acerto</div>
+          <div class="bento-value bento-value--md gain-text">63.8%</div>
+          <div class="bento-delta">Média G: R$ 145,00</div>
+        </div>
+
+        <!-- KPI 2 -->
+        <div class="bento-card bento-payoff">
+          <div class="bento-label">Payoff</div>
+          <div class="bento-value bento-value--md gain-text">1.42x</div>
+          <div class="bento-delta">Média L: R$ -102,00</div>
+        </div>
+
+        <div class="bento-card bento-expect">
+          <div class="bento-label">Expect. Matemática</div>
+          <div class="bento-value bento-value--md gain-text">R$87,50</div>
+          <div class="bento-delta">por operação</div>
+        </div>
+
+        <div class="bento-card bento-dd">
+          <div class="bento-label">Drawdown Máx.</div>
+          <div class="bento-value bento-value--md gain-text">8.2%</div>
+          <div class="bento-delta">Controlado</div>
+        </div>
+
+        <!-- CURVA DE CAPITAL -->
+        <div class="bento-card bento-curva">
+          <div class="bento-chart-title">Curva de Capital</div>
+          <div class="bento-chart-body">
+            <canvas id="capitalChart"></canvas>
+          </div>
+        </div>
+
+        <!-- DISTRIBUIÇÃO -->
+        <div class="bento-card bento-distrib">
+          <div class="bento-chart-title">Distribuição G / L / PE</div>
+          <div class="bento-chart-body">
+            <canvas id="distribChart"></canvas>
+          </div>
+        </div>
+
+        <!-- MESES -->
+        <div class="bento-card bento-meses">
+          <div class="bento-chart-title">Resultado por Mês</div>
+          <div class="bento-chart-body">
+            <canvas id="mesesChart"></canvas>
+          </div>
+        </div>
+
+        <!-- DIAS -->
+        <div class="bento-card bento-dias">
+          <div class="bento-chart-title">Resultado por Dia</div>
+          <div class="bento-chart-body">
+            <canvas id="diasChart"></canvas>
+          </div>
+        </div>
+
+        <!-- TABELA -->
+        <div class="bento-card bento-tabela">
+          <div class="bento-table-header">
+            <span class="bento-chart-title" style="margin:0">Últimas Operações</span>
+            <a href="#" style="color:var(--brand);font-size:13px;font-weight:600;text-decoration:none;">Ver todas →</a>
+          </div>
+          <table class="ops-table">
+            <thead>
+              <tr><th>Data</th><th>Ativo</th><th>Tipo</th><th>Setup</th><th>Pts</th><th>Resultado</th><th>Situação</th></tr>
+            </thead>
+            <tbody>
+              <tr><td style="font-family:var(--font-mono);font-size:12px">02/05</td><td>WIN</td><td>Compra</td><td>Rompimento</td><td style="font-family:var(--font-mono)">+320</td><td class="gain-text" style="font-family:var(--font-mono);font-weight:600">+R$ 96,00</td><td><span class="badge badge-gain">Gain</span></td></tr>
+              <tr><td style="font-family:var(--font-mono);font-size:12px">02/05</td><td>WDO</td><td>Venda</td><td>Fundo Duplo</td><td style="font-family:var(--font-mono)">-180</td><td class="loss-text" style="font-family:var(--font-mono);font-weight:600">-R$ 90,00</td><td><span class="badge badge-loss">Loss</span></td></tr>
+              <tr><td style="font-family:var(--font-mono);font-size:12px">01/05</td><td>WIN</td><td>Compra</td><td>Pivô de Alta</td><td style="font-family:var(--font-mono)">+580</td><td class="gain-text" style="font-family:var(--font-mono);font-weight:600">+R$ 174,00</td><td><span class="badge badge-gain">Gain</span></td></tr>
+              <tr><td style="font-family:var(--font-mono);font-size:12px">01/05</td><td>WIN</td><td>Venda</td><td>Topo Duplo</td><td style="font-family:var(--font-mono)">0</td><td style="font-family:var(--font-mono);font-weight:600;color:var(--pe-color)">R$ 0,00</td><td><span class="badge badge-pe">PE</span></td></tr>
+              <tr><td style="font-family:var(--font-mono);font-size:12px">30/04</td><td>WDO</td><td>Compra</td><td>IFR2</td><td style="font-family:var(--font-mono)">+240</td><td class="gain-text" style="font-family:var(--font-mono);font-weight:600">+R$ 120,00</td><td><span class="badge badge-gain">Gain</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const gridColor  = 'rgba(255,255,255,0.04)';
+const textColor  = '#555';
+const GREEN      = '#10b981';
+const GREEN_GLOW = 'rgba(16,185,129,0.40)';
+const GREEN_ZERO = 'rgba(16,185,129,0)';
+
+// ── Curva de Capital ──────────────────────────────────────
+const capitalCtx = document.getElementById('capitalChart');
+const capitalData = [10000,10180,10050,10420,10300,10620,10480,10850,10780,11100,10980,11340,11200,11580,11440,11780,11620,11960,11820,12100,11980,12250,12130,12380,12280,12450];
+const capitalLabels = ['Jan/08','Jan/12','Jan/15','Jan/19','Jan/22','Jan/26','Jan/29','Fev/02','Fev/05','Fev/09','Fev/12','Fev/16','Fev/19','Fev/23','Fev/26','Mar/02','Mar/05','Mar/09','Mar/12','Mar/16','Mar/19','Mar/23','Mar/26','Mar/30','Abr/02','Abr/06'];
+
+function makeGradient(ctx, top, bottom) {
+  const g = ctx.createLinearGradient(0, top, 0, bottom);
+  g.addColorStop(0, GREEN_GLOW);
+  g.addColorStop(1, GREEN_ZERO);
+  return g;
+}
+
+const gradientPlugin = {
+  id: 'capitalGradient',
+  beforeDatasetDraw(chart) {
+    const { ctx, chartArea } = chart;
+    if (!chartArea) return;
+    chart.data.datasets[0].backgroundColor = makeGradient(ctx, chartArea.top, chartArea.bottom);
+  }
+};
+
+new Chart(capitalCtx, {
+  type: 'line',
+  plugins: [gradientPlugin],
+  data: {
+    labels: capitalLabels,
+    datasets: [{
+      data: capitalData,
+      borderColor: GREEN,
+      backgroundColor: GREEN_ZERO,
+      fill: true,
+      tension: 0.45,
+      pointBackgroundColor: GREEN,
+      pointBorderColor: '#141414',
+      pointBorderWidth: 2,
+      pointRadius: 0,
+      pointHoverRadius: 5,
+      borderWidth: 2.5,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: { legend: { display: false }, tooltip: { backgroundColor:'#1a1a1a', borderColor:'rgba(16,185,129,0.3)', borderWidth:1, titleColor:'#888', bodyColor:'#e2e2e2', padding:10 } },
+    scales: {
+      x: { ticks: { color: textColor, font: { size: 11 }, maxTicksLimit: 7 }, grid: { color: gridColor }, border: { display: false } },
+      y: { ticks: { color: textColor, font: { size: 11 }, callback: v => `R$${(v/1000).toFixed(0)}k` }, grid: { color: gridColor }, border: { display: false } }
+    }
+  }
+});
+
+// ── Distribuição ──────────────────────────────────────────
+new Chart(document.getElementById('distribChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Gain', 'Loss', 'PE'],
+    datasets: [{ data: [30,15,2], backgroundColor: ['rgba(16,185,129,0.85)','rgba(239,68,68,0.85)','rgba(245,158,11,0.85)'], borderColor: '#141414', borderWidth: 3, hoverOffset: 4 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    cutout: '68%',
+    plugins: { legend: { position: 'bottom', labels: { color: '#888', font: { size: 12, family: 'Hanken Grotesk' }, padding: 16, usePointStyle: true } }, tooltip: { backgroundColor:'#1a1a1a', borderColor:'rgba(255,255,255,0.08)', borderWidth:1, titleColor:'#888', bodyColor:'#e2e2e2' } }
+  }
+});
+
+// ── Meses ─────────────────────────────────────────────────
+const barOpts = (negColor) => ({
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: false }, tooltip: { backgroundColor:'#1a1a1a', borderColor:'rgba(255,255,255,0.08)', borderWidth:1, titleColor:'#888', bodyColor:'#e2e2e2', padding:10, callbacks: { label: i => ` R$ ${Number(i.raw).toLocaleString('pt-BR',{minimumFractionDigits:2})}` } } },
+  scales: {
+    x: { ticks: { color: textColor, font: { size: 11 } }, grid: { color: gridColor }, border: { display: false } },
+    y: { ticks: { color: textColor, font: { size: 11 }, callback: v => `R$${v}` }, grid: { color: gridColor }, border: { display: false } }
+  }
+});
+
+const mesesVals = [850, 620, -120, 1100, 380];
+new Chart(document.getElementById('mesesChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Janeiro','Fevereiro','Março','Abril','Maio'],
+    datasets: [{ data: mesesVals, backgroundColor: mesesVals.map(v => v >= 0 ? 'rgba(16,185,129,0.75)' : 'rgba(239,68,68,0.75)'), borderRadius: 3, borderSkipped: false }]
+  },
+  options: barOpts()
+});
+
+// ── Dias ──────────────────────────────────────────────────
+const diasVals = [320, 580, -80, 450, 1180];
+new Chart(document.getElementById('diasChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Segunda','Terça','Quarta','Quinta','Sexta'],
+    datasets: [{ data: diasVals, backgroundColor: diasVals.map(v => v >= 0 ? 'rgba(16,185,129,0.75)' : 'rgba(239,68,68,0.75)'), borderRadius: 3, borderSkipped: false }]
+  },
+  options: barOpts()
+});
+</script>
+</body>
+</html>
