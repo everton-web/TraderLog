@@ -22,7 +22,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <ThemeProvider />
       <ToastProvider>
         <div className="app-wrapper">
-          <Sidebar profile={profile as Profile} />
+          <Sidebar profile={profile as Profile} email={user.email} />
           <div className="main-content">
             <TopBar profile={profile as Profile} />
             <div className="page-content">
