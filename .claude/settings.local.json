@@ -46,7 +46,9 @@
       "Bash(Format-Table FullName)",
       "Bash(Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue)",
       "Bash(Write-Host \"Cache limpo\")",
-      "Bash(Get-ChildItem *)"
+      "Bash(Get-ChildItem *)",
+      "Bash(findstr VERCEL)",
+      "Bash(npx vercel *)"
     ]
   }
 }
