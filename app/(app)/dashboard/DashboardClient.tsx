@@ -128,7 +128,6 @@ export default function DashboardClient({ ops, capitalInicial }: { ops: Operacao
                   borderColor: 'var(--sidebar-bg)',
                   borderWidth: 3,
                   hoverOffset: 4,
-                  pointStyle: 'circle' as const,
                 }],
               }}
               options={{
@@ -138,7 +137,21 @@ export default function DashboardClient({ ops, capitalInicial }: { ops: Operacao
                 plugins: {
                   legend: {
                     position: 'bottom',
-                    labels: { color: '#666', font: { size: 11 }, padding: 10, usePointStyle: true, pointStyle: 'circle', pointStyleWidth: 8 },
+                    labels: {
+                      color: '#666',
+                      font: { size: 11 },
+                      padding: 10,
+                      usePointStyle: true,
+                      pointStyleWidth: 8,
+                      generateLabels: (chart) => {
+                        const bg = chart.data.datasets[0].backgroundColor as string[];
+                        return (chart.data.labels as string[]).map((label, i) => ({
+                          text: label, fillStyle: bg[i], strokeStyle: bg[i],
+                          lineWidth: 0, hidden: false, index: i, datasetIndex: 0,
+                          pointStyle: 'circle' as const,
+                        }));
+                      },
+                    },
                   },
                   tooltip: {
                     backgroundColor: '#1a1a1a',

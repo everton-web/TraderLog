@@ -73,7 +73,7 @@ export default function Sidebar({ profile, email }: { profile: Profile | null; e
         {NAV_SECTIONS.map(section => (
           <div key={section.label}>
             <div className="nav-section-label">{section.label}</div>
-            {section.items.map(({ href, icon: Icon, label, badge }) => (
+            {section.items.map(({ href, icon: Icon, label }) => (
               <Link
                 key={`${section.label}-${href}`}
                 href={href}
@@ -81,7 +81,6 @@ export default function Sidebar({ profile, email }: { profile: Profile | null; e
               >
                 <Icon size={15} className="nav-icon" strokeWidth={1.75} />
                 <span className="nav-label">{label}</span>
-                {badge && <span className="nav-badge-new">+</span>}
               </Link>
             ))}
           </div>
