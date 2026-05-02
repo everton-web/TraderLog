@@ -43,7 +43,9 @@
       "Bash(npx next *)",
       "Bash(Get-ChildItem -Path \"D:\\\\00. AGENCIA\\\\TraderLog\" -Recurse -Force)",
       "Bash(Select-Object -First 50)",
-      "Bash(Format-Table FullName)"
+      "Bash(Format-Table FullName)",
+      "Bash(Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue)",
+      "Bash(Write-Host \"Cache limpo\")"
     ]
   }
 }
