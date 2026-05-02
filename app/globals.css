@@ -65,7 +65,7 @@
   --radius:      4px;
   --radius-lg:   8px;
   --topbar-h:    52px;
-  --font:        'Inter Tight', -apple-system, sans-serif;
+  --font:        'Hanken Grotesk', -apple-system, sans-serif;
   --font-mono:   'JetBrains Mono', monospace;
 }
 
@@ -193,9 +193,9 @@ body { font-family: var(--font); background: var(--bg-base); color: var(--text-p
 /* ─── KPI CARDS ─────────────────────────────────────────── */
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-bottom: 24px; }
 .kpi-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; }
-.kpi-label { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.kpi-value { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin: 6px 0 4px; font-family: var(--font-mono); }
-.kpi-delta { font-size: 12px; color: var(--text-muted); }
+.kpi-label { font-size: 14px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi-value { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin: 6px 0 4px; font-family: var(--font-mono); }
+.kpi-delta { font-size: 14px; color: var(--text-muted); }
 
 /* ─── CHARTS ────────────────────────────────────────────── */
 .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-bottom: 24px; }
@@ -212,7 +212,7 @@ body { font-family: var(--font); background: var(--bg-base); color: var(--text-p
 .table-wrapper { overflow-x: auto; }
 .ops-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .ops-table th, .ops-table td { padding: 10px 14px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--border); }
-.ops-table th { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); background: var(--bg-surface); }
+.ops-table th { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); background: var(--bg-surface); }
 .ops-table tbody tr:hover { background: var(--bg-card-hover); }
 .ops-table tbody tr:last-child td { border-bottom: none; }
 .ops-table .empty-row td { text-align: center; color: var(--text-muted); padding: 32px; }
@@ -290,8 +290,8 @@ body { font-family: var(--font); background: var(--bg-base); color: var(--text-p
 /* ─── BENTO GRID — DASHBOARD ────────────────────────────── */
 .dash-filter { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
 .dash-filter-group { display: flex; flex-direction: column; gap: 4px; }
-.dash-filter-group label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
-.dash-filter-count { font-size: 12px; color: var(--text-muted); margin-left: auto; align-self: flex-end; }
+.dash-filter-group label { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+.dash-filter-count { font-size: 13px; color: var(--text-muted); margin-left: auto; align-self: flex-end; }
 
 .bento-grid {
   display: grid;
@@ -325,13 +325,13 @@ body { font-family: var(--font); background: var(--bg-base); color: var(--text-p
 .bento-tabela   { grid-column: span 12; padding: 0; overflow: hidden; }
 
 /* KPI internals */
-.bento-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.bento-value { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; font-family: var(--font-mono); margin: 4px 0 2px; line-height: 1; }
-.bento-value--md { font-size: 16px; }
-.bento-delta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.bento-label { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bento-value { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; font-family: var(--font-mono); margin: 4px 0 2px; line-height: 1; }
+.bento-value--md { font-size: 20px; }
+.bento-delta { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
 
 /* Chart card internals */
-.bento-chart-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 6px; }
+.bento-chart-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px; }
 .bento-chart-body  { flex: 1; min-height: 0; overflow: hidden; }
 
 /* Table card internals */
@@ -356,6 +356,6 @@ body { font-family: var(--font); background: var(--bg-base); color: var(--text-p
   .bento-grid { gap: 6px; }
   .bento-capital, .bento-ops, .bento-acerto,
   .bento-payoff, .bento-expect, .bento-dd { grid-column: span 6; }
-  .bento-value { font-size: 17px; }
-  .bento-value--md { font-size: 15px; }
+  .bento-value { font-size: 21px; }
+  .bento-value--md { font-size: 17px; }
 }
