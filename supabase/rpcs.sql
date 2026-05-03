@@ -149,18 +149,30 @@ LANGUAGE sql STABLE SECURITY DEFINER AS $$
     SELECT COALESCE(capital, 2000) AS cap FROM configuracoes
     WHERE user_id = p_user_id LIMIT 1
   ),
-  curva AS (
+  -- 1ª passagem: capital acumulado por linha (sem aninhamento)
+  curva_cap AS (
     SELECT
+      o.data,
+      o.created_at,
       cb.cap + SUM(COALESCE(o.rs_final, 0))
         OVER (ORDER BY o.data, o.created_at
-              ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cap_acc,
-      MAX(cb.cap + SUM(COALESCE(o.rs_final, 0))
-        OVER (ORDER BY o.data, o.created_at
-              ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW))
-        OVER (ORDER BY o.data, o.created_at
-              ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS topo
+              ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cap_acc
     FROM operacoes o, capital_base cb
     WHERE o.user_id = p_user_id
+  ),
+  -- 2ª passagem: pico histórico sobre a coluna já calculada
+  curva AS (
+    SELECT
+      cap_acc,
+      MAX(cap_acc)
+        OVER (ORDER BY data, created_at
+              ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS topo
+    FROM curva_cap
+  ),
+  -- Drawdown máximo agregado
+  max_dd AS (
+    SELECT MAX(CASE WHEN topo > 0 THEN (topo - cap_acc) / topo ELSE 0 END) AS max_dd_pct
+    FROM curva
   )
   SELECT
     r.total_trades::INTEGER,
@@ -183,13 +195,9 @@ LANGUAGE sql STABLE SECURITY DEFINER AS $$
         2)
       ELSE NULL
     END                                                 AS expectativa,
-    ROUND(
-      COALESCE(MAX(CASE WHEN c.topo > 0 THEN (c.topo - c.cap_acc) / c.topo ELSE 0 END), 0),
-      6)                                                AS max_dd_pct,
+    ROUND(COALESCE(d.max_dd_pct, 0), 6)                AS max_dd_pct,
     ROUND(r.rs_total, 2)                                AS rs_total
-  FROM resumo r, curva c
-  GROUP BY r.total_trades, r.gains, r.losses, r.pes,
-           r.media_gain, r.media_loss, r.rs_total;
+  FROM resumo r, max_dd d;
 $$;
 
 
