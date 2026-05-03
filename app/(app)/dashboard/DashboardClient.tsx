@@ -154,8 +154,10 @@ export default function DashboardClient({ ops, capitalInicial }: { ops: Operacao
                       boxHeight: 8,
                       generateLabels: (chart) => {
                         const bg = chart.data.datasets[0].backgroundColor as string[];
+                        const colors = ['#10b981', '#ef4444', '#f59e0b'];
                         return (chart.data.labels as string[]).map((label, i) => ({
                           text: label, fillStyle: bg[i], strokeStyle: bg[i],
+                          fontColor: colors[i],
                           lineWidth: 0, hidden: false, index: i, datasetIndex: 0,
                           pointStyle: 'circle' as const,
                         }));
