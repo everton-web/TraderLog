@@ -48,7 +48,8 @@
       "Bash(Write-Host \"Cache limpo\")",
       "Bash(Get-ChildItem *)",
       "Bash(findstr VERCEL)",
-      "Bash(npx vercel *)"
+      "Bash(npx vercel *)",
+      "Bash(xargs grep *)"
     ]
   }
 }
