@@ -68,3 +68,23 @@ export interface Estatisticas {
   expectativa: number | null;
   drawdown: number | null;
 }
+
+export interface RowEnriquecida {
+  op: Operacao;
+  seq: number;
+  capitalAnterior: number;
+  capitalAcumulado: number;
+  topo: number;
+  ddRS: number;
+  ddPct: number;
+  pctRiscoCapital: number | null;
+}
+
+export interface SizingCapitais {
+  mes: string;
+  maoFixa: number;
+  fixedRatio: number;
+  kelly: number;
+  hibrido1: number;
+  hibrido2: number;
+}
