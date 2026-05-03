@@ -121,7 +121,15 @@ export default function DashboardClient({ ops, capitalInicial }: { ops: Operacao
           <div className="rp-mini-canvas">
             <Doughnut
               data={{
-                labels: [`Gain (${stat.gains})`, `Loss (${stat.losses})`, `PE (${stat.pes})`],
+                labels: (() => {
+                  const tot = stat.gains + stat.losses + stat.pes;
+                  const pct = (n: number) => tot > 0 ? ((n / tot) * 100).toFixed(1) + '%' : '0%';
+                  return [
+                    `Gain: ${stat.gains} (${pct(stat.gains)})`,
+                    `Loss: ${stat.losses} (${pct(stat.losses)})`,
+                    `PE: ${stat.pes} (${pct(stat.pes)})`,
+                  ];
+                })(),
                 datasets: [{
                   data: [stat.gains, stat.losses, stat.pes],
                   backgroundColor: ['rgba(16,185,129,0.85)', 'rgba(239,68,68,0.80)', 'rgba(245,158,11,0.80)'],
