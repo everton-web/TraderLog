@@ -1,15 +1,24 @@
 import { createClient } from '@/utils/supabase/server';
-import PluggyConnect from '@/components/PluggyConnect';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
+import BridgeConfigForm from '@/components/BridgeConfigForm';
 import ApiTokenSection from '@/components/ApiTokenSection';
+import PluggyConnect from '@/components/PluggyConnect';
 import { formatDate } from '@/lib/formatters';
+import { Download } from 'lucide-react';
+
+const service = createServiceClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
 
 export default async function IntegracoesPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [{ data: conn }, { data: tokenRow }] = await Promise.all([
-    supabase.from('pluggy_connections').select('item_id, updated_at').eq('user_id', user!.id).maybeSingle(),
-    supabase.from('api_tokens').select('token').eq('user_id', user!.id).maybeSingle(),
+  const [{ data: bridgeCfg }, { data: conn }, { data: tokenRow }] = await Promise.all([
+    service.from('bridge_config').select('profit_key, profit_email').eq('user_id', user!.id).maybeSingle(),
+    service.from('pluggy_connections').select('item_id, updated_at').eq('user_id', user!.id).maybeSingle(),
+    service.from('api_tokens').select('token').eq('user_id', user!.id).maybeSingle(),
   ]);
 
   const connected  = !!conn?.item_id;
@@ -19,51 +28,61 @@ export default async function IntegracoesPage() {
     <>
       <div className="section-header">
         <h1>Integrações</h1>
-        <p className="section-desc">Sincronize operações diretamente da sua corretora</p>
+        <p className="section-desc">Conecte o Profit Pro para registrar operações automaticamente</p>
       </div>
 
       {/* ── Profit Pro DLL ──────────────────────────────────────────────── */}
       <div className="card" style={{ maxWidth: 640, marginBottom: 16 }}>
         <div className="card-header">
-          <h2 className="card-title">Profit Pro — Bridge Local (DLL)</h2>
+          <h2 className="card-title">Profit Pro — Bridge Automático</h2>
           <p className="card-desc" style={{ marginTop: 4 }}>
-            Script Python que roda na sua máquina junto com o Profit Pro.
-            Quando você fechar uma operação WIN ou WDO, ela é enviada automaticamente.
+            Configure abaixo e distribua o <strong>TraderLogBridge.exe</strong> para os alunos.
+            Eles apenas fazem login e inserem a senha do Profit — nada mais.
           </p>
         </div>
-        <div className="card-body" style={{ gap: 16 }}>
+        <div className="card-body" style={{ gap: 20 }}>
 
-          <div>
-            <div className="form-label" style={{ marginBottom: 6 }}>Token de API</div>
-            <ApiTokenSection initialToken={tokenRow?.token ?? null} />
+          {/* Formulário de config */}
+          <BridgeConfigForm
+            initialKey={bridgeCfg?.profit_key ?? null}
+            initialEmail={bridgeCfg?.profit_email ?? null}
+          />
+
+          {/* Download */}
+          <div className="bridge-download-box">
+            <div>
+              <div className="bridge-download-title">TraderLogBridge.exe</div>
+              <div className="bridge-download-sub">
+                Aluno abre o .exe → faz login → opera. Sem instalar nada.
+              </div>
+            </div>
+            <a
+              href="https://github.com/everton-web/TraderLog/releases/latest/download/TraderLogBridge.exe"
+              className="btn btn-primary"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
+            >
+              <Download size={14} /> Baixar .exe
+            </a>
           </div>
 
-          <div className="pluggy-notice">
-            <strong>Como configurar:</strong>
-            <ol className="pluggy-steps" style={{ marginTop: 6 }}>
-              <li>Copie o token acima</li>
-              <li>Abra <code>bridge/profit_bridge.py</code> e cole em <code>TRADERLOG_TOKEN</code></li>
-              <li>Preencha também <code>PROFIT_KEY</code>, <code>PROFIT_USER</code> e <code>PROFIT_PASS</code></li>
-              <li>Instale Python 32-bit + <code>pip install requests</code></li>
-              <li>Copie <code>ProfitDLL.dll</code> para a pasta <code>bridge/</code></li>
-              <li>Rode <code>python profit_bridge.py</code> antes de operar</li>
-            </ol>
-          </div>
+          {/* Token técnico */}
+          <details className="bridge-details">
+            <summary>Configurações avançadas</summary>
+            <div style={{ marginTop: 12 }}>
+              <div className="form-label" style={{ marginBottom: 6 }}>Token de API</div>
+              <ApiTokenSection initialToken={tokenRow?.token ?? null} />
+            </div>
+          </details>
 
-          <div className="pluggy-notice" style={{ background: 'var(--loss-bg)', borderColor: 'rgba(239,68,68,0.2)' }}>
-            <strong>Pré-requisito:</strong> a Profit DLL requer o módulo{' '}
-            <strong>Data Solution</strong> da Nelógica (assinatura separada).
-            Verifique em <code>store.nelogica.com.br</code>.
-          </div>
         </div>
       </div>
 
-      {/* ── Pluggy / Clear ──────────────────────────────────────────────── */}
+      {/* ── Pluggy (alternativa) ─────────────────────────────────────────── */}
       <div className="card" style={{ maxWidth: 640 }}>
         <div className="card-header">
-          <h2 className="card-title">Clear Corretora via Pluggy (alternativa)</h2>
+          <h2 className="card-title">Clear via Pluggy — alternativa sem bridge</h2>
           <p className="card-desc" style={{ marginTop: 4 }}>
-            Sincronização cloud — sem script local. Requer conta de desenvolvedor em pluggy.ai.
+            Sync cloud sem instalar nada. Requer conta de desenvolvedor em pluggy.ai.
           </p>
         </div>
         <div className="card-body">

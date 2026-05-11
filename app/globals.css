@@ -484,4 +484,17 @@ body { font-family: var(--font); background: var(--bg-base); color: var(--text-p
 .btn-icon { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 7px; cursor: pointer; color: var(--text-secondary); display: flex; align-items: center; transition: background var(--transition); }
 .btn-icon:hover { background: var(--bg-card-hover); color: var(--text-primary); }
 .btn-sm { padding: 4px 10px; font-size: 11px; }
+
+/* ── Bridge Config ──────────────────────────────────────────────────────── */
+.bridge-config-form { display: flex; flex-direction: column; gap: 4px; }
+.bridge-config-actions { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+.bridge-status { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; }
+.bridge-status.ok    { color: var(--gain); }
+.bridge-status.error { color: var(--loss); }
+.field-hint { font-size: 11px; color: var(--text-muted); margin-top: 2px; display: block; padding: 0 0 8px; }
+.bridge-download-box { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+.bridge-download-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.bridge-download-sub   { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.bridge-details { font-size: 12px; color: var(--text-secondary); }
+.bridge-details summary { cursor: pointer; color: var(--text-muted); font-size: 11px; padding: 4px 0; }
 .rp-feed-value { font-size: 12px; font-weight: 700; font-family: var(--font-mono); flex-shrink: 0; }
