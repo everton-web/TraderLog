@@ -475,4 +475,13 @@ body { font-family: var(--font); background: var(--bg-base); color: var(--text-p
 .card-body   { display: flex; flex-direction: column; }
 .spin { animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── API Token ──────────────────────────────────────────────────────────── */
+.api-token-container { display: flex; flex-direction: column; gap: 10px; }
+.api-token-desc { font-size: 12px; color: var(--text-secondary); margin: 0; }
+.api-token-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.api-token-value { font-size: 11px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.btn-icon { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 7px; cursor: pointer; color: var(--text-secondary); display: flex; align-items: center; transition: background var(--transition); }
+.btn-icon:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+.btn-sm { padding: 4px 10px; font-size: 11px; }
 .rp-feed-value { font-size: 12px; font-weight: 700; font-family: var(--font-mono); flex-shrink: 0; }

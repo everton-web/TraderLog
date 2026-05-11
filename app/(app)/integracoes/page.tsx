@@ -1,16 +1,16 @@
 import { createClient } from '@/utils/supabase/server';
 import PluggyConnect from '@/components/PluggyConnect';
+import ApiTokenSection from '@/components/ApiTokenSection';
 import { formatDate } from '@/lib/formatters';
 
 export default async function IntegracoesPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const { data: conn } = await supabase
-    .from('pluggy_connections')
-    .select('item_id, updated_at')
-    .eq('user_id', user!.id)
-    .maybeSingle();
+  const [{ data: conn }, { data: tokenRow }] = await Promise.all([
+    supabase.from('pluggy_connections').select('item_id, updated_at').eq('user_id', user!.id).maybeSingle(),
+    supabase.from('api_tokens').select('token').eq('user_id', user!.id).maybeSingle(),
+  ]);
 
   const connected  = !!conn?.item_id;
   const lastSynced = conn?.updated_at ? formatDate(conn.updated_at.split('T')[0]) : null;
@@ -22,37 +22,52 @@ export default async function IntegracoesPage() {
         <p className="section-desc">Sincronize operações diretamente da sua corretora</p>
       </div>
 
-      <div className="card" style={{ maxWidth: 600 }}>
+      {/* ── Profit Pro DLL ──────────────────────────────────────────────── */}
+      <div className="card" style={{ maxWidth: 640, marginBottom: 16 }}>
         <div className="card-header">
-          <h2 className="card-title">Profit Pro · Clear Corretora</h2>
+          <h2 className="card-title">Profit Pro — Bridge Local (DLL)</h2>
           <p className="card-desc" style={{ marginTop: 4 }}>
-            Via <strong>Pluggy</strong> — Open Finance para corretoras brasileiras.
-            Após conectar, sincronize as operações do dia com um clique.
+            Script Python que roda na sua máquina junto com o Profit Pro.
+            Quando você fechar uma operação WIN ou WDO, ela é enviada automaticamente.
+          </p>
+        </div>
+        <div className="card-body" style={{ gap: 16 }}>
+
+          <div>
+            <div className="form-label" style={{ marginBottom: 6 }}>Token de API</div>
+            <ApiTokenSection initialToken={tokenRow?.token ?? null} />
+          </div>
+
+          <div className="pluggy-notice">
+            <strong>Como configurar:</strong>
+            <ol className="pluggy-steps" style={{ marginTop: 6 }}>
+              <li>Copie o token acima</li>
+              <li>Abra <code>bridge/profit_bridge.py</code> e cole em <code>TRADERLOG_TOKEN</code></li>
+              <li>Preencha também <code>PROFIT_KEY</code>, <code>PROFIT_USER</code> e <code>PROFIT_PASS</code></li>
+              <li>Instale Python 32-bit + <code>pip install requests</code></li>
+              <li>Copie <code>ProfitDLL.dll</code> para a pasta <code>bridge/</code></li>
+              <li>Rode <code>python profit_bridge.py</code> antes de operar</li>
+            </ol>
+          </div>
+
+          <div className="pluggy-notice" style={{ background: 'var(--loss-bg)', borderColor: 'rgba(239,68,68,0.2)' }}>
+            <strong>Pré-requisito:</strong> a Profit DLL requer o módulo{' '}
+            <strong>Data Solution</strong> da Nelógica (assinatura separada).
+            Verifique em <code>store.nelogica.com.br</code>.
+          </div>
+        </div>
+      </div>
+
+      {/* ── Pluggy / Clear ──────────────────────────────────────────────── */}
+      <div className="card" style={{ maxWidth: 640 }}>
+        <div className="card-header">
+          <h2 className="card-title">Clear Corretora via Pluggy (alternativa)</h2>
+          <p className="card-desc" style={{ marginTop: 4 }}>
+            Sincronização cloud — sem script local. Requer conta de desenvolvedor em pluggy.ai.
           </p>
         </div>
         <div className="card-body">
           <PluggyConnect connected={connected} lastSynced={lastSynced} />
-        </div>
-      </div>
-
-      <div className="card" style={{ maxWidth: 600, marginTop: 16 }}>
-        <div className="card-header">
-          <h2 className="card-title">Como funciona</h2>
-        </div>
-        <div className="card-body">
-          <ol className="pluggy-steps">
-            <li>Clique em <strong>Conectar conta Clear</strong> — uma janela do Pluggy vai abrir.</li>
-            <li>Faça login com suas credenciais da Clear dentro do widget.</li>
-            <li>Após conectar, escolha a data e clique em <strong>Sincronizar operações</strong>.</li>
-            <li>As operações WIN e WDO do dia são importadas automaticamente.</li>
-            <li>O campo <em>Stop</em> não vem da corretora — preencha no histórico depois.</li>
-          </ol>
-          <p className="pluggy-prereq">
-            <strong>Pré-requisito:</strong> você precisa configurar as variáveis{' '}
-            <code>PLUGGY_CLIENT_ID</code> e <code>PLUGGY_CLIENT_SECRET</code> no Vercel.
-            Crie sua conta de desenvolvedor em{' '}
-            <a href="https://pluggy.ai" target="_blank" rel="noopener noreferrer">pluggy.ai</a>.
-          </p>
         </div>
       </div>
     </>
