@@ -49,7 +49,10 @@
       "Bash(Get-ChildItem *)",
       "Bash(findstr VERCEL)",
       "Bash(npx vercel *)",
-      "Bash(xargs grep *)"
+      "Bash(xargs grep *)",
+      "Bash(Select-Object Name, FullName)",
+      "PowerShell(Get-ChildItem -Path \"D:\\\\00. AGENCIA\\\\TraderLog\\\\app\" -Recurse -Force | Select-Object Name, @{Name=\"Path\";Expression={$_.FullName.Replace\\(\"D:\\\\00. AGENCIA\\\\TraderLog\\\\\", \"\"\\)}} | Format-Table -AutoSize)",
+      "PowerShell(Get-ChildItem -Path \"D:\\\\00. AGENCIA\\\\TraderLog\\\\components\" -Recurse -Force | Select-Object Name, @{Name=\"Path\";Expression={$_.FullName.Replace\\(\"D:\\\\00. AGENCIA\\\\TraderLog\\\\\", \"\"\\)}} | Format-Table -AutoSize)"
     ]
   }
 }
