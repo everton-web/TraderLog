@@ -21,8 +21,9 @@ export default async function IntegracoesPage() {
     service.from('api_tokens').select('token').eq('user_id', user!.id).maybeSingle(),
   ]);
 
-  const connected  = !!conn?.item_id;
-  const lastSynced = conn?.updated_at ? formatDate(conn.updated_at.split('T')[0]) : null;
+  const connected         = !!conn?.item_id;
+  const lastSynced        = conn?.updated_at ? formatDate(conn.updated_at.split('T')[0]) : null;
+  const pluggyConfigured  = !!(process.env.PLUGGY_CLIENT_ID && process.env.PLUGGY_CLIENT_SECRET);
 
   return (
     <>
@@ -86,7 +87,7 @@ export default async function IntegracoesPage() {
           </p>
         </div>
         <div className="card-body">
-          <PluggyConnect connected={connected} lastSynced={lastSynced} />
+          <PluggyConnect connected={connected} lastSynced={lastSynced} pluggyConfigured={pluggyConfigured} />
         </div>
       </div>
     </>

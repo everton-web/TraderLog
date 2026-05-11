@@ -16,9 +16,10 @@ declare global {
 interface Props {
   connected: boolean;
   lastSynced: string | null;
+  pluggyConfigured: boolean;
 }
 
-export default function PluggyConnect({ connected: initialConnected, lastSynced }: Props) {
+export default function PluggyConnect({ connected: initialConnected, lastSynced, pluggyConfigured }: Props) {
   const [connected, setConnected] = useState(initialConnected);
   const [status, setStatus]       = useState<string | null>(null);
   const [isError, setIsError]     = useState(false);
@@ -100,6 +101,16 @@ export default function PluggyConnect({ connected: initialConnected, lastSynced 
       setLoading(null);
     }
   };
+
+  if (!pluggyConfigured) {
+    return (
+      <div className="pluggy-notice">
+        <strong>Não configurado.</strong> Para ativar, adicione{' '}
+        <code>PLUGGY_CLIENT_ID</code> e <code>PLUGGY_CLIENT_SECRET</code>{' '}
+        nas variáveis de ambiente do Vercel.
+      </div>
+    );
+  }
 
   return (
     <div className="pluggy-container">
