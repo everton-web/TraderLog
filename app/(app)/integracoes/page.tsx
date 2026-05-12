@@ -6,11 +6,17 @@ export default async function IntegracoesPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const { data: bridgeCfg } = await supabase
-    .from('bridge_config')
-    .select('profit_key, profit_email')
-    .eq('user_id', user!.id)
-    .maybeSingle();
+  let bridgeCfg: { profit_key: string | null; profit_email: string | null } | null = null;
+  try {
+    const { data } = await supabase
+      .from('bridge_config')
+      .select('profit_key, profit_email')
+      .eq('user_id', user!.id)
+      .maybeSingle();
+    bridgeCfg = data;
+  } catch {
+    // tabela ainda não existe — formulário renderiza vazio
+  }
 
   return (
     <>
