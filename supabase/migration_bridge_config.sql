@@ -8,6 +8,8 @@ create table if not exists public.bridge_config (
 
 alter table public.bridge_config enable row level security;
 
+drop policy if exists "Usuário gerencia própria config de bridge" on public.bridge_config;
+
 create policy "Usuário gerencia própria config de bridge"
   on public.bridge_config for all
   using (auth.uid() = user_id)
