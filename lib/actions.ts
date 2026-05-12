@@ -25,7 +25,7 @@ export async function cadastro(_: unknown, formData: FormData) {
     options: { data: { nome } },
   });
   if (error) return { error: error.message };
-  redirect('/dashboard');
+  redirect('/onboarding');
 }
 
 export async function logout() {
