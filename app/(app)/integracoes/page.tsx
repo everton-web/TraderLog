@@ -1,6 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
 import BridgeConfigForm from '@/components/BridgeConfigForm';
-import { Download } from 'lucide-react';
 
 export default async function IntegracoesPage() {
   const supabase = await createClient();
@@ -40,18 +39,11 @@ export default async function IntegracoesPage() {
 
           <div className="bridge-download-box">
             <div>
-              <div className="bridge-download-title">TraderLog Bridge</div>
+              <div className="bridge-download-title">TraderLog Bridge (.exe)</div>
               <div className="bridge-download-sub">
-                Abra o app, faça login e comece a operar.
+                Em breve — o app será disponibilizado aqui para download direto.
               </div>
             </div>
-            <a
-              href="https://github.com/everton-web/TraderLog/releases/latest/download/TraderLogBridge.exe"
-              className="btn btn-primary"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
-            >
-              <Download size={14} /> Baixar
-            </a>
           </div>
         </div>
       </div>
