@@ -11,9 +11,15 @@ interface Props {
   rows?: RowEnriquecida[];
   limit?: number;
   showDrawdown?: boolean;
+  selectedIds?: Set<string>;
+  onToggleSelect?: (id: string) => void;
+  onToggleAll?: (allIds: string[]) => void;
 }
 
-export default function OperacoesTable({ ops, rows, limit, showDrawdown = false }: Props) {
+export default function OperacoesTable({
+  ops, rows, limit, showDrawdown = false,
+  selectedIds, onToggleSelect, onToggleAll,
+}: Props) {
   const { showToast } = useToast();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -29,14 +35,20 @@ export default function OperacoesTable({ ops, rows, limit, showDrawdown = false 
   const badgeClass = (s: string | null) =>
     s === 'Gain' ? 'badge badge-gain' : s === 'Loss' ? 'badge badge-loss' : 'badge badge-pe';
 
+  const selectable = !!(selectedIds && onToggleSelect && onToggleAll);
+
   // Modo enriquecido (histórico com drawdown)
   if (showDrawdown && rows) {
     const displayed = limit ? rows.slice(0, limit) : rows;
+    const allIds = displayed.map(r => r.op.id);
+    const selectedCount = selectable ? allIds.filter(id => selectedIds!.has(id)).length : 0;
+    const allSelected = selectable && allIds.length > 0 && selectedCount === allIds.length;
+    const someSelected = selectable && selectedCount > 0 && !allSelected;
 
     if (displayed.length === 0) {
       return (
         <table className="ops-table">
-          <tbody><tr className="empty-row"><td colSpan={16}>Nenhuma operação registrada</td></tr></tbody>
+          <tbody><tr className="empty-row"><td colSpan={selectable ? 17 : 16}>Nenhuma operação registrada</td></tr></tbody>
         </table>
       );
     }
@@ -46,6 +58,18 @@ export default function OperacoesTable({ ops, rows, limit, showDrawdown = false 
         <table className="ops-table">
           <thead>
             <tr>
+              {selectable && (
+                <th style={{ width: 32, padding: '0 8px' }}>
+                  <input
+                    ref={el => { if (el) el.indeterminate = someSelected; }}
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={() => onToggleAll!(allIds)}
+                    title="Selecionar tudo"
+                    style={{ cursor: 'pointer', accentColor: 'var(--primary)' }}
+                  />
+                </th>
+              )}
               <th>#</th><th>Data</th><th>Ativo</th><th>Tipo</th>
               <th>PE</th><th>Stop</th><th>Risco pts</th><th>Saída</th>
               <th>Pts</th><th>Qtde</th><th>% Risco</th><th>R$ Final</th>
@@ -58,15 +82,33 @@ export default function OperacoesTable({ ops, rows, limit, showDrawdown = false 
               const op = row.op;
               const isLoss  = op.situacao === 'Loss';
               const isHighDD = row.ddPct > 0.15;
+              const isSelected = selectable && selectedIds!.has(op.id);
 
-              const rowStyle: React.CSSProperties = isHighDD
+              const rowStyle: React.CSSProperties = isSelected
+                ? { background: 'rgba(99,102,241,0.08)', borderLeft: '2px solid var(--primary)' }
+                : isHighDD
                 ? { background: 'rgba(245,158,11,0.07)', borderLeft: '2px solid var(--pe-color)' }
                 : isLoss
                 ? { background: 'rgba(239,68,68,0.04)' }
                 : {};
 
               return (
-                <tr key={op.id} style={rowStyle}>
+                <tr
+                  key={op.id}
+                  style={rowStyle}
+                  onClick={selectable ? () => onToggleSelect!(op.id) : undefined}
+                  className={selectable ? 'selectable-row' : ''}
+                >
+                  {selectable && (
+                    <td style={{ padding: '0 8px' }} onClick={e => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => onToggleSelect!(op.id)}
+                        style={{ cursor: 'pointer', accentColor: 'var(--primary)' }}
+                      />
+                    </td>
+                  )}
                   <td style={{ color: 'var(--text-muted)', fontSize: 11 }}>{row.seq}</td>
                   <td>{formatDate(op.data)}</td>
                   <td><span style={{ fontWeight: 700 }}>{op.ativo}</span></td>
@@ -97,7 +139,7 @@ export default function OperacoesTable({ ops, rows, limit, showDrawdown = false 
                     {row.ddPct > 0 ? '-' + (row.ddPct * 100).toFixed(1) + '%' : '—'}
                   </td>
                   <td><span className={badgeClass(op.situacao)}>{op.situacao ?? '—'}</span></td>
-                  <td>
+                  <td onClick={e => e.stopPropagation()}>
                     <button
                       className="btn btn-ghost"
                       style={{ padding: '2px 8px', fontSize: 10 }}

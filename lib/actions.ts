@@ -64,6 +64,18 @@ export async function deletarOperacao(id: string) {
   return { success: true };
 }
 
+export async function deletarOperacoes(ids: string[]) {
+  if (!ids.length) return { success: true };
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Não autenticado' };
+  const { error } = await supabase.from('operacoes').delete().in('id', ids).eq('user_id', user.id);
+  if (error) return { error: error.message };
+  revalidatePath('/dashboard');
+  revalidatePath('/historico');
+  return { success: true };
+}
+
 // ─── CONFIG ─────────────────────────────────────────────
 export async function salvarConfig(_: unknown, formData: FormData) {
   const supabase = await createClient();

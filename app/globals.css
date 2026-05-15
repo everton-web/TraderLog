@@ -218,6 +218,7 @@ body { font-family: var(--font); background: var(--bg-base); color: var(--text-p
 .ops-table tbody tr:hover { background: var(--bg-card-hover); }
 .ops-table tbody tr:last-child td { border-bottom: none; }
 .ops-table .empty-row td { text-align: center; color: var(--text-muted); padding: 32px; }
+.ops-table tbody tr.selectable-row { cursor: pointer; user-select: none; }
 
 /* ─── BADGES ────────────────────────────────────────────── */
 .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
