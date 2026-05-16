@@ -20,10 +20,14 @@ export default function ConfigClient({ config, stat }: { config: Configuracao | 
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    const capVal = parseFloat(capital);
+    const pctVal = parseFloat(riscoPct);
+    if (isNaN(capVal) || capVal < 0) { showToast('Capital inválido', 'error'); return; }
+    if (isNaN(pctVal) || pctVal < 0 || pctVal > 100) { showToast('% Risco deve ser entre 0 e 100', 'error'); return; }
     setSaving(true);
     const fd = new FormData();
-    fd.set('capital',          capital);
-    fd.set('risco_pct',        riscoPct);
+    fd.set('capital',          String(Math.round(capVal * 100) / 100));
+    fd.set('risco_pct',        String(Math.round(pctVal * 100) / 100));
     fd.set('mao_fixa',         String(maoFixa));
     fd.set('contratos_fixos',  contratos);
     fd.set('alvo_mult',        alvoMult);
