@@ -48,7 +48,7 @@ export default function ConfigClient({ config, stat }: { config: Configuracao | 
             <div className="config-row">
               <div className="config-group">
                 <label className="form-label" htmlFor="capital">Capital Inicial (R$)</label>
-                <input type="number" id="capital" className="form-input mono" min="0" step="100" value={capital} onChange={e => setCapital(e.target.value)} />
+                <input type="number" id="capital" className="form-input mono" min="0" step="any" value={capital} onChange={e => setCapital(e.target.value)} />
               </div>
               <div className="config-group">
                 <label className="form-label" htmlFor="riscoPct">% Risco por Operação</label>
