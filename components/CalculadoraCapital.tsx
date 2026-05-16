@@ -8,13 +8,15 @@ function fmt(v: number): string {
 }
 
 export function CalculadoraCapital() {
-  const [stop,     setStop]     = useState(500);
-  const [rrRaw,    setRrRaw]    = useState(15);
-  const [maxStops, setMaxStops] = useState(2);
+  const [stop,      setStop]      = useState(500);
+  const [rrRaw,     setRrRaw]     = useState(15);
+  const [maxStops,  setMaxStops]  = useState(2);
+  const [contratos, setContratos] = useState(2);
 
-  const rr     = rrRaw / 10;
-  const risco  = stop * 2 * 0.2;
-  const alvo   = stop * rr * 2 * 0.2;
+  const rr    = rrRaw / 10;
+  const tick  = 0.20; // WIN
+  const risco = stop * contratos * tick;
+  const alvo  = stop * rr * contratos * tick;
   const lossD  = risco * maxStops;
   const colchao = lossD * 3;
   const margem  = 310;
@@ -55,6 +57,7 @@ export function CalculadoraCapital() {
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           {[
+            { label: 'Contratos', val: contratos, min: 1, max: 10, step: 1, set: setContratos, display: String(contratos) },
             { label: 'Stop por operação (pts)', val: stop, min: 100, max: 500, step: 50, set: setStop, display: String(stop) },
             { label: 'Alvo mínimo (R:R)',       val: rrRaw, min: 10, max: 30, step: 1, set: setRrRaw, display: rr.toFixed(1) },
             { label: 'Loss máx. diário (stops)',val: maxStops, min: 1, max: 4, step: 1, set: setMaxStops, display: String(maxStops) },
@@ -74,8 +77,8 @@ export function CalculadoraCapital() {
       {/* Métricas */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         {[
-          { label: 'Risco por operação', valor: fmt(risco), sub: `${stop} pts × 2 contr.`, icon: <ShieldAlert size={13} style={{ color: 'var(--pe-color)' }} /> },
-          { label: 'Alvo por operação',  valor: fmt(alvo),  sub: `${Math.round(stop * rr)} pts × 2 contr.`, icon: <Target size={13} style={{ color: 'var(--gain)' }} /> },
+          { label: 'Risco por operação', valor: fmt(risco), sub: `${stop} pts × ${contratos} contr.`, icon: <ShieldAlert size={13} style={{ color: 'var(--pe-color)' }} /> },
+          { label: 'Alvo por operação',  valor: fmt(alvo),  sub: `${Math.round(stop * rr)} pts × ${contratos} contr.`, icon: <Target size={13} style={{ color: 'var(--gain)' }} /> },
           { label: 'Loss máximo diário', valor: fmt(lossD), sub: `${maxStops} stop(s)`, icon: <TrendingUp size={13} style={{ color: 'var(--loss)' }} /> },
           { label: 'Colchão (3 dias ruins)', valor: fmt(colchao), sub: `3 dias × ${fmt(lossD)}/dia`, icon: <Wallet size={13} style={{ color: '#3b82f6' }} /> },
         ].map(m => (
@@ -143,9 +146,9 @@ export function CalculadoraCapital() {
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {[
-            { label: 'Fase 1 — agora', titulo: 'Simulador (2–4 semanas)', desc: `2 contratos no replay. Meta: 60%+ de acerto com R:R ${rr.toFixed(1)} em 50 operações. Registrar tudo no TraderLog.` },
-            { label: 'Fase 2 — capital mínimo', titulo: `Juntar ${fmt(capMin)} → 1 contrato real`, desc: `1 contrato até atingir ${fmt(capIdeal)}. Risco por op: ${fmt(risco / 2)}. Loss diário máx: ${fmt(lossD / 2)}. Reinveste os lucros.` },
-            { label: 'Fase 3 — capital ideal', titulo: `Com ${fmt(capIdeal)} → 2 contratos`, desc: `Risco por op: ${fmt(risco)}. Loss diário máx: ${fmt(lossD)}. Meta conservadora: ${fmt(metaDia)}/dia — ${fmt(metaSem)}/semana.` },
+            { label: 'Fase 1 — agora', titulo: `Simulador (2–4 semanas)`, desc: `${contratos} contrato(s) no replay. Meta: 60%+ de acerto com R:R ${rr.toFixed(1)} em 50 operações. Registrar tudo no TraderLog.` },
+            { label: 'Fase 2 — capital mínimo', titulo: `Juntar ${fmt(capMin)} → 1 contrato real`, desc: `1 contrato até atingir ${fmt(capIdeal)}. Risco por op: ${fmt(risco / contratos)}. Loss diário máx: ${fmt(lossD / contratos)}. Reinveste os lucros.` },
+            { label: 'Fase 3 — capital ideal', titulo: `Com ${fmt(capIdeal)} → ${contratos} contrato(s)`, desc: `Risco por op: ${fmt(risco)}. Loss diário máx: ${fmt(lossD)}. Meta conservadora: ${fmt(metaDia)}/dia — ${fmt(metaSem)}/semana.` },
             { label: 'Fase 4 — crescimento', titulo: `Acima de ${fmt(capConf)} → consistência`, desc: `Meta mensal realista: ${fmt(metaMes1)}–${fmt(metaMes2)}. Nunca sacar abaixo de ${fmt(capIdeal)}.` },
           ].map((fase, i) => (
             <div key={fase.label} style={{ borderLeft: `2px solid ${faseColors[i]}`, paddingLeft: 12 }}>
@@ -159,7 +162,7 @@ export function CalculadoraCapital() {
 
       {/* Reset */}
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <button onClick={() => { setStop(500); setRrRaw(15); setMaxStops(2); }}
+        <button onClick={() => { setStop(500); setRrRaw(15); setMaxStops(2); setContratos(2); }}
           className="btn btn-ghost" style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
           <RotateCcw size={13} /> Resetar parâmetros
         </button>
