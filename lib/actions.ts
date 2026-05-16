@@ -82,13 +82,20 @@ export async function salvarConfig(_: unknown, formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Não autenticado' };
 
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+
+  const capital      = round2(Math.abs(Number(formData.get('capital')) || 0));
+  const risco_pct    = round2(Math.min(Math.abs(Number(formData.get('risco_pct')) || 0), 9.99));
+  const alvo_mult    = round2(Math.min(Math.abs(Number(formData.get('alvo_mult')) || 1), 99.99));
+  const contratos    = Math.max(1, Math.round(Number(formData.get('contratos_fixos')) || 1));
+
   const config = {
     user_id: user.id,
-    capital: Number(formData.get('capital')),
-    risco_pct: Number(formData.get('risco_pct')),
+    capital,
+    risco_pct,
     mao_fixa: formData.get('mao_fixa') === 'true',
-    contratos_fixos: Number(formData.get('contratos_fixos')),
-    alvo_mult: Number(formData.get('alvo_mult')),
+    contratos_fixos: contratos,
+    alvo_mult,
   };
 
   const { error } = await supabase
