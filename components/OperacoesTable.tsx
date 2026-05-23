@@ -109,7 +109,7 @@ export default function OperacoesTable({
                       />
                     </td>
                   )}
-                  <td style={{ color: 'var(--text-muted)', fontSize: 11 }}>{row.seq}</td>
+                  <td style={{ color: 'var(--text-muted)', fontSize: 12.5 }}>{row.seq}</td>
                   <td>{formatDate(op.data)}</td>
                   <td><span style={{ fontWeight: 700 }}>{op.ativo}</span></td>
                   <td style={{ color: op.tipo === 'Compra' ? 'var(--gain)' : 'var(--loss)' }}>{op.tipo}</td>
@@ -123,17 +123,17 @@ export default function OperacoesTable({
                     {fmtPts(op.pts_final)}
                   </td>
                   <td>{op.qtde_total}</td>
-                  <td style={{ color: 'var(--text-muted)', fontSize: 11 }}>
+                  <td style={{ color: 'var(--text-muted)', fontSize: 12.5 }}>
                     {row.pctRiscoCapital != null ? (row.pctRiscoCapital * 100).toFixed(1) + '%' : '—'}
                   </td>
                   <td className={op.rs_final != null && op.rs_final > 0 ? 'gain-text' : op.rs_final != null && op.rs_final < 0 ? 'loss-text' : ''} style={{ fontWeight: 700 }}>
                     {fmtRS(op.rs_final)}
                   </td>
-                  <td className="mono" style={{ fontSize: 12 }}>{fmtRS(row.capitalAcumulado)}</td>
-                  <td className="mono" style={{ fontSize: 12, color: 'var(--text-muted)' }}>{fmtRS(row.topo)}</td>
+                  <td className="mono" style={{ fontSize: 13.5 }}>{fmtRS(row.capitalAcumulado)}</td>
+                  <td className="mono" style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>{fmtRS(row.topo)}</td>
                   <td style={{
                     fontWeight: 700,
-                    fontSize: 12,
+                    fontSize: 13.5,
                     color: row.ddPct > 0.15 ? 'var(--pe-color)' : row.ddPct > 0 ? 'var(--loss)' : 'var(--text-muted)',
                   }}>
                     {row.ddPct > 0 ? '-' + (row.ddPct * 100).toFixed(1) + '%' : '—'}
@@ -142,7 +142,7 @@ export default function OperacoesTable({
                   <td onClick={e => e.stopPropagation()}>
                     <button
                       className="btn btn-ghost"
-                      style={{ padding: '2px 8px', fontSize: 10 }}
+                      style={{ padding: '2px 8px', fontSize: 11.5 }}
                       onClick={() => handleDelete(op.id)}
                       disabled={deletingId === op.id}
                     >
@@ -185,7 +185,7 @@ export default function OperacoesTable({
             <tr key={op.id}>
               <td style={{ color: 'var(--text-muted)' }}>{i + 1}</td>
               <td>{formatDate(op.data)}</td>
-              <td style={{ color: 'var(--text-muted)', fontSize: 10 }}>{op.dia_semana}</td>
+              <td style={{ color: 'var(--text-muted)', fontSize: 11.5 }}>{op.dia_semana}</td>
               <td><span style={{ fontWeight: 700 }}>{op.ativo}</span></td>
               <td style={{ color: op.tipo === 'Compra' ? 'var(--gain)' : 'var(--loss)' }}>{op.tipo}</td>
               <td className="mono">{op.pe?.toLocaleString('pt-BR')}</td>
@@ -202,7 +202,7 @@ export default function OperacoesTable({
               <td>
                 <button
                   className="btn btn-ghost"
-                  style={{ padding: '2px 8px', fontSize: 10 }}
+                  style={{ padding: '2px 8px', fontSize: 11.5 }}
                   onClick={() => handleDelete(op.id)}
                   disabled={deletingId === op.id}
                 >

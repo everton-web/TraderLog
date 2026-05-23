@@ -63,7 +63,7 @@ export default function PerfilClient({ profile, email }: { profile: Profile; ema
               <button
                 type="button"
                 className="btn btn-secondary"
-                style={{ marginTop: 8, fontSize: 11, padding: '4px 10px' }}
+                style={{ marginTop: 8, fontSize: 12, padding: '4px 10px' }}
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
               >
@@ -106,7 +106,7 @@ export default function PerfilClient({ profile, email }: { profile: Profile; ema
           </form>
 
           <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', gap: 12, fontSize: 12, color: 'var(--text-muted)' }}>
+            <div style={{ display: 'flex', gap: 12, fontSize: 13.5, color: 'var(--text-muted)' }}>
               <span>Perfil: <strong style={{ color: 'var(--text-secondary)' }}>{profile.role}</strong></span>
               <span>Desde: <strong style={{ color: 'var(--text-secondary)' }}>{new Date(profile.created_at).toLocaleDateString('pt-BR')}</strong></span>
             </div>

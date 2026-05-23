@@ -153,7 +153,7 @@ export default function HistoricoClient({
       </div>
 
       {rowsFiltradas.length > 0 && (
-        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12 }}>
+        <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 12 }}>
           {rowsFiltradas.length} operações — R$ Total:{' '}
           <strong style={{ color: stat.rsTotal >= 0 ? 'var(--gain)' : 'var(--loss)' }}>
             {fmtRS(stat.rsTotal)}
@@ -179,7 +179,7 @@ export default function HistoricoClient({
           borderRadius: 8,
           background: 'rgba(99,102,241,0.08)',
           border: '1px solid rgba(99,102,241,0.25)',
-          fontSize: 13,
+          fontSize: 14,
         }}>
           <CheckSquare size={15} style={{ color: 'var(--primary)', flexShrink: 0 }} />
           <span style={{ fontWeight: 600, color: 'var(--primary)' }}>
@@ -188,7 +188,7 @@ export default function HistoricoClient({
           <div style={{ display: 'flex', gap: 8, marginLeft: 8 }}>
             <button
               className="btn btn-ghost"
-              style={{ fontSize: 12, padding: '4px 12px', display: 'flex', alignItems: 'center', gap: 5 }}
+              style={{ fontSize: 13, padding: '4px 12px', display: 'flex', alignItems: 'center', gap: 5 }}
               onClick={handleBulkCSV}
             >
               <Download size={13} strokeWidth={1.75} /> Baixar CSV
@@ -196,7 +196,7 @@ export default function HistoricoClient({
             <button
               className="btn btn-ghost"
               style={{
-                fontSize: 12, padding: '4px 12px',
+                fontSize: 13, padding: '4px 12px',
                 display: 'flex', alignItems: 'center', gap: 5,
                 color: 'var(--loss)', opacity: deleting ? 0.5 : 1,
               }}
@@ -209,7 +209,7 @@ export default function HistoricoClient({
           </div>
           <button
             className="btn btn-ghost"
-            style={{ marginLeft: 'auto', fontSize: 11, padding: '2px 8px' }}
+            style={{ marginLeft: 'auto', fontSize: 12, padding: '2px 8px' }}
             onClick={clearSelection}
           >
             <X size={11} /> Desmarcar

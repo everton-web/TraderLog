@@ -58,7 +58,7 @@ export default function ApiTokenSection({ initialToken }: { initialToken: string
       )}
 
       {error && (
-        <div className="pluggy-feedback error">
+        <div className="api-feedback error">
           <AlertCircle size={13} /> {error}
         </div>
       )}

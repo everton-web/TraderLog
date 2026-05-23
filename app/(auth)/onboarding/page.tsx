@@ -44,10 +44,10 @@ export default function OnboardingPage() {
           </div>
 
           <div style={{ marginBottom: 20 }}>
-            <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 6, color: 'var(--text-primary)' }}>
+            <h2 style={{ fontSize: 16.5, fontWeight: 600, marginBottom: 6, color: 'var(--text-primary)' }}>
               Conectar com o Profit Pro
             </h2>
-            <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+            <p style={{ fontSize: 14.5, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
               Configure abaixo para que suas operações sejam registradas automaticamente
               quando você operar no Profit Pro. Pode pular e configurar depois em{' '}
               <strong>Integrações</strong>.

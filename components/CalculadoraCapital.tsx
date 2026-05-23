@@ -52,7 +52,7 @@ export function CalculadoraCapital() {
 
       {/* Parâmetros */}
       <div style={card}>
-        <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 16 }}>
+        <p style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 16 }}>
           Parâmetros da operação
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -64,8 +64,8 @@ export function CalculadoraCapital() {
           ].map(s => (
             <div key={s.label}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{s.label}</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>{s.display}</span>
+                <span style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>{s.label}</span>
+                <span style={{ fontSize: 15.5, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>{s.display}</span>
               </div>
               <input type="range" min={s.min} max={s.max} step={s.step} value={s.val}
                 onChange={e => s.set(Number(e.target.value))} style={sliderStyle} />
@@ -85,17 +85,17 @@ export function CalculadoraCapital() {
           <div key={m.label} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '12px 14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
               {m.icon}
-              <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{m.label}</span>
+              <span style={{ fontSize: 12.5, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{m.label}</span>
             </div>
-            <p style={{ fontSize: 18, fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>{m.valor}</p>
-            <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{m.sub}</p>
+            <p style={{ fontSize: 20, fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>{m.valor}</p>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{m.sub}</p>
           </div>
         ))}
       </div>
 
       {/* Capital recomendado */}
       <div style={card}>
-        <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14 }}>
+        <p style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14 }}>
           Capital recomendado
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
@@ -125,12 +125,12 @@ export function CalculadoraCapital() {
               borderTop: i > 0 ? '1px solid var(--border)' : 'none',
             }}>
               <div>
-                <p style={{ fontSize: 14, fontWeight: i === 1 ? 700 : 500, color: 'var(--text-primary)' }}>{r.label}</p>
-                <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{r.sub}</p>
+                <p style={{ fontSize: 15.5, fontWeight: i === 1 ? 700 : 500, color: 'var(--text-primary)' }}>{r.label}</p>
+                <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{r.sub}</p>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: 16, fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>{r.valor}</p>
-                <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 10, display: 'inline-block', marginTop: 3, ...r.tagStyle }}>
+                <p style={{ fontSize: 18, fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>{r.valor}</p>
+                <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 7px', borderRadius: 10, display: 'inline-block', marginTop: 3, ...r.tagStyle }}>
                   {r.tag}
                 </span>
               </div>
@@ -141,7 +141,7 @@ export function CalculadoraCapital() {
 
       {/* Fases */}
       <div style={card}>
-        <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14 }}>
+        <p style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14 }}>
           Fases do plano
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -152,9 +152,9 @@ export function CalculadoraCapital() {
             { label: 'Fase 4 — crescimento', titulo: `Acima de ${fmt(capConf)} → consistência`, desc: `Meta mensal realista: ${fmt(metaMes1)}–${fmt(metaMes2)}. Nunca sacar abaixo de ${fmt(capIdeal)}.` },
           ].map((fase, i) => (
             <div key={fase.label} style={{ borderLeft: `2px solid ${faseColors[i]}`, paddingLeft: 12 }}>
-              <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{fase.label}</p>
-              <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginTop: 2 }}>{fase.titulo}</p>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6, marginTop: 3 }}>{fase.desc}</p>
+              <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{fase.label}</p>
+              <p style={{ fontSize: 15.5, fontWeight: 600, color: 'var(--text-primary)', marginTop: 2 }}>{fase.titulo}</p>
+              <p style={{ fontSize: 13.5, color: 'var(--text-muted)', lineHeight: 1.6, marginTop: 3 }}>{fase.desc}</p>
             </div>
           ))}
         </div>
@@ -163,7 +163,7 @@ export function CalculadoraCapital() {
       {/* Reset */}
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button onClick={() => { setStop(500); setRrRaw(15); setMaxStops(2); setContratos(2); }}
-          className="btn btn-ghost" style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+          className="btn btn-ghost" style={{ fontSize: 14.5, display: 'flex', alignItems: 'center', gap: 6 }}>
           <RotateCcw size={13} /> Resetar parâmetros
         </button>
       </div>

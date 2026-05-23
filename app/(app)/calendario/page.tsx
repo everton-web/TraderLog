@@ -85,10 +85,10 @@ export default async function CalendarioPage() {
           padding: '32px',
           textAlign: 'center',
         }}>
-          <div style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 12 }}>
+          <div style={{ fontSize: 15.5, color: 'var(--text-muted)', marginBottom: 12 }}>
             Configure a variável de ambiente <code style={{ background: 'var(--bg-surface)', padding: '2px 6px', borderRadius: 4 }}>FMP_API_KEY</code> no Vercel para exibir os eventos.
           </div>
-          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+          <div style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>
             Chave gratuita em financialmodelingprep.com → até 250 req/dia
           </div>
         </div>
@@ -102,7 +102,7 @@ export default async function CalendarioPage() {
           padding: '32px',
           textAlign: 'center',
           color: 'var(--text-muted)',
-          fontSize: 14,
+          fontSize: 15.5,
         }}>
           Nenhum evento de impacto médio/alto nos próximos 7 dias.
         </div>
@@ -131,11 +131,11 @@ export default async function CalendarioPage() {
                   const hasActual = ev.actual != null && ev.actual !== '';
                   return (
                     <tr key={i} style={hasActual ? { opacity: 0.65 } : {}}>
-                      <td style={{ fontFamily: 'var(--font-mono)', fontSize: 13 }}>{data}</td>
-                      <td style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--text-muted)' }}>{hora}</td>
+                      <td style={{ fontFamily: 'var(--font-mono)', fontSize: 14.5 }}>{data}</td>
+                      <td style={{ fontFamily: 'var(--font-mono)', fontSize: 14.5, color: 'var(--text-muted)' }}>{hora}</td>
                       <td>
                         <span style={{
-                          fontSize: 10, fontWeight: 700, letterSpacing: '0.05em',
+                          fontSize: 11, fontWeight: 700, letterSpacing: '0.05em',
                           background: 'var(--bg-surface)', border: '1px solid var(--border)',
                           borderRadius: 3, padding: '1px 5px', color: 'var(--text-secondary)',
                         }}>
@@ -145,7 +145,7 @@ export default async function CalendarioPage() {
                       <td style={{ maxWidth: 320, fontWeight: 500 }}>{ev.event}</td>
                       <td>
                         <span style={{
-                          fontSize: 10, fontWeight: 700, color: cor,
+                          fontSize: 11, fontWeight: 700, color: cor,
                           background: `color-mix(in srgb, ${cor} 10%, transparent)`,
                           border: `1px solid color-mix(in srgb, ${cor} 30%, transparent)`,
                           borderRadius: 3, padding: '1px 6px',
@@ -153,14 +153,14 @@ export default async function CalendarioPage() {
                           {IMPACT_LABEL[ev.impact] ?? ev.impact}
                         </span>
                       </td>
-                      <td style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: 'var(--text-muted)' }}>
+                      <td style={{ fontFamily: 'var(--font-mono)', fontSize: 14.5, color: 'var(--text-muted)' }}>
                         {formatValor(ev.previous)}
                       </td>
-                      <td style={{ fontFamily: 'var(--font-mono)', fontSize: 13 }}>
+                      <td style={{ fontFamily: 'var(--font-mono)', fontSize: 14.5 }}>
                         {formatValor(ev.estimate)}
                       </td>
                       <td style={{
-                        fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700,
+                        fontFamily: 'var(--font-mono)', fontSize: 14.5, fontWeight: 700,
                         color: hasActual ? 'var(--gain)' : 'var(--text-muted)',
                       }}>
                         {formatValor(ev.actual)}

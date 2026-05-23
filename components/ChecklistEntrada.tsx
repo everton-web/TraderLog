@@ -92,8 +92,8 @@ export function ChecklistEntrada() {
       {/* Progresso */}
       <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '16px 18px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>Progresso</span>
-          <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>{totalChecked} / {TOTAL_MAIN}</span>
+          <span style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--text-secondary)' }}>Progresso</span>
+          <span style={{ fontSize: 14.5, color: 'var(--text-muted)' }}>{totalChecked} / {TOTAL_MAIN}</span>
         </div>
         <div style={{ width: '100%', height: 6, background: 'var(--bg-surface)', borderRadius: 3, marginBottom: 12, overflow: 'hidden' }}>
           <div style={{ height: '100%', width: `${pct}%`, background: barColor, borderRadius: 3, transition: 'width 0.3s ease, background 0.3s ease' }} />
@@ -102,19 +102,19 @@ export function ChecklistEntrada() {
         {killerAtivo && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--loss-bg)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 'var(--radius)', padding: '8px 12px' }}>
             <Ban size={14} style={{ color: 'var(--loss)', flexShrink: 0 }} />
-            <span style={{ fontSize: 13, color: 'var(--loss)', fontWeight: 600 }}>Trava ativa — não opere independente do setup.</span>
+            <span style={{ fontSize: 14.5, color: 'var(--loss)', fontWeight: 600 }}>Trava ativa — não opere independente do setup.</span>
           </div>
         )}
         {!killerAtivo && completo && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--gain-bg)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 'var(--radius)', padding: '8px 12px' }}>
             <CheckCircle2 size={14} style={{ color: 'var(--gain)', flexShrink: 0 }} />
-            <span style={{ fontSize: 13, color: 'var(--gain)', fontWeight: 600 }}>Checklist completo — entrada autorizada. Registre no TraderLog.</span>
+            <span style={{ fontSize: 14.5, color: 'var(--gain)', fontWeight: 600 }}>Checklist completo — entrada autorizada. Registre no TraderLog.</span>
           </div>
         )}
         {!killerAtivo && !completo && totalChecked >= 7 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--pe-bg)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 'var(--radius)', padding: '8px 12px' }}>
             <AlertTriangle size={14} style={{ color: 'var(--pe-color)', flexShrink: 0 }} />
-            <span style={{ fontSize: 13, color: 'var(--pe-color)', fontWeight: 600 }}>{TOTAL_MAIN - totalChecked} iten(s) pendente(s) — revise antes de entrar.</span>
+            <span style={{ fontSize: 14.5, color: 'var(--pe-color)', fontWeight: 600 }}>{TOTAL_MAIN - totalChecked} iten(s) pendente(s) — revise antes de entrar.</span>
           </div>
         )}
       </div>
@@ -123,7 +123,7 @@ export function ChecklistEntrada() {
       {SECOES.map(secao => (
         <div key={secao.id}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: '0.05em', ...COR[secao.cor].badge }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 700, padding: '3px 9px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: '0.05em', ...COR[secao.cor].badge }}>
               {secao.icone}
               {secao.label}
             </span>
@@ -151,11 +151,11 @@ export function ChecklistEntrada() {
                     }
                   </div>
                   <div>
-                    <p style={{ fontSize: 14, fontWeight: 500, color: isChecked ? 'var(--text-muted)' : 'var(--text-primary)', textDecoration: isChecked ? 'line-through' : 'none' }}>
+                    <p style={{ fontSize: 15.5, fontWeight: 500, color: isChecked ? 'var(--text-muted)' : 'var(--text-primary)', textDecoration: isChecked ? 'line-through' : 'none' }}>
                       {item.texto}
                     </p>
                     {item.sub && (
-                      <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2, lineHeight: 1.5 }}>{item.sub}</p>
+                      <p style={{ fontSize: 13.5, color: 'var(--text-muted)', marginTop: 2, lineHeight: 1.5 }}>{item.sub}</p>
                     )}
                   </div>
                 </button>
@@ -168,10 +168,10 @@ export function ChecklistEntrada() {
       {/* Travas absolutas */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: '0.05em', background: 'var(--loss-bg)', color: 'var(--loss)', border: '1px solid rgba(239,68,68,0.2)' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 700, padding: '3px 9px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: '0.05em', background: 'var(--loss-bg)', color: 'var(--loss)', border: '1px solid rgba(239,68,68,0.2)' }}>
             <XCircle size={13} /> Travas absolutas
           </span>
-          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Se qualquer uma for verdadeira → não opere</span>
+          <span style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>Se qualquer uma for verdadeira → não opere</span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {TRAVAS.map(trava => {
@@ -194,7 +194,7 @@ export function ChecklistEntrada() {
                     : <Circle size={17} style={{ color: 'var(--text-muted)' }} />
                   }
                 </div>
-                <p style={{ fontSize: 14, fontWeight: 500, color: isAtiva ? 'var(--loss)' : 'var(--text-primary)' }}>
+                <p style={{ fontSize: 15.5, fontWeight: 500, color: isAtiva ? 'var(--loss)' : 'var(--text-primary)' }}>
                   {trava.texto}
                 </p>
               </button>
@@ -208,7 +208,7 @@ export function ChecklistEntrada() {
         <button
           onClick={() => { setChecked(new Set()); setTravas(new Set()); }}
           className="btn btn-ghost"
-          style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}
+          style={{ fontSize: 14.5, display: 'flex', alignItems: 'center', gap: 6 }}
         >
           <RotateCcw size={13} /> Reiniciar checklist
         </button>
