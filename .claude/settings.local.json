@@ -56,7 +56,9 @@
       "WebSearch",
       "WebFetch(domain:raw.githubusercontent.com)",
       "PowerShell(auth *)",
-      "Bash(findstr /i \"ready error aliased production\")"
+      "Bash(findstr /i \"ready error aliased production\")",
+      "Skill(vercel:deploy)",
+      "PowerShell(vercel *)"
     ]
   }
 }

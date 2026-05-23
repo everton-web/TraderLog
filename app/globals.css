@@ -66,13 +66,14 @@
   --radius:      4px;
   --radius-lg:   8px;
   --topbar-h:    60px;
-  --font:        'Inter', -apple-system, sans-serif;
-  --font-mono:   'JetBrains Mono', monospace;
+  --font:        var(--font-inter), 'Inter', -apple-system, sans-serif;
+  --font-mono:   var(--font-inter), 'Inter', -apple-system, sans-serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 17px; }
 body { font-family: var(--font); background: var(--bg-base); color: var(--text-primary); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+input, button, select, textarea, optgroup { font-family: inherit; font-size: inherit; }
 
 /* ─── APP SHELL ─────────────────────────────────────────── */
 .app-wrapper { display: flex; min-height: 100vh; }
