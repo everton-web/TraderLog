@@ -533,3 +533,62 @@ input, button, select, textarea, optgroup { font-family: inherit; font-size: inh
 .insight-line::before { content: '•'; position: absolute; left: 0; color: var(--gain); font-weight: 700; }
 .insight-refresh { display: inline-flex; align-items: center; gap: 4px; background: none; border: none; font-size: var(--text-xs); color: var(--text-muted); cursor: pointer; font-family: var(--font); padding: 4px 0 0; transition: color var(--transition); }
 .insight-refresh:hover { color: var(--text-secondary); }
+
+/* ── Página de Instruções ─────────────────────────────────────────────────── */
+.instrucoes-page { max-width: 820px; margin: 0 auto; padding-bottom: 60px; }
+.instrucoes-hero { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
+.instrucoes-hero-icon { width: 52px; height: 52px; border-radius: var(--radius-lg); background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.instrucoes-hero-title { font-size: var(--text-xl); font-weight: 700; letter-spacing: -0.3px; line-height: var(--lh-tight); }
+.instrucoes-hero-sub { font-size: var(--text-base); color: var(--text-muted); margin-top: 4px; line-height: var(--lh-normal); }
+
+.instrucoes-index { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 36px; }
+.instrucoes-index-link { font-size: var(--text-sm); font-weight: 600; color: var(--text-secondary); background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; text-decoration: none; transition: border-color var(--transition), color var(--transition); }
+.instrucoes-index-link:hover { border-color: var(--border-active); color: var(--text-primary); }
+
+.instrucoes-anchor { display: block; height: 0; visibility: hidden; margin-top: -80px; padding-top: 80px; }
+.instrucoes-content { display: flex; flex-direction: column; gap: 28px; }
+
+.instrucoes-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.instrucoes-section-header { display: flex; align-items: flex-start; gap: 14px; padding: 20px 24px; border-bottom: 1px solid var(--border); }
+.instrucoes-section-icon { width: 38px; height: 38px; border-radius: var(--radius); border: 1px solid; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.instrucoes-section-title { font-size: var(--text-md); font-weight: 700; letter-spacing: -0.2px; line-height: var(--lh-tight); }
+.instrucoes-section-sub { font-size: var(--text-sm); color: var(--text-muted); margin-top: 3px; line-height: var(--lh-snug); }
+.instrucoes-section-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 12px; }
+
+.instrucoes-p { font-size: var(--text-sm); color: var(--text-secondary); line-height: var(--lh-normal); }
+.instrucoes-h3 { font-size: var(--text-sm); font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.instrucoes-field { display: flex; gap: 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.instrucoes-field:last-of-type { border-bottom: none; }
+.instrucoes-field-label { font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); min-width: 160px; flex-shrink: 0; line-height: var(--lh-snug); }
+.instrucoes-field-desc { font-size: var(--text-sm); color: var(--text-secondary); line-height: var(--lh-normal); }
+
+.instrucoes-tip { display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; border-radius: var(--radius); border: 1px solid; }
+
+.instrucoes-ai-sections { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.instrucoes-ai-row { display: flex; gap: 10px; align-items: baseline; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.instrucoes-ai-row:last-child { border-bottom: none; }
+.instrucoes-ai-label { font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); min-width: 170px; flex-shrink: 0; }
+.instrucoes-ai-desc { font-size: var(--text-sm); color: var(--text-secondary); line-height: var(--lh-normal); }
+
+.instrucoes-steps-list { display: flex; flex-direction: column; gap: 8px; }
+.instrucoes-step { display: flex; align-items: flex-start; gap: 12px; }
+.instrucoes-step-n { width: 24px; height: 24px; border-radius: 50%; background: var(--gain); color: #fff; font-size: var(--text-xs); font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.instrucoes-step-title { font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); line-height: var(--lh-snug); }
+.instrucoes-step-desc { font-size: var(--text-sm); color: var(--text-secondary); line-height: var(--lh-normal); margin-top: 2px; }
+
+.instrucoes-fluxo { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.instrucoes-fluxo-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
+.instrucoes-fluxo-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.instrucoes-fluxo-icon { width: 26px; height: 26px; border-radius: var(--radius-sm); border: 1px solid; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.instrucoes-fluxo-label { font-size: var(--text-sm); font-weight: 700; }
+.instrucoes-fluxo-list { display: flex; flex-direction: column; gap: 6px; list-style: none; }
+.instrucoes-fluxo-item { display: flex; align-items: flex-start; gap: 6px; font-size: var(--text-sm); color: var(--text-secondary); line-height: var(--lh-normal); }
+
+@media (max-width: 640px) {
+  .instrucoes-fluxo { grid-template-columns: 1fr; }
+  .instrucoes-field { flex-direction: column; gap: 2px; }
+  .instrucoes-field-label { min-width: unset; }
+  .instrucoes-ai-row { flex-direction: column; gap: 2px; }
+  .instrucoes-ai-label { min-width: unset; }
+}

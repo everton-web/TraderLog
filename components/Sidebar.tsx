@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/lib/actions';
-import { LayoutDashboard, ClipboardList, Settings, User, Crown, LogOut, TrendingUp, BarChart2, CalendarDays, Link2, ClipboardCheck, BookOpen } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, Settings, User, Crown, LogOut, TrendingUp, BarChart2, CalendarDays, Link2, ClipboardCheck, BookOpen, HelpCircle } from 'lucide-react';
 import type { Profile } from '@/lib/types';
 
 const NAV_SECTIONS = [
@@ -26,9 +26,10 @@ const NAV_SECTIONS = [
   {
     label: 'Configurações',
     items: [
-      { href: '/config',      icon: Settings, label: 'Configurações' },
-      { href: '/perfil',      icon: User,     label: 'Perfil' },
-      { href: '/integracoes', icon: Link2,    label: 'Integrações' },
+      { href: '/config',       icon: Settings,    label: 'Configurações' },
+      { href: '/perfil',       icon: User,        label: 'Perfil' },
+      { href: '/integracoes',  icon: Link2,       label: 'Integrações' },
+      { href: '/instrucoes',   icon: HelpCircle,  label: 'Instruções' },
     ],
   },
 ];
