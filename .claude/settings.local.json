@@ -64,7 +64,10 @@
       "Bash(Select-Object Name, Length, LastWriteTime)",
       "Bash(Select-Object Name, Length)",
       "PowerShell(Test-Path *)",
-      "Bash(Remove-Item *)"
+      "Bash(Remove-Item *)",
+      "Bash(rm components/AgendaEconomica.tsx)",
+      "Bash(rm app/api/mercado/calendario/route.ts)",
+      "Bash(rmdir app/api/mercado/calendario)"
     ]
   }
 }

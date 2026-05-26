@@ -193,7 +193,6 @@ export default function InstrucoesPage() {
           <FieldRow label="Distribuição de setups" desc="Quais setups estão gerando mais resultado e quais estão drenando." />
           <FieldRow label="Coach IA"               desc="Widget no painel direito com insights gerados pelo Groq sobre seu padrão recente de operações." />
           <FieldRow label="Resumo do Mercado"      desc="AMMF de ontem do WIN ou WDO via Yahoo Finance com análise de IA automática. Cache diário — regenera quando necessário." />
-          <FieldRow label="Agenda Econômica"       desc="Calendário econômico via TradingView com filtros por país, impacto (Alto / Médio+ / Todos) e período (Hoje / Semana / Próx. semana). Sem necessidade de API key." />
           <Tip type="info">
             O Coach IA no dashboard foca em padrões estatísticos das suas operações (melhor dia da semana,
             setup mais lucrativo, horários). É diferente da análise do Diário, que avalia o dia específico.
@@ -261,17 +260,6 @@ export default function InstrucoesPage() {
           </div>
           <Tip type="ok">A chave é armazenada com segurança e usada apenas para suas próprias análises.</Tip>
 
-          <h3 className="instrucoes-h3" style={{ marginTop: 24 }}>Finnhub (Agenda Econômica)</h3>
-          <p className="instrucoes-p">
-            O Finnhub alimenta a Agenda Econômica no Dashboard e o calendário usado nos briefings de IA.
-            O plano gratuito cobre o uso normal.
-          </p>
-          <div className="instrucoes-steps-list">
-            <Step n={1} title="Acesse o Finnhub" desc="Vá em finnhub.io e crie uma conta gratuita." />
-            <Step n={2} title="Copie sua API Key" desc="No dashboard do Finnhub, copie a API Key exibida na tela inicial." />
-            <Step n={3} title="Cole no TraderLog" desc='Em Integrações, cole a chave no campo "Finnhub — API Key" e clique em Salvar.' />
-          </div>
-
           <h3 className="instrucoes-h3" style={{ marginTop: 24 }}>Profit Pro (importação)</h3>
           <p className="instrucoes-p">
             Configure sua conta Profit Pro para importar operações automaticamente via integração Bridge,
@@ -303,7 +291,7 @@ export default function InstrucoesPage() {
                 itens: [
                   'Antes de cada entrada, execute o Checklist',
                   'Registre cada operação no Diário → botão "+ Registrar operação"',
-                  'Consulte a Agenda Econômica no Dashboard para horários de eventos',
+                  'Registre cada operação no Diário — sem distrações',
                 ],
               },
               {
@@ -323,7 +311,7 @@ export default function InstrucoesPage() {
                 itens: [
                   'Filtre o Histórico por setup para ver o que está funcionando',
                   'Revise o Coach IA no Dashboard para ajustar seu plano da próxima semana',
-                  'Use a Agenda Econômica com filtro "Próx. semana" para antecipar eventos',
+                  'Acompanhe o calendário econômico em fontes externas para antecipar eventos',
                 ],
               },
             ].map(({ momento, icon: Icon, cor, itens }) => (
