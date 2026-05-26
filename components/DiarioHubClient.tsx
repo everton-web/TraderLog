@@ -205,40 +205,15 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
     }
   }
 
-  async function handleFetchCalendario() {
-    setLoadingCal(true);
-    setCalMsg('');
-    const hoje = new Date().toISOString().split('T')[0];
-    const res  = await fetch(`/api/mercado/calendario?from=${hoje}&to=${hoje}`);
-    const data = await res.json();
-    setLoadingCal(false);
-    if (data.missingKey) setCalMsg('Configure a chave Finnhub em Integrações para ver o calendário.');
-    else if (data.events?.length === 0) setCalMsg('Nenhum evento relevante para hoje.');
-    else if (data.events) setCalendario(data.events as CalEvent[]);
-  }
-
   async function handleBriefing() {
     setLoadingBriefing(true);
     setBriefingError('');
-    // Busca calendário automaticamente se ainda não carregado
-    let evts = calendario;
-    if (!evts.length) {
-      try {
-        const hoje   = new Date().toISOString().split('T')[0];
-        const calRes = await fetch(`/api/mercado/calendario?from=${hoje}&to=${hoje}`);
-        const calData = await calRes.json();
-        evts = calData.events ?? [];
-        if (evts.length) setCalendario(evts);
-      } catch {}
-    }
-    const res  = await fetch('/api/diario/briefing', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ eventos: evts }),
-    });
+    const res  = await fetch('/api/diario/briefing', { method: 'POST' });
     const data = await res.json();
     setLoadingBriefing(false);
-    if (data.error) setBriefingError(data.error);
-    else setBriefing(data.briefing);
+    if (data.error) { setBriefingError(data.error); return; }
+    setBriefing(data.briefing);
+    try { localStorage.setItem(`traderlog-briefing-${today}`, data.briefing); } catch {}
   }
 
   async function handleExport() {
