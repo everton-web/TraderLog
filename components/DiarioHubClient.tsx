@@ -5,7 +5,6 @@ import { Plus, X, Save, Sparkles, Loader2, CheckCircle2, AlertCircle, FileDown, 
 import OperacaoForm from './OperacaoForm';
 import type { Configuracao } from '@/lib/types';
 
-type Mercado      = 'lateral' | 'tendencia_alta' | 'tendencia_baixa' | 'volatil';
 type PlanoSeguido = 'sim' | 'parcialmente' | 'nao';
 
 interface TodayOp {
@@ -53,13 +52,6 @@ interface Props {
   initialEntry: InitialEntry | null;
 }
 
-const MERCADO_OPTIONS: { value: Mercado; label: string }[] = [
-  { value: 'lateral',         label: 'Lateral' },
-  { value: 'tendencia_alta',  label: 'Tend. Alta' },
-  { value: 'tendencia_baixa', label: 'Tend. Baixa' },
-  { value: 'volatil',         label: 'Volátil' },
-];
-
 const PLANO_OPTIONS: { value: PlanoSeguido; label: string }[] = [
   { value: 'sim',          label: 'Sim' },
   { value: 'parcialmente', label: 'Parcialmente' },
@@ -105,7 +97,6 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
 
   // Contexto de mercado
   const [ativoRef,    setAtivoRef]    = useState(initialEntry?.ativo_ref  ?? 'WIN');
-  const [mercado,     setMercado]     = useState<Mercado | ''>((initialEntry?.mercado as Mercado) ?? '');
   const [atrPts,      setAtrPts]      = useState(initialEntry?.atr_pts?.toString()    ?? '');
   const [adxValor,    setAdxValor]    = useState(initialEntry?.adx_valor?.toString()  ?? '');
   const [abertura,    setAbertura]    = useState(initialEntry?.abertura?.toString()    ?? '');
@@ -142,7 +133,7 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
     return {
       data:          today,
       ativo_ref:     ativoRef,
-      mercado:       mercado    || null,
+      mercado:       null,
       atr_pts:       atrPts     ? parseInt(atrPts)          : null,
       adx_valor:     adxValor   ? parseInt(adxValor)        : null,
       abertura:      abertura   ? parseFloat(abertura)      : null,
@@ -312,27 +303,17 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
       <div className="card">
         <div className="card-header">
           <h2 className="card-title">Mercado</h2>
-          <p className="card-desc" style={{ marginTop: 3 }}>OHLC automático via Yahoo Finance · Classifique o tipo de mercado</p>
+          <p className="card-desc" style={{ marginTop: 3 }}>OHLC automático via Yahoo Finance · selecione WIN ou WDO</p>
         </div>
         <div className="card-body" style={{ gap: 14 }}>
 
-          {/* Ativo + tipo de mercado */}
-          <div className="form-row" style={{ marginBottom: 0 }}>
-            <div className="form-group">
-              <label className="form-label">Ativo</label>
-              <div className="toggle-group">
-                {['WIN', 'WDO'].map(a => (
-                  <button key={a} type="button" className={`toggle-btn${ativoRef === a ? ' active' : ''}`} onClick={() => setAtivoRef(a)}>{a}</button>
-                ))}
-              </div>
-            </div>
-            <div className="form-group" style={{ gridColumn: 'span 2' }}>
-              <label className="form-label">Tipo de mercado</label>
-              <div className="toggle-group">
-                {MERCADO_OPTIONS.map(o => (
-                  <button key={o.value} type="button" className={`toggle-btn${mercado === o.value ? ' active' : ''}`} onClick={() => setMercado(mercado === o.value ? '' : o.value)}>{o.label}</button>
-                ))}
-              </div>
+          {/* Ativo */}
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Ativo</label>
+            <div className="toggle-group">
+              {['WIN', 'WDO'].map(a => (
+                <button key={a} type="button" className={`toggle-btn${ativoRef === a ? ' active' : ''}`} onClick={() => setAtivoRef(a)}>{a}</button>
+              ))}
             </div>
           </div>
 

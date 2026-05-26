@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { BarChart2, Loader2, RefreshCw, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
+import { BarChart2, Loader2, RefreshCw, AlertCircle, ExternalLink } from 'lucide-react';
 
 type Ativo = 'WIN' | 'WDO';
 
@@ -163,6 +164,12 @@ export default function MercadoResumo() {
               {e.country} · {e.event}{e.estimate ? ` ${e.estimate}${e.unit ?? ''}` : ''}
             </span>
           ))}
+          <Link
+            href="/agenda"
+            style={{ marginLeft: 'auto', alignSelf: 'center', display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'var(--text-muted)', textDecoration: 'none', whiteSpace: 'nowrap' }}
+          >
+            <ExternalLink size={10} /> Ver agenda completa
+          </Link>
         </div>
       )}
 
