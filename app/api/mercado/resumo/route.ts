@@ -94,7 +94,7 @@ export async function POST(req: Request) {
   ]);
 
   if (!ohlc) {
-    return NextResponse.json({ error: 'Não foi possível obter OHLC. Tente novamente.' }, { status: 502 });
+    return NextResponse.json({ error: 'Não foi possível obter AMMF. Tente novamente.' }, { status: 502 });
   }
 
   const range    = ohlc.maximo - ohlc.minimo;
@@ -105,7 +105,7 @@ export async function POST(req: Request) {
 
   const prompt = `Sou trader de day trading de ${ativo} na B3. Gere um resumo do pregão de HOJE.
 
-OHLC de ontem (${ativo}) — ${ohlc.data}:
+AMMF de ontem (${ativo}) — ${ohlc.data}:
 Abertura: ${ohlc.abertura.toLocaleString('pt-BR')} | Máxima: ${ohlc.maximo.toLocaleString('pt-BR')} | Mínima: ${ohlc.minimo.toLocaleString('pt-BR')} | Fechamento: ${ohlc.fechamento.toLocaleString('pt-BR')}
 Range: ${range} pts | Direção: ${direcao}
 

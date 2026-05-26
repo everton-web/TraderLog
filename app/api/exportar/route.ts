@@ -60,7 +60,7 @@ function buildMarkdown(
     const mn = entrada?.minimo     as number | null;
     const fc = entrada?.fechamento as number | null;
     const range = mx != null && mn != null ? ` | Range: ${(mx - mn).toFixed(0)} pts` : '';
-    lines.push(`- **OHLC:** A: ${ab ?? '—'} | M: ${mx ?? '—'} | m: ${mn ?? '—'} | F: ${fc ?? '—'}${range}`);
+    lines.push(`- **AMMF:** A: ${ab ?? '—'} | M: ${mx ?? '—'} | m: ${mn ?? '—'} | F: ${fc ?? '—'}${range}`);
   }
   if (!entrada?.mercado && !entrada?.atr_pts && !entrada?.adx_valor && !temOHLC) lines.push('*Não preenchido*');
   lines.push('');

@@ -133,7 +133,7 @@ export default function InstrucoesPage() {
           <h3 className="instrucoes-h3">Card 1 — Mercado</h3>
           <FieldRow label="Ativo de referência" desc="WIN (mini índice) ou WDO (mini dólar) — define o contexto da análise de IA." />
           <FieldRow label="Tipo de mercado" desc="Lateral, Tendência de Alta, Tendência de Baixa ou Volátil — como você classificou o dia." />
-          <FieldRow label="OHLC" desc="Abertura, Máximo, Mínimo e Fechamento do ativo no pregão. O range é calculado automaticamente (Máx − Mín)." />
+          <FieldRow label="AMMF" desc="Abertura, Máxima, Mínima e Fechamento do ativo no pregão. O range é calculado automaticamente (Máx − Mín)." />
           <FieldRow label="ATR (pts)" desc="Average True Range em pontos — volatilidade média do ativo." />
           <FieldRow label="ADX" desc="Average Directional Index — força da tendência (acima de 25 indica tendência relevante)." />
 
@@ -165,11 +165,11 @@ export default function InstrucoesPage() {
           </p>
           <div className="instrucoes-ai-sections">
             {[
-              ['1. Análise do dia',       'Comparação OHLC com ontem, contexto do mercado, o que funcionou.'],
+              ['1. Análise do dia',       'Comparação AMMF com ontem, contexto do mercado, o que funcionou.'],
               ['2. Plano vs. Execução',   'Aderência ao plano, o que divergiu e por quê.'],
               ['3. Onde estou',           'Sua posição nos últimos 30 dias: acerto, resultado, sequência atual.'],
               ['4. O que ajustar',        'Até 3 ajustes concretos e mensuráveis para os próximos pregões.'],
-              ['5. Amanhã',               'Níveis OHLC de hoje como referência, o que observar no próximo pregão.'],
+              ['5. Amanhã',               'Níveis AMMF de hoje como referência, o que observar no próximo pregão.'],
             ].map(([t, d]) => (
               <div key={t} className="instrucoes-ai-row">
                 <span className="instrucoes-ai-label">{t}</span>
@@ -292,7 +292,7 @@ export default function InstrucoesPage() {
                 cor: '#3b82f6',
                 itens: [
                   'Abra o Checklist e revise os critérios do dia',
-                  'Vá ao Diário → preencha o Mercado (OHLC do dia anterior como referência)',
+                  'Vá ao Diário → preencha o Mercado (AMMF do dia anterior como referência)',
                   'Escreva seu Plano do Dia com setups, níveis e regras',
                 ],
               },
@@ -311,7 +311,7 @@ export default function InstrucoesPage() {
                 icon: BarChart2,
                 cor: '#10b981',
                 itens: [
-                  'Volte ao Diário → preencha o OHLC final do dia',
+                  'Volte ao Diário → preencha o AMMF final do dia',
                   'Avalie o emocional, se seguiu o plano e o que ajustaria',
                   'Leia a análise da IA e anote o insight mais relevante em Observações',
                 ],

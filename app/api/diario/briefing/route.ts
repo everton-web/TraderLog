@@ -199,7 +199,7 @@ Gere o briefing com exatamente 3 seções:
 O que WIN e WDO fizeram ontem? Range, direção, fechamento. Relação entre os dois (dólar subiu, índice caiu?). Máximo 3 linhas.
 
 ## O que observar hoje
-Níveis técnicos chave de WIN e WDO baseados no OHLC de ontem (suporte, resistência, pontos de atenção). Eventos do calendário que podem mover os ativos — cite horários em BRT. Cenário mais provável. Cite os preços e horários reais.
+Níveis técnicos chave de WIN e WDO baseados no AMMF de ontem (suporte, resistência, pontos de atenção). Eventos do calendário que podem mover os ativos — cite horários em BRT. Cenário mais provável. Cite os preços e horários reais.
 
 ## Foco do dia
 1-2 alertas personalizados para hoje: padrão do dia da semana no meu histórico + postura recomendada.

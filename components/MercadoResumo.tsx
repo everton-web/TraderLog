@@ -102,7 +102,7 @@ export default function MercadoResumo() {
             <BarChart2 size={14} style={{ color: 'var(--gain)' }} /> Resumo do Mercado
           </div>
           <div className="dash-chart-sub">
-            {today.charAt(0).toUpperCase() + today.slice(1)} — OHLC de ontem + análise IA automática
+            {today.charAt(0).toUpperCase() + today.slice(1)} — AMMF de ontem + análise IA automática
           </div>
 
           {ohlc && (

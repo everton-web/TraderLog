@@ -242,7 +242,7 @@ ${calTexto}
 Analise os dados acima e forneça:
 
 ## 1. Análise do dia
-Compare hoje com ontem (OHLC, range, contexto). O que o mercado fez? O que funcionou nas operações?
+Compare hoje com ontem (AMMF, range, contexto). O que o mercado fez? O que funcionou nas operações?
 
 ## 2. Plano vs. Execução
 Como foi a aderência ao plano? O que divergiu e por quê?
@@ -254,7 +254,7 @@ Avalie o momento atual do trader (sequência, desempenho, risco emocional). Seja
 Máx. 3 ajustes concretos e mensuráveis para os próximos pregões.
 
 ## 5. Amanhã
-Com base nos dados OHLC de hoje, o que observar/esperar? Níveis importantes, contexto provável.
+Com base nos dados AMMF de hoje, o que observar/esperar? Níveis importantes, contexto provável.
 
 Máximo 500 palavras. Seja direto e específico — cite os números dos dados.`;
 
