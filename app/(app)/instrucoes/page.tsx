@@ -15,6 +15,7 @@ import {
   Info,
   Zap,
   LineChart,
+  Sunrise,
 } from 'lucide-react';
 
 export const metadata = {
@@ -109,7 +110,6 @@ export default function InstrucoesPage() {
           { href: '#diario',      label: 'Diário' },
           { href: '#dashboard',   label: 'Dashboard' },
           { href: '#historico',   label: 'Histórico' },
-          { href: '#calendario',  label: 'Calendário' },
           { href: '#checklist',   label: 'Checklist' },
           { href: '#plano',       label: 'Plano de Capital' },
           { href: '#integracoes', label: 'Integrações' },
@@ -125,35 +125,34 @@ export default function InstrucoesPage() {
         <span id="diario" className="instrucoes-anchor" />
         <Section icon={BookOpen} title="Diário" subtitle="O hub central do seu pregão — registre tudo em um só lugar.">
           <p className="instrucoes-p">
-            O Diário é a principal ferramenta do TraderLog. Ele reúne o contexto do mercado,
-            seu plano, as operações e a reflexão pós-mercado — tudo em um único registro diário,
-            com análise de IA gerada automaticamente ao final.
+            O Diário é a principal ferramenta do TraderLog. Ele reúne o briefing matinal automático,
+            seu plano, as operações do dia e a reflexão pós-mercado — tudo em um único registro diário,
+            com análise de IA sob demanda ao final.
           </p>
 
-          <h3 className="instrucoes-h3">Card 1 — Mercado</h3>
-          <FieldRow label="Ativo de referência" desc="WIN (mini índice) ou WDO (mini dólar) — define o contexto da análise de IA." />
-          <FieldRow label="Tipo de mercado" desc="Lateral, Tendência de Alta, Tendência de Baixa ou Volátil — como você classificou o dia." />
-          <FieldRow label="AMMF" desc="Abertura, Máxima, Mínima e Fechamento do ativo no pregão. O range é calculado automaticamente (Máx − Mín)." />
-          <FieldRow label="ATR (pts)" desc="Average True Range em pontos — volatilidade média do ativo." />
-          <FieldRow label="ADX" desc="Average Directional Index — força da tendência (acima de 25 indica tendência relevante)." />
+          <h3 className="instrucoes-h3">Briefing Matinal</h3>
+          <p className="instrucoes-p">
+            Gerado automaticamente ao abrir o Diário. Busca o AMMF de ontem de WIN e WDO via Yahoo Finance,
+            o calendário econômico do dia via Finnhub, seu histórico recente e estatísticas dos últimos 30 dias —
+            tudo processado pelo Groq para entregar um briefing em 3 seções: contexto do mercado, o que observar
+            hoje e foco do dia. O resultado fica em cache por 24 horas; use <strong>Regerar</strong> para atualizar.
+          </p>
+          <Tip type="ok">O Briefing Matinal dispensa preenchimento manual — basta abrir o Diário.</Tip>
 
-          <h3 className="instrucoes-h3" style={{ marginTop: 20 }}>Card 2 — Plano do Dia</h3>
+          <h3 className="instrucoes-h3" style={{ marginTop: 20 }}>Card 1 — Plano do Dia</h3>
           <p className="instrucoes-p">
             Escreva seu plano antes de abrir posição: setups que vai operar, níveis de suporte/resistência,
             regras do dia (ex: máx. 2 operações, stop em 150 pts, não operar nos primeiros 15 min).
             Quanto mais específico, mais útil será o feedback da IA sobre aderência ao plano.
           </p>
 
-          <h3 className="instrucoes-h3" style={{ marginTop: 20 }}>Card 3 — Operações do Dia</h3>
+          <h3 className="instrucoes-h3" style={{ marginTop: 20 }}>Card 2 — Operações do Dia</h3>
           <p className="instrucoes-p">
             Lista as operações já registradas para hoje. Use o botão <strong>+ Registrar operação</strong> para
-            abrir o formulário inline — ao salvar, a IA é acionada automaticamente com os dados atualizados.
+            abrir o formulário inline e salvar cada trade com PE, stop, saída, setup e observações.
           </p>
-          <Tip type="ok">
-            Cada operação salva dispara uma nova análise de IA sem você precisar clicar em nada.
-          </Tip>
 
-          <h3 className="instrucoes-h3" style={{ marginTop: 20 }}>Card 4 — Pós-Mercado</h3>
+          <h3 className="instrucoes-h3" style={{ marginTop: 20 }}>Card 3 — Pós-Mercado</h3>
           <FieldRow label="Plano seguido" desc="Sim / Parcialmente / Não — avalie sua aderência ao que planejou." />
           <FieldRow label="Emocional" desc="Nota de 1 a 5 para como você se sentiu durante o pregão. Afeta a análise de risco emocional da IA." />
           <FieldRow label="Ajustes" desc="O que foi diferente do plano? Por quê? Documente decisões fora do script." />
@@ -161,7 +160,8 @@ export default function InstrucoesPage() {
 
           <h3 className="instrucoes-h3" style={{ marginTop: 20 }}>Análise de IA</h3>
           <p className="instrucoes-p">
-            Após salvar uma operação (ou clicar em <strong>Analisar</strong>), a IA gera um briefing com 5 seções:
+            Clique em <strong>Analisar com IA</strong> após preencher o pós-mercado. A IA busca o AMMF
+            do dia via Yahoo Finance, o calendário econômico e seu histórico — e gera um briefing com 5 seções:
           </p>
           <div className="instrucoes-ai-sections">
             {[
@@ -178,23 +178,25 @@ export default function InstrucoesPage() {
             ))}
           </div>
           <Tip type="warn">
-            A IA usa o Google Gemini — configure sua API Key em <strong>Integrações</strong> antes de usar.
+            A IA usa o Groq — configure sua API Key em <strong>Integrações</strong> antes de usar.
           </Tip>
         </Section>
 
         {/* ─── DASHBOARD ─── */}
         <span id="dashboard" className="instrucoes-anchor" />
-        <Section icon={LayoutDashboard} title="Dashboard" subtitle="Visão geral do seu desempenho em tempo real." color="#3b82f6">
+        <Section icon={LayoutDashboard} title="Dashboard" subtitle="Visão geral do seu desempenho e contexto de mercado." color="#3b82f6">
           <p className="instrucoes-p">
-            A tela inicial mostra seus principais indicadores de performance e um resumo das operações recentes.
+            A tela inicial consolida performance, contexto de mercado e inteligência de IA em uma única visão.
           </p>
-          <FieldRow label="KPIs do topo" desc="Total de pontos, resultado em R$, taxa de acerto e número de operações — calculados sobre o período selecionado." />
-          <FieldRow label="Gráfico de equity" desc="Evolução do resultado acumulado em pontos ao longo do tempo." />
+          <FieldRow label="KPIs do topo"          desc="Total de pontos, resultado em R$, taxa de acerto e número de operações — calculados sobre o período selecionado." />
+          <FieldRow label="Gráfico de equity"      desc="Evolução do resultado acumulado em pontos ao longo do tempo." />
           <FieldRow label="Distribuição de setups" desc="Quais setups estão gerando mais resultado e quais estão drenando." />
-          <FieldRow label="Coach IA" desc="Widget no painel direito com 3 insights gerados pelo Gemini sobre seu padrão recente de operações." />
+          <FieldRow label="Coach IA"               desc="Widget no painel direito com insights gerados pelo Groq sobre seu padrão recente de operações." />
+          <FieldRow label="Resumo do Mercado"      desc="AMMF de ontem do WIN ou WDO via Yahoo Finance com análise de IA automática. Cache diário — regenera quando necessário." />
+          <FieldRow label="Agenda Econômica"       desc="Calendário econômico via Finnhub com filtros por país, impacto (Alto / Médio+ / Todos) e período (Hoje / Semana / Próx. semana)." />
           <Tip type="info">
-            O Coach IA no dashboard é diferente da análise do Diário — ele foca em padrões estatísticos
-            das suas operações (melhor dia, setup mais lucrativo, horários).
+            O Coach IA no dashboard foca em padrões estatísticos das suas operações (melhor dia da semana,
+            setup mais lucrativo, horários). É diferente da análise do Diário, que avalia o dia específico.
           </Tip>
         </Section>
 
@@ -210,20 +212,6 @@ export default function InstrucoesPage() {
           <FieldRow label="Totais" desc="Rodapé da tabela mostra totais e médias do período filtrado." />
         </Section>
 
-        {/* ─── CALENDÁRIO ─── */}
-        <span id="calendario" className="instrucoes-anchor" />
-        <Section icon={CalendarDays} title="Calendário" subtitle="Visão mensal dos seus resultados por dia." color="#f59e0b">
-          <p className="instrucoes-p">
-            Cada célula do calendário representa um dia de pregão. A cor indica o resultado:
-            verde para dias positivos, vermelho para negativos, cinza para dias sem operação.
-          </p>
-          <FieldRow label="Hover"   desc="Passe o mouse sobre um dia para ver o resumo: total de operações, pontos e R$ do dia." />
-          <FieldRow label="Meses"   desc="Navegue entre meses com as setas. O resumo do mês aparece no topo do calendário." />
-          <Tip type="info">
-            Use o calendário para identificar padrões: dias da semana melhores, início/fim do mês, etc.
-          </Tip>
-        </Section>
-
         {/* ─── CHECKLIST ─── */}
         <span id="checklist" className="instrucoes-anchor" />
         <Section icon={ClipboardCheck} title="Checklist de Entrada" subtitle="Validação pré-operação para evitar entradas impulsivas." color="#06b6d4">
@@ -233,7 +221,7 @@ export default function InstrucoesPage() {
             a operação independente de qualquer outro fator.
           </p>
           <FieldRow label="Como usar" desc="Antes de entrar em uma operação, abra o checklist e marque cada item. Se alguma trava falhar, não opere." />
-          <FieldRow label="Resetar" desc="O checklist resetar automaticamente para o próximo uso — não é salvo permanentemente." />
+          <FieldRow label="Resetar" desc="O checklist reseta automaticamente para o próximo uso — não é salvo permanentemente." />
           <Tip type="warn">
             Pular o checklist por pressa é a causa mais comum de operações fora do plano.
             Reserve 2 minutos antes de cada entrada.
@@ -260,17 +248,29 @@ export default function InstrucoesPage() {
         {/* ─── INTEGRAÇÕES ─── */}
         <span id="integracoes" className="instrucoes-anchor" />
         <Section icon={Link2} title="Integrações" subtitle="Conecte ferramentas externas ao TraderLog." color="#f97316">
-          <h3 className="instrucoes-h3">Google Gemini (IA)</h3>
+
+          <h3 className="instrucoes-h3">Groq (IA)</h3>
           <p className="instrucoes-p">
-            O TraderLog usa o Google Gemini para gerar análises do Diário e insights no Dashboard.
-            A integração é gratuita com o plano Free do Google AI Studio (1.500 chamadas/dia).
+            O TraderLog usa o Groq para gerar o Briefing Matinal, a análise do Diário e os insights do Dashboard.
+            O plano gratuito do Groq oferece cota generosa para uso pessoal.
           </p>
           <div className="instrucoes-steps-list">
-            <Step n={1} title="Acesse o Google AI Studio" desc="Vá em aistudio.google.com e faça login com sua conta Google." />
-            <Step n={2} title="Crie uma API Key" desc='Clique em "Get API Key" → "Create API key in new project". Copie a chave gerada (começa com AIza...).' />
-            <Step n={3} title="Cole no TraderLog" desc='Em Integrações, cole a chave no campo "Google Gemini API Key" e clique em Salvar.' />
+            <Step n={1} title="Acesse o Groq Console" desc="Vá em console.groq.com e crie uma conta gratuita." />
+            <Step n={2} title="Crie uma API Key" desc='No menu lateral, clique em "API Keys" → "Create API Key". Copie a chave gerada (começa com gsk_...).' />
+            <Step n={3} title="Cole no TraderLog" desc='Em Integrações, cole a chave no campo "Groq — API Key" e clique em Salvar.' />
           </div>
           <Tip type="ok">A chave é armazenada com segurança e usada apenas para suas próprias análises.</Tip>
+
+          <h3 className="instrucoes-h3" style={{ marginTop: 24 }}>Finnhub (Agenda Econômica)</h3>
+          <p className="instrucoes-p">
+            O Finnhub alimenta a Agenda Econômica no Dashboard e o calendário usado nos briefings de IA.
+            O plano gratuito cobre o uso normal.
+          </p>
+          <div className="instrucoes-steps-list">
+            <Step n={1} title="Acesse o Finnhub" desc="Vá em finnhub.io e crie uma conta gratuita." />
+            <Step n={2} title="Copie sua API Key" desc="No dashboard do Finnhub, copie a API Key exibida na tela inicial." />
+            <Step n={3} title="Cole no TraderLog" desc='Em Integrações, cole a chave no campo "Finnhub — API Key" e clique em Salvar.' />
+          </div>
 
           <h3 className="instrucoes-h3" style={{ marginTop: 24 }}>Profit Pro (importação)</h3>
           <p className="instrucoes-p">
@@ -288,11 +288,11 @@ export default function InstrucoesPage() {
             {[
               {
                 momento: 'Pré-mercado',
-                icon: Target,
+                icon: Sunrise,
                 cor: '#3b82f6',
                 itens: [
+                  'Abra o Diário — o Briefing Matinal é gerado automaticamente com AMMF + calendário',
                   'Abra o Checklist e revise os critérios do dia',
-                  'Vá ao Diário → preencha o Mercado (AMMF do dia anterior como referência)',
                   'Escreva seu Plano do Dia com setups, níveis e regras',
                 ],
               },
@@ -303,7 +303,7 @@ export default function InstrucoesPage() {
                 itens: [
                   'Antes de cada entrada, execute o Checklist',
                   'Registre cada operação no Diário → botão "+ Registrar operação"',
-                  'A IA analisa automaticamente após cada registro',
+                  'Consulte a Agenda Econômica no Dashboard para horários de eventos',
                 ],
               },
               {
@@ -311,9 +311,9 @@ export default function InstrucoesPage() {
                 icon: BarChart2,
                 cor: '#10b981',
                 itens: [
-                  'Volte ao Diário → preencha o AMMF final do dia',
-                  'Avalie o emocional, se seguiu o plano e o que ajustaria',
-                  'Leia a análise da IA e anote o insight mais relevante em Observações',
+                  'No Diário → preencha o Pós-Mercado: plano seguido, emocional, ajustes',
+                  'Clique em "Analisar com IA" para gerar o briefing do dia',
+                  'Anote o insight mais relevante em Observações',
                 ],
               },
               {
@@ -321,9 +321,9 @@ export default function InstrucoesPage() {
                 icon: CalendarDays,
                 cor: '#8b5cf6',
                 itens: [
-                  'Acesse o Calendário para ver o padrão da semana',
                   'Filtre o Histórico por setup para ver o que está funcionando',
                   'Revise o Coach IA no Dashboard para ajustar seu plano da próxima semana',
+                  'Use a Agenda Econômica com filtro "Próx. semana" para antecipar eventos',
                 ],
               },
             ].map(({ momento, icon: Icon, cor, itens }) => (
