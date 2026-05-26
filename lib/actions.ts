@@ -52,6 +52,7 @@ export async function salvarOperacao(op: {
   if (error) return { error: error.message };
   revalidatePath('/dashboard');
   revalidatePath('/historico');
+  revalidatePath('/diario');
   return { success: true };
 }
 

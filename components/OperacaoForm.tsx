@@ -7,7 +7,7 @@ import { hojeISO, diaSemana, fmtRS, fmtPts, fmtPct } from '@/lib/formatters';
 import { Trash2, Check, TrendingUp, TrendingDown } from 'lucide-react';
 import type { Ativo, TipoOp, Configuracao } from '@/lib/types';
 
-export default function OperacaoForm({ config }: { config: Configuracao | null }) {
+export default function OperacaoForm({ config, onSuccess }: { config: Configuracao | null; onSuccess?: () => void }) {
   const { showToast } = useToast();
   const [ativo, setAtivo]       = useState<Ativo>('WIN');
   const [tipo, setTipo]         = useState<TipoOp>('Compra');
@@ -64,7 +64,7 @@ export default function OperacaoForm({ config }: { config: Configuracao | null }
     });
     setSaving(false);
     if (res?.error) showToast('Erro: ' + res.error, 'error');
-    else { showToast('Operação salva!', 'success'); window.location.href = '/historico'; }
+    else { showToast('Operação salva!', 'success'); if (onSuccess) onSuccess(); else window.location.href = '/historico'; }
   };
 
   const showPreview = pe || saida;

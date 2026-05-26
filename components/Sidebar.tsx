@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/lib/actions';
-import { LayoutDashboard, Plus, ClipboardList, Settings, User, Crown, LogOut, TrendingUp, BarChart2, CalendarDays, Link2, ClipboardCheck, BookOpen } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, Settings, User, Crown, LogOut, TrendingUp, BarChart2, CalendarDays, Link2, ClipboardCheck, BookOpen } from 'lucide-react';
 import type { Profile } from '@/lib/types';
 
 const NAV_SECTIONS = [
@@ -10,7 +10,7 @@ const NAV_SECTIONS = [
     label: 'Principal',
     items: [
       { href: '/dashboard', icon: LayoutDashboard, label: 'Visão Geral' },
-      { href: '/nova',      icon: Plus,            label: 'Nova Operação' },
+      { href: '/diario',    icon: BookOpen,        label: 'Diário' },
     ],
   },
   {
@@ -21,7 +21,6 @@ const NAV_SECTIONS = [
       { href: '/config',     icon: BarChart2,      label: 'Relatórios' },
       { href: '/checklist',  icon: ClipboardCheck, label: 'Checklist' },
       { href: '/plano',      icon: TrendingUp,     label: 'Plano de Capital' },
-      { href: '/diario',     icon: BookOpen,       label: 'Diário' },
     ],
   },
   {

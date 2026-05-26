@@ -516,6 +516,12 @@ input, button, select, textarea, optgroup { font-family: inherit; font-size: inh
 .diario-analise { background: var(--bg-surface); border: 1px solid var(--border-active); border-radius: var(--radius-lg); overflow: hidden; margin-top: 6px; }
 .diario-analise-header { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: var(--text-sm); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); }
 .diario-analise-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; }
+.diario-ops-list { display: flex; flex-direction: column; gap: 1px; padding-top: 12px; }
+.diario-op-row { display: flex; align-items: center; gap: 8px; padding: 8px 4px; border-bottom: 1px solid var(--border); }
+.diario-op-row:last-child { border-bottom: none; }
+.diario-op-ativo { font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); }
+.diario-op-setup { font-size: var(--text-sm); color: var(--text-muted); background: var(--bg-surface); border: 1px solid var(--border); border-radius: 3px; padding: 1px 6px; }
+.diario-op-form-wrap { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
 .diario-key-warning { background: var(--pe-bg); border: 1px solid rgba(245,158,11,0.25); color: var(--pe-color); padding: 10px 14px; border-radius: var(--radius); font-size: var(--text-sm); margin-bottom: 18px; line-height: var(--lh-normal); }
 .diario-key-warning a { color: var(--pe-color); font-weight: 700; }
 
