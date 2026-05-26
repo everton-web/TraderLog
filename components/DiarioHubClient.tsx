@@ -1,7 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, X, Save, Sparkles, Loader2, CheckCircle2, AlertCircle, FileDown, Sunrise, RefreshCw } from 'lucide-react';
+import { Plus, X, Save, Sparkles, Loader2, CheckCircle2, AlertCircle, FileDown, Sunrise } from 'lucide-react';
 import OperacaoForm from './OperacaoForm';
 import type { Configuracao } from '@/lib/types';
 
@@ -196,6 +196,10 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
     await runAnalyze();
   }
 
+  // Auto-busca OHLC ao abrir e quando muda o ativo
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { handleFetchOHLC(); }, [ativoRef]);
+
   async function handleFetchOHLC() {
     setLoadingOHLC(true);
     setOhlcFonte('');
@@ -336,19 +340,11 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
           <div className="form-row" style={{ marginBottom: 0 }}>
             <div className="form-group">
               <label className="form-label">Ativo</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <div className="toggle-group">
-                  {['WIN', 'WDO'].map(a => (
-                    <button key={a} type="button" className={`toggle-btn${ativoRef === a ? ' active' : ''}`} onClick={() => setAtivoRef(a)}>{a}</button>
-                  ))}
-                </div>
-                <button type="button" className="btn btn-secondary" style={{ fontSize: 'var(--text-xs)', padding: '4px 10px', whiteSpace: 'nowrap' }} onClick={handleFetchOHLC} disabled={loadingOHLC}>
-                  {loadingOHLC
-                    ? <><Loader2 size={11} className="spin" /> Buscando...</>
-                    : <><RefreshCw size={11} /> Buscar OHLC</>}
-                </button>
+              <div className="toggle-group">
+                {['WIN', 'WDO'].map(a => (
+                  <button key={a} type="button" className={`toggle-btn${ativoRef === a ? ' active' : ''}`} onClick={() => setAtivoRef(a)}>{a}</button>
+                ))}
               </div>
-              {ohlcFonte && <span className="field-hint" style={{ marginTop: 4, display: 'block' }}>Preenchido automaticamente — {ohlcFonte}</span>}
             </div>
             <div className="form-group" style={{ gridColumn: 'span 2' }}>
               <label className="form-label">Tipo de mercado</label>
@@ -360,22 +356,26 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
             </div>
           </div>
 
-          {/* OHLC */}
+          {/* OHLC — automático via Yahoo Finance */}
           <div>
             <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
               OHLC
-              {rangeOHLC && <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>{rangeOHLC}</span>}
+              {loadingOHLC && <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: 'var(--text-muted)', fontSize: 'var(--text-sm)', display: 'flex', alignItems: 'center', gap: 4 }}><Loader2 size={11} className="spin" /> buscando...</span>}
+              {!loadingOHLC && ohlcFonte && <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>{ohlcFonte}</span>}
+              {!loadingOHLC && rangeOHLC && <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: 'var(--gain)', fontSize: 'var(--text-sm)' }}>{rangeOHLC}</span>}
             </label>
             <div className="form-row" style={{ marginBottom: 0 }}>
               {[
-                { label: 'Abertura', value: abertura,   set: setAbertura },
-                { label: 'Máximo',   value: maximo,     set: setMaximo },
-                { label: 'Mínimo',   value: minimo,     set: setMinimo },
-                { label: 'Fechamento', value: fechamento, set: setFechamento },
-              ].map(({ label, value, set }) => (
+                { label: 'Abertura',   value: abertura   },
+                { label: 'Máxima',     value: maximo     },
+                { label: 'Mínima',     value: minimo     },
+                { label: 'Fechamento', value: fechamento },
+              ].map(({ label, value }) => (
                 <div key={label} className="form-group">
                   <label className="form-label" style={{ fontSize: 'var(--text-xs)' }}>{label}</label>
-                  <input type="number" className="form-input mono" placeholder="—" step="1" value={value} onChange={e => set(e.target.value)} />
+                  <div className={`auto-value${value ? ' filled' : ''}`} style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-base)' }}>
+                    {value ? Number(value).toLocaleString('pt-BR') : '—'}
+                  </div>
                 </div>
               ))}
             </div>
