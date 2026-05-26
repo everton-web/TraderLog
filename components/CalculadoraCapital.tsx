@@ -1,17 +1,44 @@
 "use client";
 
-import { useState } from "react";
-import { TrendingUp, ShieldAlert, Target, Wallet, RotateCcw } from "lucide-react";
+import { useState, useEffect } from "react";
+import { TrendingUp, ShieldAlert, Target, Wallet, RotateCcw, Save, CheckCircle2 } from "lucide-react";
 
 function fmt(v: number): string {
   return "R$ " + Math.round(v).toLocaleString("pt-BR");
 }
+
+const STORAGE_KEY = 'plano-config';
 
 export function CalculadoraCapital() {
   const [stop,      setStop]      = useState(500);
   const [rrRaw,     setRrRaw]     = useState(15);
   const [maxStops,  setMaxStops]  = useState(2);
   const [contratos, setContratos] = useState(2);
+  const [saved,     setSaved]     = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const p = JSON.parse(raw);
+        if (p.stop)      setStop(p.stop);
+        if (p.rrRaw)     setRrRaw(p.rrRaw);
+        if (p.maxStops)  setMaxStops(p.maxStops);
+        if (p.contratos) setContratos(p.contratos);
+      }
+    } catch {}
+  }, []);
+
+  function handleSave() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ stop, rrRaw, maxStops, contratos }));
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  }
+
+  function handleReset() {
+    setStop(500); setRrRaw(15); setMaxStops(2); setContratos(2);
+    localStorage.removeItem(STORAGE_KEY);
+  }
 
   const rr    = rrRaw / 10;
   const tick  = 0.20; // WIN
@@ -160,11 +187,20 @@ export function CalculadoraCapital() {
         </div>
       </div>
 
-      {/* Reset */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <button onClick={() => { setStop(500); setRrRaw(15); setMaxStops(2); setContratos(2); }}
+      {/* Ações */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10 }}>
+        {saved && (
+          <span className="bridge-status ok" style={{ fontSize: 'var(--text-sm)' }}>
+            <CheckCircle2 size={13} /> Configuração salva
+          </span>
+        )}
+        <button onClick={handleReset}
           className="btn btn-ghost" style={{ fontSize: 14.5, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <RotateCcw size={13} /> Resetar parâmetros
+          <RotateCcw size={13} /> Resetar
+        </button>
+        <button onClick={handleSave}
+          className="btn btn-primary" style={{ fontSize: 14.5, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Save size={13} /> Salvar configuração
         </button>
       </div>
     </div>

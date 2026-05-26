@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, X, Save, Sparkles, Loader2, CheckCircle2, AlertCircle, FileDown } from 'lucide-react';
+import { Plus, X, Save, Sparkles, Loader2, CheckCircle2, AlertCircle, FileDown, Sunrise } from 'lucide-react';
 import OperacaoForm from './OperacaoForm';
 import type { Configuracao } from '@/lib/types';
 
@@ -112,11 +112,14 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
   const [analise,     setAnalise]     = useState(initialEntry?.analise_ia   ?? '');
 
   // Status
-  const [saving,       setSaving]       = useState(false);
-  const [analyzing,    setAnalyzing]    = useState(false);
-  const [exporting,    setExporting]    = useState(false);
-  const [saveStatus,   setSaveStatus]   = useState<'idle' | 'ok' | 'error'>('idle');
-  const [analyzeError, setAnalyzeError] = useState('');
+  const [saving,         setSaving]         = useState(false);
+  const [analyzing,      setAnalyzing]      = useState(false);
+  const [exporting,      setExporting]      = useState(false);
+  const [briefing,       setBriefing]       = useState('');
+  const [loadingBriefing,setLoadingBriefing]= useState(false);
+  const [briefingError,  setBriefingError]  = useState('');
+  const [saveStatus,     setSaveStatus]     = useState<'idle' | 'ok' | 'error'>('idle');
+  const [analyzeError,   setAnalyzeError]   = useState('');
 
   function buildPayload() {
     return {
@@ -163,6 +166,16 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
     await runAnalyze();
   }
 
+  async function handleBriefing() {
+    setLoadingBriefing(true);
+    setBriefingError('');
+    const res  = await fetch('/api/diario/briefing', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+    const data = await res.json();
+    setLoadingBriefing(false);
+    if (data.error) setBriefingError(data.error);
+    else setBriefing(data.briefing);
+  }
+
   async function handleExport() {
     setExporting(true);
     const res  = await fetch(`/api/exportar?data=${today}`);
@@ -182,6 +195,39 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
 
   return (
     <div style={{ maxWidth: 800, display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+      {/* ── 0. Briefing matinal ────────────────────────── */}
+      <div className="card">
+        <div className="card-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: briefing ? 12 : 0, paddingBottom: briefing ? 12 : 0, borderBottom: briefing ? '1px solid var(--border)' : 'none' }}>
+          <div>
+            <h2 className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+              <Sunrise size={15} style={{ color: 'var(--pe-color)' }} /> Briefing Matinal
+            </h2>
+            <p className="card-desc" style={{ marginTop: 3 }}>Analisa ontem e orienta o pregão de hoje</p>
+          </div>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            style={{ fontSize: 'var(--text-sm)', padding: '6px 12px' }}
+            onClick={handleBriefing}
+            disabled={loadingBriefing}
+          >
+            {loadingBriefing
+              ? <><Loader2 size={13} className="spin" /> Analisando...</>
+              : briefing
+                ? <><Sunrise size={13} /> Regerar</>
+                : <><Sunrise size={13} /> Gerar briefing</>}
+          </button>
+        </div>
+        {briefingError && (
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--loss)', paddingTop: 8 }}>{briefingError}</p>
+        )}
+        {briefing && (
+          <div className="diario-analise-body">
+            {renderAnalise(briefing)}
+          </div>
+        )}
+      </div>
 
       {/* ── 1. Mercado — OHLC + contexto ──────────────── */}
       <div className="card">
