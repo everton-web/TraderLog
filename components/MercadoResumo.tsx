@@ -144,12 +144,7 @@ function MercadoCard({ ativo, ohlc, loadingOhlc }: { ativo: Ativo; ohlc: OhlcDat
 
       {/* Divisor + botão Gerar */}
       <div style={{ borderTop: '1px solid var(--border)', paddingTop: 10, marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', color: '#fff', background: color, borderRadius: 4, padding: '2px 8px', lineHeight: 1.7 }}>
-            {ativo}
-          </span>
-          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Análise IA</span>
-        </div>
+        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Análise IA</span>
         <button
           className="btn btn-primary"
           style={{ fontSize: 'var(--text-xs)', padding: '4px 12px', whiteSpace: 'nowrap' }}
