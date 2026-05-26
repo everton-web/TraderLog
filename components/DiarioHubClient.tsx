@@ -158,19 +158,9 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
     await fetch('/api/diario', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(buildPayload()) });
     setAnalyzing(true);
     setAnalyzeError('');
-    // Busca calendário de hoje + amanhã para a análise pós-mercado
-    let evts = calendario;
-    try {
-      const amanha = new Date(); amanha.setDate(amanha.getDate() + 1);
-      const amanhaStr = amanha.toISOString().split('T')[0];
-      const hoje      = new Date().toISOString().split('T')[0];
-      const calRes    = await fetch(`/api/mercado/calendario?from=${hoje}&to=${amanhaStr}`);
-      const calData   = await calRes.json();
-      if (calData.events?.length) { evts = calData.events; setCalendario(evts); }
-    } catch {}
     const res  = await fetch('/api/diario/analise', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ entrada: buildPayload(), eventos: evts }),
+      body: JSON.stringify({ entrada: buildPayload() }),
     });
     const data = await res.json();
     setAnalyzing(false);
@@ -181,12 +171,21 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
   async function handleOpSuccess() {
     setShowForm(false);
     router.refresh();
-    await runAnalyze();
   }
 
   // Auto-busca OHLC ao abrir e quando muda o ativo
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { handleFetchOHLC(); }, [ativoRef]);
+
+  // Auto-gera briefing matinal — usa cache do localStorage para o dia
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem(`traderlog-briefing-${today}`);
+      if (cached) { setBriefing(cached); return; }
+    } catch {}
+    handleBriefing();
+  }, []);
 
   async function handleFetchOHLC() {
     setLoadingOHLC(true);
