@@ -62,7 +62,8 @@
       "Bash(Select-Object Name, PSIsContainer)",
       "Bash(Select-Object Name)",
       "Bash(Select-Object Name, Length, LastWriteTime)",
-      "Bash(Select-Object Name, Length)"
+      "Bash(Select-Object Name, Length)",
+      "PowerShell(Test-Path *)"
     ]
   }
 }

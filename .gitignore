@@ -15,4 +15,7 @@ out/
 *.tsbuildinfo
 next-env.d.ts
 
+# Obsidian (configurações locais do editor)
+.obsidian/
+
 .vercel

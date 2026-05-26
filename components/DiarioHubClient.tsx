@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, X, Save, Sparkles, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Plus, X, Save, Sparkles, Loader2, CheckCircle2, AlertCircle, FileDown } from 'lucide-react';
 import OperacaoForm from './OperacaoForm';
 import type { Configuracao } from '@/lib/types';
 
@@ -114,6 +114,7 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
   // Status
   const [saving,       setSaving]       = useState(false);
   const [analyzing,    setAnalyzing]    = useState(false);
+  const [exporting,    setExporting]    = useState(false);
   const [saveStatus,   setSaveStatus]   = useState<'idle' | 'ok' | 'error'>('idle');
   const [analyzeError, setAnalyzeError] = useState('');
 
@@ -160,6 +161,19 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
     setShowForm(false);
     router.refresh();
     await runAnalyze();
+  }
+
+  async function handleExport() {
+    setExporting(true);
+    const res  = await fetch(`/api/exportar?data=${today}`);
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `diario-${today}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setExporting(false);
   }
 
   const rangeOHLC = abertura && maximo && minimo
@@ -349,6 +363,9 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
                 : analise
                   ? <><Sparkles size={14} /> Regenerar análise</>
                   : <><Sparkles size={14} /> Analisar com IA</>}
+            </button>
+            <button className="btn btn-secondary" onClick={handleExport} disabled={exporting || saving || analyzing} title="Exportar relatório do dia em Markdown">
+              {exporting ? <><Loader2 size={14} className="spin" /> Exportando...</> : <><FileDown size={14} /> Exportar .md</>}
             </button>
             {saveStatus === 'ok' && !analyzing && (
               <span className="bridge-status ok"><CheckCircle2 size={13} /> Salvo</span>
