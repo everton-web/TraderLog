@@ -705,6 +705,41 @@ input, button, select, textarea, optgroup { font-family: inherit; font-size: inh
   .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 }
 
+/* ── Curva de capital — seletor de modo ─────────────────── */
+.chart-mode-btns {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.chart-mode-btn {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.chart-mode-btn:hover {
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+}
+
+.chart-mode-btn.active {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
 /* ── Modal de edição ────────────────────────────────────── */
 .modal-overlay {
   position: fixed;

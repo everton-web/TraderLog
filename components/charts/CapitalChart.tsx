@@ -11,6 +11,8 @@ import { formatDate } from '@/lib/formatters';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
+export type ChartMode = 'operacao' | 'dia' | 'semana' | 'mes';
+
 const GREEN      = '#10b981';
 const GREEN_GLOW = 'rgba(16,185,129,0.40)';
 const GREEN_ZERO = 'rgba(16,185,129,0.00)';
@@ -23,24 +25,90 @@ const gradientPlugin: Plugin<'line'> = {
     const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
     gradient.addColorStop(0, GREEN_GLOW);
     gradient.addColorStop(1, GREEN_ZERO);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (chart.data.datasets[0] as any).backgroundColor = gradient;
   },
 };
 
-export default function CapitalChart({ ops, capitalInicial }: { ops: Operacao[]; capitalInicial: number }) {
-  const diasMap: Record<string, number> = {};
-  ops.forEach(o => { diasMap[o.data] = (diasMap[o.data] || 0) + (o.rs_final || 0); });
-  const sorted = Object.keys(diasMap).sort();
+const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
-  if (sorted.length === 0) {
+function isoWeekKey(dateStr: string): string {
+  const d = new Date(dateStr + 'T12:00:00');
+  d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+  const week1 = new Date(d.getFullYear(), 0, 4);
+  const weekNum = 1 + Math.round(
+    ((d.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7
+  );
+  return `${d.getFullYear()}-W${String(weekNum).padStart(2, '0')}`;
+}
+
+function buildData(ops: Operacao[], capitalInicial: number, mode: ChartMode) {
+  if (mode === 'operacao') {
+    const sorted = [...ops].sort((a, b) => {
+      if (a.data !== b.data) return a.data.localeCompare(b.data);
+      return (a.created_at ?? '').localeCompare(b.created_at ?? '');
+    });
+    let acc = capitalInicial;
+    const curve  = [capitalInicial];
+    const labels = ['Início'];
+    sorted.forEach((op, i) => {
+      acc += op.rs_final || 0;
+      curve.push(acc);
+      const sign = (op.pts_final ?? 0) > 0 ? '+' : '';
+      labels.push(`#${i + 1} ${op.ativo} ${sign}${op.pts_final ?? '—'} pts`);
+    });
+    return { curve, labels, pointCount: sorted.length };
+  }
+
+  type KeyFn   = (d: string) => string;
+  type LabelFn = (k: string) => string;
+
+  let keyFn:   KeyFn;
+  let labelFn: LabelFn;
+
+  if (mode === 'dia') {
+    keyFn   = d => d;
+    labelFn = d => formatDate(d);
+  } else if (mode === 'semana') {
+    keyFn   = d => isoWeekKey(d);
+    labelFn = k => `Sem ${parseInt(k.split('-W')[1])}`;
+  } else {
+    keyFn   = d => d.slice(0, 7);
+    labelFn = k => {
+      const [year, month] = k.split('-');
+      return `${MONTHS[parseInt(month) - 1]}/${year.slice(2)}`;
+    };
+  }
+
+  const agg: Record<string, number> = {};
+  ops.forEach(o => {
+    const k = keyFn(o.data);
+    agg[k] = (agg[k] || 0) + (o.rs_final || 0);
+  });
+
+  const sorted = Object.keys(agg).sort();
+  let acc = capitalInicial;
+  const curve  = [capitalInicial, ...sorted.map(k => { acc += agg[k]; return acc; })];
+  const labels = ['Início', ...sorted.map(labelFn)];
+  return { curve, labels, pointCount: sorted.length };
+}
+
+export default function CapitalChart({
+  ops,
+  capitalInicial,
+  mode = 'dia',
+}: {
+  ops: Operacao[];
+  capitalInicial: number;
+  mode?: ChartMode;
+}) {
+  const { curve, labels, pointCount } = buildData(ops, capitalInicial, mode);
+
+  if (pointCount === 0) {
     return <div className="chart-empty visible">Sem operações registradas ainda</div>;
   }
 
-  let acc = capitalInicial;
-  const curve = [capitalInicial, ...sorted.map(d => { acc += diasMap[d]; return acc; })];
-  const labels = ['Inicial', ...sorted.map(formatDate)];
-
-  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const isDark    = document.documentElement.getAttribute('data-theme') !== 'light';
   const gridColor = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.05)';
   const textColor = isDark ? '#666' : '#9ca3af';
 
@@ -52,11 +120,11 @@ export default function CapitalChart({ ops, capitalInicial }: { ops: Operacao[];
       borderColor: GREEN,
       backgroundColor: GREEN_ZERO,
       fill: true,
-      tension: 0.45,
+      tension: mode === 'operacao' ? 0.3 : 0.45,
       pointBackgroundColor: GREEN,
       pointBorderColor: isDark ? '#141414' : '#ffffff',
       pointBorderWidth: 2,
-      pointRadius: sorted.length > 60 ? 0 : 4,
+      pointRadius: pointCount > 60 ? 0 : mode === 'operacao' ? 3 : 4,
       pointHoverRadius: 6,
       borderWidth: 2.5,
     }],
@@ -82,7 +150,7 @@ export default function CapitalChart({ ops, capitalInicial }: { ops: Operacao[];
     },
     scales: {
       x: {
-        ticks: { color: textColor, font: { size: 12 }, maxTicksLimit: 8 },
+        ticks: { color: textColor, font: { size: 12 }, maxTicksLimit: mode === 'operacao' ? 10 : 8 },
         grid: { color: gridColor },
         border: { display: false },
       },
@@ -92,7 +160,7 @@ export default function CapitalChart({ ops, capitalInicial }: { ops: Operacao[];
           font: { size: 12 },
           callback: (v) => {
             const n = Number(v);
-            if (n >= 1000) return `R$${(n / 1000).toFixed(0)}k`;
+            if (n >= 1000 || n <= -1000) return `R$${(n / 1000).toFixed(0)}k`;
             return `R$${n.toFixed(0)}`;
           },
         },

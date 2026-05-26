@@ -1,7 +1,8 @@
 'use client';
 import dynamic from 'next/dynamic';
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import type { ChartMode } from '@/components/charts/CapitalChart';
 import { X, DollarSign, Activity, Target, Clock } from 'lucide-react';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
@@ -16,8 +17,9 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 const CapitalChart = dynamic(() => import('@/components/charts/CapitalChart'), { ssr: false });
 
 export default function DashboardClient({ ops, capitalInicial }: { ops: Operacao[]; capitalInicial: number }) {
-  const [de, setDe]   = useState('');
-  const [ate, setAte] = useState('');
+  const [de, setDe]         = useState('');
+  const [ate, setAte]       = useState('');
+  const [chartMode, setChartMode] = useState<ChartMode>('dia');
 
   const filtered = useMemo(() => ops.filter(o => {
     if (de  && o.data < de)  return false;
@@ -320,10 +322,25 @@ export default function DashboardClient({ ops, capitalInicial }: { ops: Operacao
                 )}
               </div>
             </div>
-            <button className="period-btn">Este período ▾</button>
+            <div className="chart-mode-btns">
+              {([
+                { key: 'operacao', label: 'Operação' },
+                { key: 'dia',      label: 'Dia'      },
+                { key: 'semana',   label: 'Semana'   },
+                { key: 'mes',      label: 'Mês'      },
+              ] as { key: ChartMode; label: string }[]).map(({ key, label }) => (
+                <button
+                  key={key}
+                  className={`chart-mode-btn${chartMode === key ? ' active' : ''}`}
+                  onClick={() => setChartMode(key)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="dash-chart-body">
-            <CapitalChart ops={filtered} capitalInicial={capitalInicial} />
+            <CapitalChart ops={filtered} capitalInicial={capitalInicial} mode={chartMode} />
           </div>
         </div>
 
