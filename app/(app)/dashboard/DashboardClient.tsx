@@ -11,7 +11,6 @@ import { fmtRS, fmtPct } from '@/lib/formatters';
 import OperacoesTable     from '@/components/OperacoesTable';
 import DashboardInsight   from '@/components/DashboardInsight';
 import MercadoResumo      from '@/components/MercadoResumo';
-import AgendaEconomica    from '@/components/AgendaEconomica';
 import type { Operacao } from '@/lib/types';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -223,7 +222,6 @@ export default function DashboardClient({ ops, capitalInicial }: { ops: Operacao
         <MercadoResumo />
 
         {/* Agenda Econômica */}
-        <AgendaEconomica />
 
         {/* Filtro de período */}
         <div className="dash-filter">
