@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BarChart2, Loader2, RefreshCw, AlertCircle } from 'lucide-react';
 
 type Ativo = 'WIN' | 'WDO';
@@ -48,6 +48,15 @@ export default function MercadoResumo() {
   const [ohlc,    setOhlc]    = useState<OhlcData | null>(null);
   const [eventos, setEventos] = useState<CalEvent[]>([]);
   const [error,   setError]   = useState('');
+
+  // Carrega calendário automaticamente ao abrir a home
+  useEffect(() => {
+    const hoje = new Date().toISOString().split('T')[0];
+    fetch(`/api/mercado/calendario?from=${hoje}&to=${hoje}`)
+      .then(r => r.json())
+      .then(d => { if (d.events?.length) setEventos(d.events as CalEvent[]); })
+      .catch(() => {});
+  }, []);
 
   async function gerar() {
     setLoading(true);
@@ -137,16 +146,10 @@ export default function MercadoResumo() {
         </div>
       </div>
 
-      {/* Error */}
-      {error && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 'var(--text-sm)', color: 'var(--loss)', paddingTop: 12, borderTop: '1px solid var(--border)', marginTop: 8 }}>
-          <AlertCircle size={13} /> {error}
-        </div>
-      )}
-
-      {/* Calendar event badges */}
+      {/* Calendar event badges — aparecem automaticamente */}
       {eventos.length > 0 && (
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', paddingTop: 12, borderTop: '1px solid var(--border)', marginTop: 8 }}>
+          <span style={{ fontSize: 11, color: 'var(--text-muted)', alignSelf: 'center', marginRight: 2, fontWeight: 600 }}>📅 HOJE</span>
           {eventos.map((e, i) => (
             <span
               key={i}
@@ -160,6 +163,13 @@ export default function MercadoResumo() {
               {e.country} · {e.event}{e.estimate ? ` ${e.estimate}${e.unit ?? ''}` : ''}
             </span>
           ))}
+        </div>
+      )}
+
+      {/* Error */}
+      {error && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 'var(--text-sm)', color: 'var(--loss)', paddingTop: 12, borderTop: '1px solid var(--border)', marginTop: 8 }}>
+          <AlertCircle size={13} /> {error}
         </div>
       )}
 

@@ -301,26 +301,6 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
           <p style={{ fontSize: 'var(--text-sm)', color: 'var(--loss)', paddingTop: 8 }}>{briefingError}</p>
         )}
 
-        {/* Calendário econômico */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: briefing ? 0 : 12 }}>
-          <button type="button" className="btn btn-ghost" style={{ fontSize: 'var(--text-xs)', padding: '4px 10px' }} onClick={handleFetchCalendario} disabled={loadingCal}>
-            {loadingCal ? <><Loader2 size={11} className="spin" /> Buscando...</> : '📅 Calendário econômico'}
-          </button>
-          {calMsg && <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{calMsg}</span>}
-        </div>
-        {calendario.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 5, padding: '10px 12px', background: 'var(--bg-surface)', borderRadius: 'var(--radius)', border: '1px solid var(--border)', marginTop: 6 }}>
-            {calendario.map((e, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--text-xs)' }}>
-                <span style={{ color: e.impact === 'high' ? 'var(--loss)' : e.impact === 'medium' ? 'var(--pe-color)' : 'var(--text-muted)', fontWeight: 800, fontSize: 10 }}>●</span>
-                <span style={{ color: 'var(--text-muted)', fontWeight: 700, minWidth: 22 }}>{e.country}</span>
-                <span style={{ color: 'var(--text-secondary)', flex: 1 }}>{e.event}</span>
-                {e.estimate && <span style={{ color: 'var(--text-muted)', fontVariantNumeric: 'tabular-nums' }}>est: {e.estimate}{e.unit ?? ''}</span>}
-              </div>
-            ))}
-          </div>
-        )}
-
         {briefing && (
           <div className="diario-analise-body" style={{ marginTop: 8 }}>
             {renderAnalise(briefing)}
@@ -332,7 +312,7 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
       <div className="card">
         <div className="card-header">
           <h2 className="card-title">Mercado</h2>
-          <p className="card-desc" style={{ marginTop: 3 }}>Dados do pregão — preencha durante ou após o mercado</p>
+          <p className="card-desc" style={{ marginTop: 3 }}>OHLC automático via Yahoo Finance · Classifique o tipo de mercado</p>
         </div>
         <div className="card-body" style={{ gap: 14 }}>
 
@@ -358,26 +338,31 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
 
           {/* OHLC — automático via Yahoo Finance */}
           <div>
-            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              OHLC
-              {loadingOHLC && <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: 'var(--text-muted)', fontSize: 'var(--text-sm)', display: 'flex', alignItems: 'center', gap: 4 }}><Loader2 size={11} className="spin" /> buscando...</span>}
-              {!loadingOHLC && ohlcFonte && <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>{ohlcFonte}</span>}
-              {!loadingOHLC && rangeOHLC && <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: 'var(--gain)', fontSize: 'var(--text-sm)' }}>{rangeOHLC}</span>}
-            </label>
-            <div className="form-row" style={{ marginBottom: 0 }}>
-              {[
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
+              <span className="form-label" style={{ margin: 0 }}>OHLC</span>
+              {loadingOHLC
+                ? <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}><Loader2 size={10} className="spin" /> buscando...</span>
+                : ohlcFonte && <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{ohlcFonte}</span>}
+            </div>
+            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+              {([
                 { label: 'Abertura',   value: abertura   },
                 { label: 'Máxima',     value: maximo     },
                 { label: 'Mínima',     value: minimo     },
                 { label: 'Fechamento', value: fechamento },
-              ].map(({ label, value }) => (
-                <div key={label} className="form-group">
-                  <label className="form-label" style={{ fontSize: 'var(--text-xs)' }}>{label}</label>
-                  <div className={`auto-value${value ? ' filled' : ''}`} style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-base)' }}>
-                    {value ? Number(value).toLocaleString('pt-BR') : '—'}
+                ...(rangeOHLC ? [{ label: 'Range', value: rangeOHLC.replace('Range: ', '') + '★' }] : []),
+              ] as { label: string; value: string }[]).map(({ label, value }) => {
+                const isRange = label === 'Range';
+                const display = isRange ? value.replace('★', '') : (value && !isRange ? Number(value).toLocaleString('pt-BR') : '—');
+                return (
+                  <div key={label}>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 3 }}>{label}</span>
+                    <span style={{ fontSize: 17, fontWeight: 700, fontFamily: 'var(--font-mono)', color: loadingOHLC ? 'var(--text-muted)' : isRange ? 'var(--gain)' : 'var(--text-primary)' }}>
+                      {loadingOHLC ? '···' : display}
+                    </span>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
