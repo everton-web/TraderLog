@@ -30,6 +30,28 @@ function formatEntrada(e: EntradaRow): string {
   ].join('\n');
 }
 
+async function callGemini(apiKey: string, system: string, prompt: string, maxTokens = 1024): Promise<string> {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: system }] },
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: maxTokens, temperature: 0.7 },
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { error?: { message?: string } };
+    throw new Error(err.error?.message ?? `Gemini error ${res.status}`);
+  }
+
+  const data = await res.json() as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
+  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+}
+
 export async function POST(req: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -37,13 +59,13 @@ export async function POST(req: Request) {
 
   const { data: cfg } = await supabase
     .from('bridge_config')
-    .select('anthropic_key')
+    .select('gemini_key')
     .eq('user_id', user.id)
     .maybeSingle();
 
-  if (!cfg?.anthropic_key) {
+  if (!cfg?.gemini_key) {
     return NextResponse.json(
-      { error: 'Configure a API key da Anthropic em Integrações primeiro.' },
+      { error: 'Configure a API key do Google AI em Integrações primeiro.' },
       { status: 400 }
     );
   }
@@ -58,7 +80,7 @@ export async function POST(req: Request) {
     .order('data', { ascending: false })
     .limit(10);
 
-  const entradaHoje   = formatEntrada(entrada);
+  const entradaHoje    = formatEntrada(entrada);
   const historicoTexto = historico?.length
     ? historico.map(formatEntrada).join('\n\n---\n\n')
     : 'Nenhuma entrada anterior registrada.';
@@ -84,37 +106,18 @@ Com base nos dados acima, forneça:
 
 Seja direto e específico. Máximo 400 palavras.`;
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'x-api-key':          cfg.anthropic_key,
-      'anthropic-version':  '2023-06-01',
-      'content-type':       'application/json',
-    },
-    body: JSON.stringify({
-      model:      'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
-      system,
-      messages:   [{ role: 'user', content: prompt }],
-    }),
-  });
+  try {
+    const analise = await callGemini(cfg.gemini_key, system, prompt, 1024);
 
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({})) as { error?: { message?: string } };
-    return NextResponse.json(
-      { error: err.error?.message ?? 'Erro ao chamar a API da Anthropic' },
-      { status: response.status }
-    );
+    await supabase
+      .from('diario_entradas')
+      .update({ analise_ia: analise, analise_gerada_em: new Date().toISOString() })
+      .eq('user_id', user.id)
+      .eq('data', entrada.data);
+
+    return NextResponse.json({ analise });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Erro ao chamar o Gemini';
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
-
-  const result = await response.json() as { content?: { text?: string }[] };
-  const analise = result.content?.[0]?.text ?? '';
-
-  await supabase
-    .from('diario_entradas')
-    .update({ analise_ia: analise, analise_gerada_em: new Date().toISOString() })
-    .eq('user_id', user.id)
-    .eq('data', entrada.data);
-
-  return NextResponse.json({ analise });
 }

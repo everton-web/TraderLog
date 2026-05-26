@@ -19,12 +19,12 @@ export default async function DiarioPage() {
         .maybeSingle(),
       supabase
         .from('bridge_config')
-        .select('anthropic_key')
+        .select('gemini_key')
         .eq('user_id', user!.id)
         .maybeSingle(),
     ]);
     diarioHoje      = entradaRes.data;
-    hasAnthropicKey = !!cfgRes.data?.anthropic_key;
+    hasAnthropicKey = !!cfgRes.data?.gemini_key;
   } catch {
     // tabelas ainda não existem
   }

@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { anthropic_key } = await req.json();
+  const { gemini_key } = await req.json();
   const now = new Date().toISOString();
 
   const { data: existing } = await supabase
@@ -18,11 +18,11 @@ export async function POST(req: Request) {
   const { error } = existing
     ? await supabase
         .from('bridge_config')
-        .update({ anthropic_key, updated_at: now })
+        .update({ gemini_key, updated_at: now })
         .eq('user_id', user.id)
     : await supabase
         .from('bridge_config')
-        .insert({ user_id: user.id, anthropic_key, updated_at: now });
+        .insert({ user_id: user.id, gemini_key, updated_at: now });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });

@@ -10,6 +10,27 @@ interface OpRow {
   pts_final:   number | null;
 }
 
+async function callGemini(apiKey: string, prompt: string): Promise<string> {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: 256, temperature: 0.7 },
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({})) as { error?: { message?: string } };
+    throw new Error(err.error?.message ?? `Gemini error ${res.status}`);
+  }
+
+  const data = await res.json() as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
+  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+}
+
 export async function POST(req: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -17,11 +38,11 @@ export async function POST(req: Request) {
 
   const { data: cfg } = await supabase
     .from('bridge_config')
-    .select('anthropic_key')
+    .select('gemini_key')
     .eq('user_id', user.id)
     .maybeSingle();
 
-  if (!cfg?.anthropic_key) {
+  if (!cfg?.gemini_key) {
     return NextResponse.json(
       { error: 'Configure a API key em Integrações.' },
       { status: 400 }
@@ -43,7 +64,7 @@ export async function POST(req: Request) {
   ops.forEach(o => {
     if (!o.dia_semana) return;
     if (!byDay[o.dia_semana]) byDay[o.dia_semana] = { rs: 0, count: 0 };
-    byDay[o.dia_semana].rs    += o.rs_final    ?? 0;
+    byDay[o.dia_semana].rs    += o.rs_final ?? 0;
     byDay[o.dia_semana].count += 1;
   });
 
@@ -67,40 +88,23 @@ RESUMO (${ops.length} operações):
 - Últimos 5 resultados: ${recentStr}
 
 POR DIA DA SEMANA:
-${Object.entries(byDay).map(([d, v]) => `  ${d}: ${v.count} ops, resultado acumulado R$${v.rs.toFixed(0)}`).join('\n') || '  —'}
+${Object.entries(byDay).map(([d, v]) => `  ${d}: ${v.count} ops, R$${v.rs.toFixed(0)}`).join('\n') || '  —'}
 
 POR SETUP:
 ${Object.entries(bySetup).slice(0, 5).map(([s, v]) => `  ${s}: ${v.wins}/${v.total} wins, R$${v.rs.toFixed(0)}`).join('\n') || '  —'}
 
-Responda EM PORTUGUÊS com exatamente 3 linhas curtas, uma por bullet:
+Responda EM PORTUGUÊS com exatamente 3 bullet points curtos:
 • [ponto positivo identificado nos dados]
 • [ponto de atenção ou padrão negativo]
 • [1 dica objetiva para hoje]
 
-Seja direto e específico. Sem introdução, sem conclusão.`;
+Sem introdução, sem conclusão. Apenas os 3 bullets.`;
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'x-api-key':         cfg.anthropic_key,
-      'anthropic-version': '2023-06-01',
-      'content-type':      'application/json',
-    },
-    body: JSON.stringify({
-      model:      'claude-haiku-4-5-20251001',
-      max_tokens: 256,
-      messages:   [{ role: 'user', content: prompt }],
-    }),
-  });
-
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({})) as { error?: { message?: string } };
-    return NextResponse.json(
-      { error: err.error?.message ?? 'Erro ao chamar a API' },
-      { status: response.status }
-    );
+  try {
+    const insight = await callGemini(cfg.gemini_key, prompt);
+    return NextResponse.json({ insight });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Erro ao chamar o Gemini';
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
-
-  const result = await response.json() as { content?: { text?: string }[] };
-  return NextResponse.json({ insight: result.content?.[0]?.text ?? '' });
 }

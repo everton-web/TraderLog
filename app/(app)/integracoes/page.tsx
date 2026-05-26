@@ -7,15 +7,15 @@ export default async function IntegracoesPage() {
   const { data: { user } } = await supabase.auth.getUser();
 
   let bridgeCfg: {
-    profit_key:    string | null;
-    profit_email:  string | null;
-    anthropic_key: string | null;
+    profit_key:   string | null;
+    profit_email: string | null;
+    gemini_key:   string | null;
   } | null = null;
 
   try {
     const { data } = await supabase
       .from('bridge_config')
-      .select('profit_key, profit_email, anthropic_key')
+      .select('profit_key, profit_email, gemini_key')
       .eq('user_id', user!.id)
       .maybeSingle();
     bridgeCfg = data;
@@ -58,14 +58,14 @@ export default async function IntegracoesPage() {
       {/* Claude AI */}
       <div className="card" style={{ maxWidth: 560 }}>
         <div className="card-header">
-          <h2 className="card-title">Claude AI — Chave de API</h2>
+          <h2 className="card-title">Google AI — Chave de API</h2>
           <p className="card-desc" style={{ marginTop: 4 }}>
             Necessária para o <a href="/diario" style={{ color: 'var(--gain)' }}>Diário com IA</a>.
             Sua chave nunca é compartilhada.
           </p>
         </div>
         <div className="card-body">
-          <AnthropicKeyForm hasKey={!!bridgeCfg?.anthropic_key} />
+          <AnthropicKeyForm hasKey={!!bridgeCfg?.gemini_key} />
         </div>
       </div>
     </>

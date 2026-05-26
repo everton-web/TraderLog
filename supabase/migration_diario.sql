@@ -1,5 +1,5 @@
--- Adicionar chave Anthropic à tabela bridge_config
-alter table public.bridge_config add column if not exists anthropic_key text;
+-- Adicionar chave do Google AI à tabela bridge_config
+alter table public.bridge_config add column if not exists gemini_key text;
 
 -- Tabela de entradas do diário do trader
 create table if not exists public.diario_entradas (

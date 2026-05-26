@@ -6,7 +6,7 @@ interface Props {
   hasKey: boolean;
 }
 
-export default function AnthropicKeyForm({ hasKey }: Props) {
+export default function GeminiKeyForm({ hasKey }: Props) {
   const [key,    setKey]    = useState('');
   const [show,   setShow]   = useState(false);
   const [saving, setSaving] = useState(false);
@@ -20,7 +20,7 @@ export default function AnthropicKeyForm({ hasKey }: Props) {
     const res  = await fetch('/api/diario/key', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ anthropic_key: key }),
+      body:    JSON.stringify({ gemini_key: key }),
     });
     const data = await res.json();
     setSaving(false);
@@ -31,12 +31,12 @@ export default function AnthropicKeyForm({ hasKey }: Props) {
   return (
     <div className="bridge-config-form">
       <div className="form-group">
-        <label className="form-label">API Key da Anthropic</label>
+        <label className="form-label">Google AI — API Key</label>
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
           <input
             type={show ? 'text' : 'password'}
             className="form-input mono"
-            placeholder={hasKey ? '••••••••••••••••••••••••' : 'sk-ant-api03-...'}
+            placeholder={hasKey ? '••••••••••••••••••••••••' : 'AIza...'}
             value={key}
             onChange={e => setKey(e.target.value)}
             style={{ paddingRight: 38 }}
@@ -50,7 +50,7 @@ export default function AnthropicKeyForm({ hasKey }: Props) {
           </button>
         </div>
         <span className="field-hint">
-          Obtenha em <strong>console.anthropic.com</strong> → API Keys.
+          Obtenha grátis em <strong>aistudio.google.com</strong> → Get API Key.
           {hasKey && ' Já existe uma chave salva — preencha para substituir.'}
         </span>
       </div>
