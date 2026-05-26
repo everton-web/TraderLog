@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/lib/actions';
-import { LayoutDashboard, ClipboardList, Settings, User, Crown, LogOut, TrendingUp, BarChart2, CalendarDays, Link2, ClipboardCheck, BookOpen, HelpCircle, Globe } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, Settings, User, Crown, LogOut, TrendingUp, BarChart2, CalendarDays, Link2, ClipboardCheck, BookOpen, HelpCircle } from 'lucide-react';
 import LogoImage from '@/components/LogoImage';
 import type { Profile } from '@/lib/types';
 
@@ -21,7 +21,6 @@ const NAV_SECTIONS = [
       { href: '/calendario', icon: CalendarDays,   label: 'Calendário' },
       { href: '/checklist',  icon: ClipboardCheck, label: 'Checklist' },
       { href: '/plano',      icon: TrendingUp,     label: 'Plano de Capital' },
-      { href: '/agenda',     icon: Globe,          label: 'Agenda Econômica' },
     ],
   },
   {

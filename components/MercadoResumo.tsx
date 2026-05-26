@@ -1,7 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { BarChart2, Loader2, RefreshCw, AlertCircle, ExternalLink } from 'lucide-react';
+import { BarChart2, Loader2, RefreshCw, AlertCircle } from 'lucide-react';
 
 type Ativo = 'WIN' | 'WDO';
 
@@ -11,14 +10,6 @@ interface OhlcData {
   maximo:     number;
   minimo:     number;
   fechamento: number;
-}
-
-interface CalEvent {
-  country:  string;
-  event:    string;
-  impact:   string;
-  estimate: string | null;
-  unit:     string | null;
 }
 
 function renderResumo(text: string) {
@@ -47,35 +38,58 @@ export default function MercadoResumo() {
   const [loading, setLoading] = useState(false);
   const [resumo,  setResumo]  = useState('');
   const [ohlc,    setOhlc]    = useState<OhlcData | null>(null);
-  const [eventos, setEventos] = useState<CalEvent[]>([]);
   const [error,   setError]   = useState('');
 
-  // Carrega calendário automaticamente ao abrir a home
-  useEffect(() => {
-    const hoje = new Date().toISOString().split('T')[0];
-    fetch(`/api/mercado/calendario?from=${hoje}&to=${hoje}`)
-      .then(r => r.json())
-      .then(d => { if (d.events?.length) setEventos(d.events as CalEvent[]); })
-      .catch(() => {});
-  }, []);
-
-  async function gerar() {
+  async function gerar(av: Ativo = ativo) {
     setLoading(true);
     setError('');
-    const res  = await fetch('/api/mercado/resumo', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ativo }),
-    });
-    const data = await res.json();
-    setLoading(false);
-    if (data.error) { setError(data.error); return; }
-    setResumo(data.resumo ?? '');
-    setOhlc(data.ohlc   ?? null);
-    setEventos(data.eventos ?? []);
+    try {
+      const res  = await fetch('/api/mercado/resumo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ativo: av }),
+      });
+      const data = await res.json();
+      if (data.error) { setError(data.error); return; }
+      setResumo(data.resumo ?? '');
+      setOhlc(data.ohlc ?? null);
+      const today = new Date().toISOString().split('T')[0];
+      try { localStorage.setItem(`traderlog-resumo-${av}-${today}`, JSON.stringify({ resumo: data.resumo, ohlc: data.ohlc })); } catch {}
+    } finally {
+      setLoading(false);
+    }
   }
 
-  const today = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'short' });
+  // Auto-gera na primeira carga — usa cache do dia se disponível
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    try {
+      const cached = localStorage.getItem(`traderlog-resumo-WIN-${today}`);
+      if (cached) {
+        const { resumo: r, ohlc: o } = JSON.parse(cached);
+        if (r) { setResumo(r); if (o) setOhlc(o); return; }
+      }
+    } catch {}
+    gerar('WIN');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function handleAtivoChange(a: Ativo) {
+    setAtivo(a);
+    const today = new Date().toISOString().split('T')[0];
+    try {
+      const cached = localStorage.getItem(`traderlog-resumo-${a}-${today}`);
+      if (cached) {
+        const { resumo: r, ohlc: o } = JSON.parse(cached);
+        if (r) { setResumo(r); if (o) setOhlc(o); return; }
+      }
+    } catch {}
+    setResumo('');
+    setOhlc(null);
+    setError('');
+  }
+
+  const today    = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'short' });
   const hasContent = resumo || error;
 
   return (
@@ -88,18 +102,17 @@ export default function MercadoResumo() {
             <BarChart2 size={14} style={{ color: 'var(--gain)' }} /> Resumo do Mercado
           </div>
           <div className="dash-chart-sub">
-            {today.charAt(0).toUpperCase() + today.slice(1)} — OHLC de ontem + calendário econômico
+            {today.charAt(0).toUpperCase() + today.slice(1)} — OHLC de ontem + análise IA automática
           </div>
 
-          {/* OHLC mini strip */}
           {ohlc && (
             <div style={{ display: 'flex', gap: 16, marginTop: 10, flexWrap: 'wrap' }}>
               {([
-                { label: 'Abertura',    val: ohlc.abertura },
-                { label: 'Máxima',      val: ohlc.maximo },
-                { label: 'Mínima',      val: ohlc.minimo },
-                { label: 'Fechamento',  val: ohlc.fechamento },
-                { label: 'Range',       val: ohlc.maximo - ohlc.minimo, suffix: ' pts' },
+                { label: 'Abertura',   val: ohlc.abertura },
+                { label: 'Máxima',     val: ohlc.maximo },
+                { label: 'Mínima',     val: ohlc.minimo },
+                { label: 'Fechamento', val: ohlc.fechamento },
+                { label: 'Range',      val: ohlc.maximo - ohlc.minimo, suffix: ' pts' },
               ] as { label: string; val: number; suffix?: string }[]).map(({ label, val, suffix }) => (
                 <div key={label}>
                   <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', marginBottom: 1 }}>{label}</span>
@@ -116,7 +129,6 @@ export default function MercadoResumo() {
           )}
         </div>
 
-        {/* Controls */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flexShrink: 0 }}>
           <div className="toggle-group">
             {(['WIN', 'WDO'] as Ativo[]).map(a => (
@@ -125,7 +137,7 @@ export default function MercadoResumo() {
                 type="button"
                 className={`toggle-btn${ativo === a ? ' active' : ''}`}
                 style={{ fontSize: 'var(--text-xs)', padding: '4px 12px' }}
-                onClick={() => setAtivo(a)}
+                onClick={() => handleAtivoChange(a)}
                 disabled={loading}
               >
                 {a}
@@ -135,52 +147,30 @@ export default function MercadoResumo() {
           <button
             className="btn btn-primary"
             style={{ fontSize: 'var(--text-xs)', padding: '5px 14px', whiteSpace: 'nowrap' }}
-            onClick={gerar}
+            onClick={() => gerar()}
             disabled={loading}
           >
             {loading
               ? <><Loader2 size={12} className="spin" /> Analisando...</>
               : hasContent
                 ? <><RefreshCw size={12} /> Regerar</>
-                : '📊 Gerar resumo'}
+                : <><BarChart2 size={12} /> Gerar resumo</>}
           </button>
         </div>
       </div>
 
-      {/* Calendar event badges — aparecem automaticamente */}
-      {eventos.length > 0 && (
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', paddingTop: 12, borderTop: '1px solid var(--border)', marginTop: 8 }}>
-          <span style={{ fontSize: 11, color: 'var(--text-muted)', alignSelf: 'center', marginRight: 2, fontWeight: 600 }}>📅 HOJE</span>
-          {eventos.map((e, i) => (
-            <span
-              key={i}
-              style={{
-                fontSize: 11, padding: '2px 9px', borderRadius: 10, fontWeight: 600,
-                background: e.impact === 'high' ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)',
-                color:      e.impact === 'high' ? 'var(--loss)' : 'var(--pe-color)',
-                border:     `1px solid ${e.impact === 'high' ? 'rgba(239,68,68,0.25)' : 'rgba(245,158,11,0.25)'}`,
-              }}
-            >
-              {e.country} · {e.event}{e.estimate ? ` ${e.estimate}${e.unit ?? ''}` : ''}
-            </span>
-          ))}
-          <Link
-            href="/agenda"
-            style={{ marginLeft: 'auto', alignSelf: 'center', display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'var(--text-muted)', textDecoration: 'none', whiteSpace: 'nowrap' }}
-          >
-            <ExternalLink size={10} /> Ver agenda completa
-          </Link>
-        </div>
-      )}
-
-      {/* Error */}
       {error && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 'var(--text-sm)', color: 'var(--loss)', paddingTop: 12, borderTop: '1px solid var(--border)', marginTop: 8 }}>
           <AlertCircle size={13} /> {error}
         </div>
       )}
 
-      {/* AI Summary */}
+      {loading && !resumo && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--text-sm)', color: 'var(--text-muted)', paddingTop: 12, borderTop: '1px solid var(--border)', marginTop: 8 }}>
+          <Loader2 size={13} className="spin" /> Gerando análise do mercado...
+        </div>
+      )}
+
       {resumo && (
         <div style={{ paddingTop: 12, borderTop: '1px solid var(--border)', marginTop: 8 }}>
           {renderResumo(resumo)}

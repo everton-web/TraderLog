@@ -63,7 +63,8 @@
       "Bash(Select-Object Name)",
       "Bash(Select-Object Name, Length, LastWriteTime)",
       "Bash(Select-Object Name, Length)",
-      "PowerShell(Test-Path *)"
+      "PowerShell(Test-Path *)",
+      "Bash(Remove-Item *)"
     ]
   }
 }
