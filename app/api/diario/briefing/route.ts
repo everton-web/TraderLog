@@ -27,23 +27,29 @@ function fmtOHLC(e: Row): string {
   return partes.join(' | ') + range;
 }
 
-async function callGemini(apiKey: string, system: string, prompt: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-  const res = await fetch(url, {
+async function callGroq(apiKey: string, system: string, prompt: string, maxTokens = 900): Promise<string> {
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
     body: JSON.stringify({
-      systemInstruction: { parts: [{ text: system }] },
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: 900, temperature: 0.6 },
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        { role: 'system', content: system },
+        { role: 'user', content: prompt },
+      ],
+      max_tokens: maxTokens,
+      temperature: 0.6,
     }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({})) as { error?: { message?: string } };
-    throw new Error(err.error?.message ?? `Gemini error ${res.status}`);
+    throw new Error(err.error?.message ?? `Groq error ${res.status}`);
   }
-  const data = await res.json() as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
-  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+  const data = await res.json() as { choices?: { message?: { content?: string } }[] };
+  return data.choices?.[0]?.message?.content ?? '';
 }
 
 function ontemISO(): string {
@@ -64,7 +70,7 @@ export async function POST(req: Request) {
     .maybeSingle();
 
   if (!cfg?.gemini_key)
-    return NextResponse.json({ error: 'Configure a API key do Google AI em Integrações primeiro.' }, { status: 400 });
+    return NextResponse.json({ error: 'Configure a API key do Groq em Integrações primeiro.' }, { status: 400 });
 
   const body = await req.json().catch(() => ({})) as { data?: string };
   const dataRef = body.data ?? ontemISO();
@@ -145,10 +151,10 @@ Com base no fechamento e range de ontem: que cenários são prováveis? Que nív
 Máximo 280 palavras. Cite os números reais dos dados. Nada genérico.`;
 
   try {
-    const briefing = await callGemini(cfg.gemini_key, system, prompt);
+    const briefing = await callGroq(cfg.gemini_key, system, prompt);
     return NextResponse.json({ briefing, dataRef });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Erro ao chamar o Gemini';
+    const msg = err instanceof Error ? err.message : 'Erro ao chamar o Groq';
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

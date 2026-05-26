@@ -31,12 +31,12 @@ export default function GeminiKeyForm({ hasKey }: Props) {
   return (
     <div className="bridge-config-form">
       <div className="form-group">
-        <label className="form-label">Google AI — API Key</label>
+        <label className="form-label">Groq — API Key</label>
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
           <input
             type={show ? 'text' : 'password'}
             className="form-input mono"
-            placeholder={hasKey ? '••••••••••••••••••••••••' : 'AIza...'}
+            placeholder={hasKey ? '••••••••••••••••••••••••' : 'gsk_...'}
             value={key}
             onChange={e => setKey(e.target.value)}
             style={{ paddingRight: 38 }}
@@ -50,7 +50,7 @@ export default function GeminiKeyForm({ hasKey }: Props) {
           </button>
         </div>
         <span className="field-hint">
-          Obtenha grátis em <strong>aistudio.google.com</strong> → Get API Key.
+          Grátis em <strong>console.groq.com</strong> → API Keys → Create API Key.
           {hasKey && ' Já existe uma chave salva — preencha para substituir.'}
         </span>
       </div>

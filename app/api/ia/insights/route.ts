@@ -10,25 +10,28 @@ interface OpRow {
   pts_final:   number | null;
 }
 
-async function callGemini(apiKey: string, prompt: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-  const res = await fetch(url, {
+async function callGroq(apiKey: string, prompt: string): Promise<string> {
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
     body: JSON.stringify({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: 256, temperature: 0.7 },
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 512,
+      temperature: 0.7,
     }),
   });
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({})) as { error?: { message?: string } };
-    throw new Error(err.error?.message ?? `Gemini error ${res.status}`);
+    throw new Error(err.error?.message ?? `Groq error ${res.status}`);
   }
 
-  const data = await res.json() as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
-  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+  const data = await res.json() as { choices?: { message?: { content?: string } }[] };
+  return data.choices?.[0]?.message?.content ?? '';
 }
 
 export async function POST(req: Request) {
@@ -44,7 +47,7 @@ export async function POST(req: Request) {
 
   if (!cfg?.gemini_key) {
     return NextResponse.json(
-      { error: 'Configure a API key em Integrações.' },
+      { error: 'Configure a API key do Groq em Integrações.' },
       { status: 400 }
     );
   }
@@ -101,10 +104,10 @@ Responda EM PORTUGUÊS com exatamente 3 bullet points curtos:
 Sem introdução, sem conclusão. Apenas os 3 bullets.`;
 
   try {
-    const insight = await callGemini(cfg.gemini_key, prompt);
+    const insight = await callGroq(cfg.gemini_key, prompt);
     return NextResponse.json({ insight });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Erro ao chamar o Gemini';
+    const msg = err instanceof Error ? err.message : 'Erro ao chamar o Groq';
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

@@ -55,13 +55,13 @@ export default async function IntegracoesPage() {
         </div>
       </div>
 
-      {/* Claude AI */}
+      {/* Groq AI */}
       <div className="card" style={{ maxWidth: 560 }}>
         <div className="card-header">
-          <h2 className="card-title">Google AI — Chave de API</h2>
+          <h2 className="card-title">Groq — Chave de API</h2>
           <p className="card-desc" style={{ marginTop: 4 }}>
             Necessária para o <a href="/diario" style={{ color: 'var(--gain)' }}>Diário com IA</a>.
-            Sua chave nunca é compartilhada.
+            Gratuito em console.groq.com. Sua chave nunca é compartilhada.
           </p>
         </div>
         <div className="card-body">

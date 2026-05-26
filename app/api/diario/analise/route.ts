@@ -40,23 +40,29 @@ function fmtEntradaHistorico(e: EntradaRow): string {
   ].join('\n');
 }
 
-async function callGemini(apiKey: string, system: string, prompt: string, maxTokens = 1200): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-  const res = await fetch(url, {
+async function callGroq(apiKey: string, system: string, prompt: string, maxTokens = 1200): Promise<string> {
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
     body: JSON.stringify({
-      systemInstruction: { parts: [{ text: system }] },
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: maxTokens, temperature: 0.7 },
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        { role: 'system', content: system },
+        { role: 'user', content: prompt },
+      ],
+      max_tokens: maxTokens,
+      temperature: 0.7,
     }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({})) as { error?: { message?: string } };
-    throw new Error(err.error?.message ?? `Gemini error ${res.status}`);
+    throw new Error(err.error?.message ?? `Groq error ${res.status}`);
   }
-  const data = await res.json() as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
-  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+  const data = await res.json() as { choices?: { message?: { content?: string } }[] };
+  return data.choices?.[0]?.message?.content ?? '';
 }
 
 export async function POST(req: Request) {
@@ -72,7 +78,7 @@ export async function POST(req: Request) {
 
   if (!cfg?.gemini_key) {
     return NextResponse.json(
-      { error: 'Configure a API key do Google AI em Integrações primeiro.' },
+      { error: 'Configure a API key do Groq em Integrações primeiro.' },
       { status: 400 }
     );
   }
@@ -80,7 +86,6 @@ export async function POST(req: Request) {
   const { entrada } = await req.json() as { entrada: EntradaRow };
   const dataHoje = entrada.data as string;
 
-  // Operações reais do dia
   const { data: opsHoje } = await supabase
     .from('operacoes')
     .select('ativo, tipo, setup, pe, stop, saida, pts_final, rs_final, situacao, obs')
@@ -88,7 +93,6 @@ export async function POST(req: Request) {
     .eq('data', dataHoje)
     .order('created_at');
 
-  // Histórico do diário (últimas 10 entradas, exceto hoje)
   const { data: historico } = await supabase
     .from('diario_entradas')
     .select('*')
@@ -97,7 +101,6 @@ export async function POST(req: Request) {
     .order('data', { ascending: false })
     .limit(10);
 
-  // Desempenho recente (últimos 30 dias de operações)
   const trinta = new Date();
   trinta.setDate(trinta.getDate() - 30);
   const { data: opsRecentes } = await supabase
@@ -107,14 +110,12 @@ export async function POST(req: Request) {
     .gte('data', trinta.toISOString().split('T')[0])
     .order('data', { ascending: false });
 
-  // Calcula onde o trader está
   const totalOps  = opsRecentes?.length ?? 0;
   const gains     = opsRecentes?.filter(o => o.situacao === 'Gain').length ?? 0;
   const losses    = opsRecentes?.filter(o => o.situacao === 'Loss').length ?? 0;
   const rsTotal   = opsRecentes?.reduce((s, o) => s + (o.rs_final ?? 0), 0) ?? 0;
   const acerto    = (gains + losses) > 0 ? ((gains / (gains + losses)) * 100).toFixed(1) : null;
 
-  // Sequência atual (streak)
   let streak = 0;
   let streakTipo = '';
   if (opsRecentes?.length) {
@@ -128,10 +129,8 @@ export async function POST(req: Request) {
     }
   }
 
-  // Ontem no diário
   const ontem = historico?.[0];
 
-  // Formata operações de hoje
   const opsTexto = opsHoje?.length
     ? opsHoje.map(o =>
         `  ${o.ativo} ${o.tipo}${o.setup ? ` [${o.setup}]` : ''} | PE ${o.pe} → Saída ${o.saida} | ${o.pts_final != null ? `${o.pts_final > 0 ? '+' : ''}${o.pts_final} pts` : '—'} | ${o.situacao ?? '—'}${o.obs ? ` | ${o.obs}` : ''}`
@@ -203,7 +202,7 @@ Com base nos dados OHLC de hoje, o que observar/esperar? Níveis importantes, co
 Máximo 500 palavras. Seja direto e específico — cite os números dos dados.`;
 
   try {
-    const analise = await callGemini(cfg.gemini_key, system, prompt, 1200);
+    const analise = await callGroq(cfg.gemini_key, system, prompt, 1200);
 
     await supabase
       .from('diario_entradas')
@@ -213,7 +212,7 @@ Máximo 500 palavras. Seja direto e específico — cite os números dos dados.`
 
     return NextResponse.json({ analise });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Erro ao chamar o Gemini';
+    const msg = err instanceof Error ? err.message : 'Erro ao chamar o Groq';
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
