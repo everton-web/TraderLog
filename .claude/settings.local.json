@@ -69,7 +69,13 @@
       "Bash(rm app/api/mercado/calendario/route.ts)",
       "Bash(rmdir app/api/mercado/calendario)",
       "WebFetch(domain:docs.tradingeconomics.com)",
-      "WebFetch(domain:api.tradingeconomics.com)"
+      "WebFetch(domain:api.tradingeconomics.com)",
+      "WebFetch(domain:brapi.dev)",
+      "WebFetch(domain:cotacao.b3.com.br)",
+      "WebFetch(domain:sistemaswebb3-listados.b3.com.br)",
+      "WebFetch(domain:www.b3.com.br)",
+      "WebFetch(domain:statusinvest.com.br)",
+      "WebFetch(domain:query1.finance.yahoo.com)"
     ]
   }
 }
