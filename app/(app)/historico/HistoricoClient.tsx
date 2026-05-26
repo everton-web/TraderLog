@@ -117,11 +117,6 @@ export default function HistoricoClient({
 
   return (
     <>
-      <div className="section-header">
-        <h1>Histórico de Operações</h1>
-        <p className="section-desc">Todas as operações registradas</p>
-      </div>
-
       <div className="filters-bar">
         <div className="filter-group">
           <label>Ativo</label>

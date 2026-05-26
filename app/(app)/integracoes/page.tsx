@@ -35,11 +35,6 @@ export default async function IntegracoesPage() {
 
   return (
     <>
-      <div className="section-header">
-        <h1>Integrações</h1>
-        <p className="section-desc">Conecte ferramentas externas ao TraderLog</p>
-      </div>
-
       {/* Profit Pro */}
       <div className="card" style={{ maxWidth: 560, marginBottom: 16 }}>
         <div className="card-header">

@@ -1,38 +1,60 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
-const MERCADO_LABELS: Record<string, string> = {
-  lateral:         'Lateral',
-  tendencia_alta:  'Tendência de Alta',
-  tendencia_baixa: 'Tendência de Baixa',
-  volatil:         'Volátil',
-};
-
 const PLANO_LABELS: Record<string, string> = {
   sim: 'Sim', parcialmente: 'Parcialmente', nao: 'Não',
 };
 
 type EntradaRow = Record<string, unknown>;
 
-function fmtOHLC(e: EntradaRow): string {
-  const ativo = e.ativo_ref ?? 'WIN';
-  const partes = [
-    e.abertura   != null ? `Abertura: ${e.abertura}`   : null,
-    e.maximo     != null ? `Máximo: ${e.maximo}`       : null,
-    e.minimo     != null ? `Mínimo: ${e.minimo}`       : null,
-    e.fechamento != null ? `Fechamento: ${e.fechamento}` : null,
-  ].filter(Boolean);
-  if (!partes.length) return `${ativo}: sem dados OHLC`;
-  const range = e.maximo != null && e.minimo != null
-    ? ` (range: ${(Number(e.maximo) - Number(e.minimo)).toFixed(0)} pts)` : '';
-  return `${ativo} | ${partes.join(' | ')}${range}`;
+interface OhlcResult {
+  data:       string;
+  abertura:   number;
+  maximo:     number;
+  minimo:     number;
+  fechamento: number;
+}
+
+async function fetchOHLC(ativo: 'WIN' | 'WDO'): Promise<OhlcResult | null> {
+  const symbol = ativo === 'WIN' ? '^BVSP' : 'BRL=X';
+  try {
+    const res = await fetch(
+      `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=5d`,
+      { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' } }
+    );
+    if (!res.ok) return null;
+    const json = await res.json() as {
+      chart: { result?: [{ timestamp: number[]; indicators: { quote: [{ open: (number|null)[]; high: (number|null)[]; low: (number|null)[]; close: (number|null)[] }] } }] };
+    };
+    const result = json.chart.result?.[0];
+    if (!result) return null;
+    const t = result.timestamp;
+    const q = result.indicators.quote[0];
+    let idx = t.length - 1;
+    while (idx >= 0 && q.close[idx] == null) idx--;
+    if (idx < 0) return null;
+    const mult = ativo === 'WDO' ? 1000 : 1;
+    const c = q.close[idx]!;
+    return {
+      data:       new Date(t[idx] * 1000).toISOString().split('T')[0],
+      abertura:   Math.round((q.open[idx]  ?? c) * mult),
+      maximo:     Math.round((q.high[idx]  ?? c) * mult),
+      minimo:     Math.round((q.low[idx]   ?? c) * mult),
+      fechamento: Math.round(c * mult),
+    };
+  } catch { return null; }
+}
+
+function fmtOHLC(ativo: string, d: OhlcResult | null): string {
+  if (!d) return `${ativo}FUT: dados indisponíveis`;
+  const range = d.maximo - d.minimo;
+  const dir   = d.fechamento > d.abertura ? 'alta' : d.fechamento < d.abertura ? 'baixa' : 'lateral';
+  return `${ativo}FUT (${d.data}): Abertura ${d.abertura.toLocaleString('pt-BR')} | Máxima ${d.maximo.toLocaleString('pt-BR')} | Mínima ${d.minimo.toLocaleString('pt-BR')} | Fechamento ${d.fechamento.toLocaleString('pt-BR')} | Range ${range} pts | ${dir}`;
 }
 
 function fmtEntradaHistorico(e: EntradaRow): string {
   return [
     `DATA: ${e.data}`,
-    fmtOHLC(e),
-    `Mercado: ${e.mercado ? (MERCADO_LABELS[e.mercado as string] ?? e.mercado) : '-'} | ATR: ${e.atr_pts ?? '-'} pts | ADX: ${e.adx_valor ?? '-'}`,
     `Plano: ${e.plano_dia ?? '-'}`,
     `Ajustes: ${e.ajustes ?? '-'}`,
     `Plano seguido: ${e.plano_seguido ? (PLANO_LABELS[e.plano_seguido as string] ?? e.plano_seguido) : '-'} | Emocional: ${e.emocional ?? '-'}/5`,
@@ -72,7 +94,7 @@ export async function POST(req: Request) {
 
   const { data: cfg } = await supabase
     .from('bridge_config')
-    .select('gemini_key')
+    .select('gemini_key, finnhub_key')
     .eq('user_id', user.id)
     .maybeSingle();
 
@@ -86,61 +108,66 @@ export async function POST(req: Request) {
   const { entrada } = await req.json() as { entrada: EntradaRow };
   const dataHoje = entrada.data as string;
 
-  // Busca calendário internamente (hoje + amanhã)
-  let eventos: { country: string; event: string; impact: string; estimate: string | null; unit: string | null }[] = [];
-  try {
-    const { data: fhCfg } = await supabase
-      .from('bridge_config')
-      .select('finnhub_key')
-      .eq('user_id', user.id)
-      .maybeSingle();
-    const finnhubKey = (fhCfg as Record<string, string | null> | null)?.finnhub_key ?? null;
-    if (finnhubKey) {
-      const amanha = new Date(); amanha.setDate(amanha.getDate() + 1);
-      const url = `https://finnhub.io/api/v1/calendar/economic?from=${dataHoje}&to=${amanha.toISOString().split('T')[0]}&token=${finnhubKey}`;
-      const calRes = await fetch(url);
-      if (calRes.ok) {
-        const calData = await calRes.json() as { economicCalendar?: typeof eventos };
-        eventos = (calData.economicCalendar ?? []).filter(e =>
-          ['US', 'BR', 'EU', 'GB'].includes(e.country) && ['high', 'medium'].includes(e.impact)
-        );
-      }
-    }
-  } catch {}
-
-  const { data: opsHoje } = await supabase
-    .from('operacoes')
-    .select('ativo, tipo, setup, pe, stop, saida, pts_final, rs_final, situacao, obs')
-    .eq('user_id', user.id)
-    .eq('data', dataHoje)
-    .order('created_at');
-
-  const { data: historico } = await supabase
-    .from('diario_entradas')
-    .select('*')
-    .eq('user_id', user.id)
-    .neq('data', dataHoje)
-    .order('data', { ascending: false })
-    .limit(10);
-
   const trinta = new Date();
   trinta.setDate(trinta.getDate() - 30);
-  const { data: opsRecentes } = await supabase
-    .from('operacoes')
-    .select('data, situacao, rs_final, pts_final')
-    .eq('user_id', user.id)
-    .gte('data', trinta.toISOString().split('T')[0])
-    .order('data', { ascending: false });
 
-  const totalOps  = opsRecentes?.length ?? 0;
-  const gains     = opsRecentes?.filter(o => o.situacao === 'Gain').length ?? 0;
-  const losses    = opsRecentes?.filter(o => o.situacao === 'Loss').length ?? 0;
-  const rsTotal   = opsRecentes?.reduce((s, o) => s + (o.rs_final ?? 0), 0) ?? 0;
+  type CalEvento = { country: string; event: string; impact: string; estimate: string | null; unit: string | null };
+
+  async function fetchCal(): Promise<CalEvento[]> {
+    try {
+      const fk = cfg?.finnhub_key as string | null;
+      if (!fk) return [];
+      const amanha = new Date(); amanha.setDate(amanha.getDate() + 1);
+      const url = `https://finnhub.io/api/v1/calendar/economic?from=${dataHoje}&to=${amanha.toISOString().split('T')[0]}&token=${fk}`;
+      const r = await fetch(url);
+      if (!r.ok) return [];
+      const d = await r.json() as { economicCalendar?: CalEvento[] };
+      return (d.economicCalendar ?? []).filter(e =>
+        ['US', 'BR', 'EU', 'GB'].includes(e.country) && ['high', 'medium'].includes(e.impact)
+      );
+    } catch { return []; }
+  }
+
+  const [winRes, wdoRes, calRes, opsHojeRes, historicoRes, opsRecentesRes] = await Promise.allSettled([
+    fetchOHLC('WIN'),
+    fetchOHLC('WDO'),
+    fetchCal(),
+    supabase
+      .from('operacoes')
+      .select('ativo, tipo, setup, pe, stop, saida, pts_final, rs_final, situacao, obs')
+      .eq('user_id', user.id)
+      .eq('data', dataHoje)
+      .order('created_at'),
+    supabase
+      .from('diario_entradas')
+      .select('*')
+      .eq('user_id', user.id)
+      .neq('data', dataHoje)
+      .order('data', { ascending: false })
+      .limit(10),
+    supabase
+      .from('operacoes')
+      .select('data, situacao, rs_final, pts_final')
+      .eq('user_id', user.id)
+      .gte('data', trinta.toISOString().split('T')[0])
+      .order('data', { ascending: false }),
+  ]);
+
+  const win        = winRes.status        === 'fulfilled' ? winRes.value        : null;
+  const wdo        = wdoRes.status        === 'fulfilled' ? wdoRes.value        : null;
+  const eventos    = calRes.status        === 'fulfilled' ? calRes.value        : [];
+  const opsHoje    = opsHojeRes.status    === 'fulfilled' ? (opsHojeRes.value.data    ?? []) : [];
+  const historico  = historicoRes.status  === 'fulfilled' ? (historicoRes.value.data  ?? []) : [];
+  const opsRecentes= opsRecentesRes.status=== 'fulfilled' ? (opsRecentesRes.value.data?? []) : [];
+
+  const gains     = opsRecentes.filter(o => o.situacao === 'Gain').length;
+  const losses    = opsRecentes.filter(o => o.situacao === 'Loss').length;
+  const rsTotal   = opsRecentes.reduce((s, o) => s + (o.rs_final ?? 0), 0);
   const acerto    = (gains + losses) > 0 ? ((gains / (gains + losses)) * 100).toFixed(1) : null;
 
   let streak = 0;
   let streakTipo = '';
-  if (opsRecentes?.length) {
+  if (opsRecentes.length) {
     const ultima = opsRecentes[0].situacao;
     if (ultima === 'Gain' || ultima === 'Loss') {
       streakTipo = ultima;
@@ -151,9 +178,9 @@ export async function POST(req: Request) {
     }
   }
 
-  const ontem = historico?.[0];
+  const ontem = historico[0];
 
-  const opsTexto = opsHoje?.length
+  const opsTexto = opsHoje.length
     ? opsHoje.map(o =>
         `  ${o.ativo} ${o.tipo}${o.setup ? ` [${o.setup}]` : ''} | PE ${o.pe} → Saída ${o.saida} | ${o.pts_final != null ? `${o.pts_final > 0 ? '+' : ''}${o.pts_final} pts` : '—'} | ${o.situacao ?? '—'}${o.obs ? ` | ${o.obs}` : ''}`
       ).join('\n')
@@ -171,8 +198,8 @@ Seja específico: cite números, padrões e situações reais dos dados fornecid
   const prompt = `Analise o diário de trading e gere um briefing completo para o próximo pregão.
 
 ## HOJE — ${dataHoje}
-${fmtOHLC(entrada)}
-Mercado: ${entrada.mercado ? (MERCADO_LABELS[entrada.mercado as string] ?? entrada.mercado) : 'não informado'} | ATR: ${entrada.atr_pts ?? '-'} pts | ADX: ${entrada.adx_valor ?? '-'}
+${fmtOHLC('WIN', win)}
+${fmtOHLC('WDO', wdo)}
 
 **Plano do dia:**
 ${entrada.plano_dia || 'Não informado'}
@@ -195,7 +222,6 @@ ${ontem ? fmtEntradaHistorico(ontem as EntradaRow) : 'Nenhuma entrada registrada
 ---
 
 ## ONDE ESTOU (últimos 30 dias)
-- Total de operações: ${totalOps}
 - Taxa de acerto: ${acerto ?? '—'}% (${gains} gains / ${losses} losses)
 - Resultado acumulado: R$ ${rsTotal.toFixed(2)}
 - Sequência atual: ${streak > 1 ? `${streak} ${streakTipo === 'Gain' ? 'gains' : 'losses'} consecutivos` : 'sem sequência relevante'}
@@ -203,7 +229,7 @@ ${ontem ? fmtEntradaHistorico(ontem as EntradaRow) : 'Nenhuma entrada registrada
 ---
 
 ## HISTÓRICO RECENTE (diário)
-${historico?.slice(0, 5).map(e => fmtEntradaHistorico(e as EntradaRow)).join('\n\n---\n\n') || 'Sem histórico.'}
+${historico.slice(0, 5).map(e => fmtEntradaHistorico(e as EntradaRow)).join('\n\n---\n\n') || 'Sem histórico.'}
 
 ---
 

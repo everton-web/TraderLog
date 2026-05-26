@@ -31,11 +31,6 @@ export default async function AdminPage() {
 
   return (
     <>
-      <div className="section-header">
-        <h1>Painel Geral de Alunos</h1>
-        <p className="section-desc">Acompanhe a performance de cada aluno em tempo real</p>
-      </div>
-
       <div className="table-card">
         <div className="table-wrapper">
           <table className="ops-table">

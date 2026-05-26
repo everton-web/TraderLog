@@ -9,10 +9,6 @@ export default async function NovaPage() {
 
   return (
     <>
-      <div className="section-header">
-        <h1>Nova Operação</h1>
-        <p className="section-desc">Registre uma operação com cálculo automático</p>
-      </div>
       <OperacaoForm config={cfg as Configuracao | null} />
     </>
   );

@@ -46,11 +46,6 @@ export default function PerfilClient({ profile, email }: { profile: Profile; ema
 
   return (
     <>
-      <div className="section-header">
-        <h1>Meu Perfil</h1>
-        <p className="section-desc">Gerencie suas informações pessoais</p>
-      </div>
-
       <div className="perfil-container">
         <div className="config-card">
           <div className="avatar-wrapper">

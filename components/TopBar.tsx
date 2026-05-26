@@ -11,7 +11,6 @@ const PAGE_TITLES: Record<string, string> = {
   '/diario':     'Diário',
   '/nova':       'Nova Operação',
   '/historico':  'Histórico',
-  '/calendario': 'Calendário',
   '/checklist':  'Checklist',
   '/plano':      'Plano de Capital',
   '/config':     'Configurações',

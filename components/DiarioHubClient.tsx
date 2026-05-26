@@ -19,14 +19,6 @@ interface TodayOp {
 }
 
 interface InitialEntry {
-  mercado?:       string | null;
-  atr_pts?:       number | null;
-  adx_valor?:     number | null;
-  ativo_ref?:     string | null;
-  abertura?:      number | null;
-  maximo?:        number | null;
-  minimo?:        number | null;
-  fechamento?:    number | null;
   plano_dia?:     string | null;
   plano_seguido?: string | null;
   emocional?:     number | null;
@@ -85,14 +77,6 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
   // Visibilidade do form de operação
   const [showForm, setShowForm] = useState(false);
 
-  // Contexto de mercado
-  const [ativoRef,    setAtivoRef]    = useState(initialEntry?.ativo_ref  ?? 'WIN');
-  const [atrPts,      setAtrPts]      = useState(initialEntry?.atr_pts?.toString()    ?? '');
-  const [adxValor,    setAdxValor]    = useState(initialEntry?.adx_valor?.toString()  ?? '');
-  const [abertura,    setAbertura]    = useState(initialEntry?.abertura?.toString()    ?? '');
-  const [maximo,      setMaximo]      = useState(initialEntry?.maximo?.toString()      ?? '');
-  const [minimo,      setMinimo]      = useState(initialEntry?.minimo?.toString()      ?? '');
-  const [fechamento,  setFechamento]  = useState(initialEntry?.fechamento?.toString()  ?? '');
 
   // Plano do dia
   const [planoDia, setPlanoDia] = useState(initialEntry?.plano_dia ?? '');
@@ -113,24 +97,13 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
   const [briefingError,  setBriefingError]  = useState('');
   const [saveStatus,     setSaveStatus]     = useState<'idle' | 'ok' | 'error'>('idle');
   const [analyzeError,   setAnalyzeError]   = useState('');
-  const [loadingOHLC,    setLoadingOHLC]    = useState(false);
-  const [ohlcFonte,      setOhlcFonte]      = useState('');
-
   function buildPayload() {
     return {
       data:          today,
-      ativo_ref:     ativoRef,
-      mercado:       null,
-      atr_pts:       atrPts     ? parseInt(atrPts)          : null,
-      adx_valor:     adxValor   ? parseInt(adxValor)        : null,
-      abertura:      abertura   ? parseFloat(abertura)      : null,
-      maximo:        maximo     ? parseFloat(maximo)        : null,
-      minimo:        minimo     ? parseFloat(minimo)        : null,
-      fechamento:    fechamento ? parseFloat(fechamento)    : null,
-      plano_dia:     planoDia   || null,
-      plano_seguido: plano      || null,
+      plano_dia:     planoDia    || null,
+      plano_seguido: plano       || null,
       emocional,
-      ajustes:       ajustes    || null,
+      ajustes:       ajustes     || null,
       observacoes:   observacoes || null,
     };
   }
@@ -163,10 +136,6 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
     router.refresh();
   }
 
-  // Auto-busca OHLC ao abrir e quando muda o ativo
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { handleFetchOHLC(); }, [ativoRef]);
-
   // Auto-gera briefing matinal — usa cache do localStorage para o dia
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -176,24 +145,6 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
     } catch {}
     handleBriefing();
   }, []);
-
-  async function handleFetchOHLC() {
-    setLoadingOHLC(true);
-    setOhlcFonte('');
-    try {
-      const res  = await fetch(`/api/mercado/ohlc?ativo=${ativoRef}`);
-      const data = await res.json();
-      if (!data.error) {
-        setAbertura(String(data.abertura));
-        setMaximo(String(data.maximo));
-        setMinimo(String(data.minimo));
-        setFechamento(String(data.fechamento));
-        setOhlcFonte(`${data.data} via Yahoo Finance`);
-      }
-    } finally {
-      setLoadingOHLC(false);
-    }
-  }
 
   async function handleBriefing() {
     setLoadingBriefing(true);
@@ -218,10 +169,6 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
     URL.revokeObjectURL(url);
     setExporting(false);
   }
-
-  const rangeOHLC = abertura && maximo && minimo
-    ? `Range: ${(parseFloat(maximo) - parseFloat(minimo)).toFixed(0)} pts`
-    : null;
 
   return (
     <div style={{ maxWidth: 800, display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -260,69 +207,7 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
         )}
       </div>
 
-      {/* ── 1. Mercado — OHLC + contexto ──────────────── */}
-      <div className="card">
-        <div className="card-header">
-          <h2 className="card-title">Mercado</h2>
-          <p className="card-desc" style={{ marginTop: 3 }}>OHLC automático via Yahoo Finance · selecione WIN ou WDO</p>
-        </div>
-        <div className="card-body" style={{ gap: 14 }}>
-
-          {/* Ativo */}
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Ativo</label>
-            <div className="toggle-group">
-              {['WIN', 'WDO'].map(a => (
-                <button key={a} type="button" className={`toggle-btn${ativoRef === a ? ' active' : ''}`} onClick={() => setAtivoRef(a)}>{a}</button>
-              ))}
-            </div>
-          </div>
-
-          {/* OHLC — automático via Yahoo Finance */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
-              <span className="form-label" style={{ margin: 0 }}>OHLC</span>
-              {loadingOHLC
-                ? <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}><Loader2 size={10} className="spin" /> buscando...</span>
-                : ohlcFonte && <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{ohlcFonte}</span>}
-            </div>
-            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-              {([
-                { label: 'Abertura',   value: abertura   },
-                { label: 'Máxima',     value: maximo     },
-                { label: 'Mínima',     value: minimo     },
-                { label: 'Fechamento', value: fechamento },
-                ...(rangeOHLC ? [{ label: 'Range', value: rangeOHLC.replace('Range: ', '') + '★' }] : []),
-              ] as { label: string; value: string }[]).map(({ label, value }) => {
-                const isRange = label === 'Range';
-                const display = isRange ? value.replace('★', '') : (value && !isRange ? Number(value).toLocaleString('pt-BR') : '—');
-                return (
-                  <div key={label}>
-                    <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 3 }}>{label}</span>
-                    <span style={{ fontSize: 17, fontWeight: 700, fontFamily: 'var(--font-mono)', color: loadingOHLC ? 'var(--text-muted)' : isRange ? 'var(--gain)' : 'var(--text-primary)' }}>
-                      {loadingOHLC ? '···' : display}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* ATR + ADX */}
-          <div className="form-row" style={{ marginBottom: 0 }}>
-            <div className="form-group">
-              <label className="form-label">ATR (pts)</label>
-              <input type="number" className="form-input mono" placeholder="ex: 280" value={atrPts} onChange={e => setAtrPts(e.target.value)} />
-            </div>
-            <div className="form-group">
-              <label className="form-label">ADX</label>
-              <input type="number" className="form-input mono" placeholder="ex: 22" value={adxValor} onChange={e => setAdxValor(e.target.value)} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── 2. Plano do dia ───────────────────────────── */}
+      {/* ── 1. Plano do dia ───────────────────────────── */}
       <div className="card">
         <div className="card-header">
           <h2 className="card-title">Plano do Dia</h2>
@@ -340,7 +225,7 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
         </div>
       </div>
 
-      {/* ── 3. Operações do dia ───────────────────────── */}
+      {/* ── 2. Operações do dia ───────────────────────── */}
       <div className="card">
         <div className="card-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 0, paddingBottom: todayOps.length > 0 || showForm ? 12 : 0, borderBottom: todayOps.length > 0 || showForm ? '1px solid var(--border)' : 'none' }}>
           <h2 className="card-title">Operações do Dia</h2>
@@ -386,7 +271,7 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
         )}
       </div>
 
-      {/* ── 4. Pós-mercado ────────────────────────────── */}
+      {/* ── 3. Pós-mercado ────────────────────────────── */}
       <div className="card">
         <div className="card-header">
           <h2 className="card-title">Pós-Mercado</h2>
@@ -466,7 +351,7 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
         </div>
       </div>
 
-      {/* ── 5. Análise IA ──────────────────────────────── */}
+      {/* ── 4. Análise IA ──────────────────────────────── */}
       {analise && (
         <div className="diario-analise">
           <div className="diario-analise-header">

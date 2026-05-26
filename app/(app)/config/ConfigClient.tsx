@@ -39,11 +39,6 @@ export default function ConfigClient({ config, stat }: { config: Configuracao | 
 
   return (
     <>
-      <div className="section-header">
-        <h1>Configurações</h1>
-        <p className="section-desc">Parâmetros da sua conta</p>
-      </div>
-
       <div className="config-container">
         {/* Capital */}
         <form onSubmit={handleSave}>

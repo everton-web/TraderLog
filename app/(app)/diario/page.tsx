@@ -22,16 +22,9 @@ export default async function DiarioPage() {
 
   return (
     <>
-      <div className="section-header">
-        <h1>Diário</h1>
-        <p className="section-desc">
-          {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
-        </p>
-      </div>
-
       {!hasGeminiKey && (
         <div className="diario-key-warning">
-          Configure a <strong>API key do Google AI</strong> em{' '}
+          Configure a <strong>API key do Groq</strong> em{' '}
           <a href="/integracoes">Integrações</a> para ativar a análise por IA.
         </div>
       )}

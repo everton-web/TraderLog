@@ -18,7 +18,6 @@ const NAV_SECTIONS = [
     label: 'Análise',
     items: [
       { href: '/historico',  icon: ClipboardList,  label: 'Histórico' },
-      { href: '/calendario', icon: CalendarDays,   label: 'Resultados' },
       { href: '/checklist',  icon: ClipboardCheck, label: 'Checklist' },
       { href: '/plano',      icon: TrendingUp,     label: 'Plano de Capital' },
     ],
