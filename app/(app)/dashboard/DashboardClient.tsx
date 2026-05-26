@@ -180,7 +180,7 @@ export default function DashboardClient({ ops, capitalInicial }: { ops: Operacao
         {/* Feed */}
         <div className="rp-feed-label">Atividade Recente</div>
         {recentOps.length === 0 && (
-          <div style={{ padding: '16px', fontSize: 12, color: 'var(--text-muted)', textAlign: 'center' }}>
+          <div style={{ padding: '16px', fontSize: 13, color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.5 }}>
             Sem operações
           </div>
         )}
