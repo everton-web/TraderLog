@@ -49,10 +49,20 @@ function buildMarkdown(
 
   // Contexto de mercado
   lines.push('## Contexto de Mercado');
-  if (entrada?.mercado) lines.push(`- **Tipo:** ${MERCADO_LABEL[entrada.mercado as string] ?? entrada.mercado}`);
-  if (entrada?.atr_pts) lines.push(`- **ATR:** ${entrada.atr_pts} pts`);
+  if (entrada?.ativo_ref) lines.push(`- **Ativo de referência:** ${entrada.ativo_ref}`);
+  if (entrada?.mercado)   lines.push(`- **Tipo:** ${MERCADO_LABEL[entrada.mercado as string] ?? entrada.mercado}`);
+  if (entrada?.atr_pts)   lines.push(`- **ATR:** ${entrada.atr_pts} pts`);
   if (entrada?.adx_valor) lines.push(`- **ADX:** ${entrada.adx_valor}`);
-  if (!entrada?.mercado && !entrada?.atr_pts && !entrada?.adx_valor) lines.push('*Não preenchido*');
+  const temOHLC = entrada?.abertura || entrada?.maximo || entrada?.minimo || entrada?.fechamento;
+  if (temOHLC) {
+    const ab = entrada?.abertura   as number | null;
+    const mx = entrada?.maximo     as number | null;
+    const mn = entrada?.minimo     as number | null;
+    const fc = entrada?.fechamento as number | null;
+    const range = mx != null && mn != null ? ` | Range: ${(mx - mn).toFixed(0)} pts` : '';
+    lines.push(`- **OHLC:** A: ${ab ?? '—'} | M: ${mx ?? '—'} | m: ${mn ?? '—'} | F: ${fc ?? '—'}${range}`);
+  }
+  if (!entrada?.mercado && !entrada?.atr_pts && !entrada?.adx_valor && !temOHLC) lines.push('*Não preenchido*');
   lines.push('');
 
   // Plano do dia
