@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, X, Save, Sparkles, Loader2, CheckCircle2, AlertCircle, FileDown, Sunrise } from 'lucide-react';
+import { Plus, X, Save, Sparkles, Loader2, CheckCircle2, AlertCircle, FileDown, Sunrise, RefreshCw } from 'lucide-react';
 import OperacaoForm from './OperacaoForm';
 import type { Configuracao } from '@/lib/types';
 
@@ -34,6 +34,17 @@ interface InitialEntry {
   ajustes?:       string | null;
   observacoes?:   string | null;
   analise_ia?:    string | null;
+}
+
+interface CalEvent {
+  country:  string;
+  event:    string;
+  impact:   string;
+  time:     string;
+  estimate: string | null;
+  actual:   string | null;
+  prev:     string | null;
+  unit:     string | null;
 }
 
 interface Props {
@@ -121,6 +132,11 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
   const [briefingError,  setBriefingError]  = useState('');
   const [saveStatus,     setSaveStatus]     = useState<'idle' | 'ok' | 'error'>('idle');
   const [analyzeError,   setAnalyzeError]   = useState('');
+  const [loadingOHLC,    setLoadingOHLC]    = useState(false);
+  const [ohlcFonte,      setOhlcFonte]      = useState('');
+  const [calendario,     setCalendario]     = useState<CalEvent[]>([]);
+  const [loadingCal,     setLoadingCal]     = useState(false);
+  const [calMsg,         setCalMsg]         = useState('');
 
   function buildPayload() {
     return {
@@ -154,7 +170,20 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
     await fetch('/api/diario', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(buildPayload()) });
     setAnalyzing(true);
     setAnalyzeError('');
-    const res  = await fetch('/api/diario/analise', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ entrada: buildPayload() }) });
+    // Busca calendário de hoje + amanhã para a análise pós-mercado
+    let evts = calendario;
+    try {
+      const amanha = new Date(); amanha.setDate(amanha.getDate() + 1);
+      const amanhaStr = amanha.toISOString().split('T')[0];
+      const hoje      = new Date().toISOString().split('T')[0];
+      const calRes    = await fetch(`/api/mercado/calendario?from=${hoje}&to=${amanhaStr}`);
+      const calData   = await calRes.json();
+      if (calData.events?.length) { evts = calData.events; setCalendario(evts); }
+    } catch {}
+    const res  = await fetch('/api/diario/analise', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entrada: buildPayload(), eventos: evts }),
+    });
     const data = await res.json();
     setAnalyzing(false);
     if (data.error) setAnalyzeError(data.error);
@@ -167,10 +196,54 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
     await runAnalyze();
   }
 
+  async function handleFetchOHLC() {
+    setLoadingOHLC(true);
+    setOhlcFonte('');
+    try {
+      const res  = await fetch(`/api/mercado/ohlc?ativo=${ativoRef}`);
+      const data = await res.json();
+      if (!data.error) {
+        setAbertura(String(data.abertura));
+        setMaximo(String(data.maximo));
+        setMinimo(String(data.minimo));
+        setFechamento(String(data.fechamento));
+        setOhlcFonte(`${data.data} via Yahoo Finance`);
+      }
+    } finally {
+      setLoadingOHLC(false);
+    }
+  }
+
+  async function handleFetchCalendario() {
+    setLoadingCal(true);
+    setCalMsg('');
+    const hoje = new Date().toISOString().split('T')[0];
+    const res  = await fetch(`/api/mercado/calendario?from=${hoje}&to=${hoje}`);
+    const data = await res.json();
+    setLoadingCal(false);
+    if (data.missingKey) setCalMsg('Configure a chave Finnhub em Integrações para ver o calendário.');
+    else if (data.events?.length === 0) setCalMsg('Nenhum evento relevante para hoje.');
+    else if (data.events) setCalendario(data.events as CalEvent[]);
+  }
+
   async function handleBriefing() {
     setLoadingBriefing(true);
     setBriefingError('');
-    const res  = await fetch('/api/diario/briefing', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+    // Busca calendário automaticamente se ainda não carregado
+    let evts = calendario;
+    if (!evts.length) {
+      try {
+        const hoje   = new Date().toISOString().split('T')[0];
+        const calRes = await fetch(`/api/mercado/calendario?from=${hoje}&to=${hoje}`);
+        const calData = await calRes.json();
+        evts = calData.events ?? [];
+        if (evts.length) setCalendario(evts);
+      } catch {}
+    }
+    const res  = await fetch('/api/diario/briefing', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ eventos: evts }),
+    });
     const data = await res.json();
     setLoadingBriefing(false);
     if (data.error) setBriefingError(data.error);
@@ -223,8 +296,29 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
         {briefingError && (
           <p style={{ fontSize: 'var(--text-sm)', color: 'var(--loss)', paddingTop: 8 }}>{briefingError}</p>
         )}
+
+        {/* Calendário econômico */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: briefing ? 0 : 12 }}>
+          <button type="button" className="btn btn-ghost" style={{ fontSize: 'var(--text-xs)', padding: '4px 10px' }} onClick={handleFetchCalendario} disabled={loadingCal}>
+            {loadingCal ? <><Loader2 size={11} className="spin" /> Buscando...</> : '📅 Calendário econômico'}
+          </button>
+          {calMsg && <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{calMsg}</span>}
+        </div>
+        {calendario.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 5, padding: '10px 12px', background: 'var(--bg-surface)', borderRadius: 'var(--radius)', border: '1px solid var(--border)', marginTop: 6 }}>
+            {calendario.map((e, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--text-xs)' }}>
+                <span style={{ color: e.impact === 'high' ? 'var(--loss)' : e.impact === 'medium' ? 'var(--pe-color)' : 'var(--text-muted)', fontWeight: 800, fontSize: 10 }}>●</span>
+                <span style={{ color: 'var(--text-muted)', fontWeight: 700, minWidth: 22 }}>{e.country}</span>
+                <span style={{ color: 'var(--text-secondary)', flex: 1 }}>{e.event}</span>
+                {e.estimate && <span style={{ color: 'var(--text-muted)', fontVariantNumeric: 'tabular-nums' }}>est: {e.estimate}{e.unit ?? ''}</span>}
+              </div>
+            ))}
+          </div>
+        )}
+
         {briefing && (
-          <div className="diario-analise-body">
+          <div className="diario-analise-body" style={{ marginTop: 8 }}>
             {renderAnalise(briefing)}
           </div>
         )}
@@ -242,11 +336,19 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
           <div className="form-row" style={{ marginBottom: 0 }}>
             <div className="form-group">
               <label className="form-label">Ativo</label>
-              <div className="toggle-group">
-                {['WIN', 'WDO'].map(a => (
-                  <button key={a} type="button" className={`toggle-btn${ativoRef === a ? ' active' : ''}`} onClick={() => setAtivoRef(a)}>{a}</button>
-                ))}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <div className="toggle-group">
+                  {['WIN', 'WDO'].map(a => (
+                    <button key={a} type="button" className={`toggle-btn${ativoRef === a ? ' active' : ''}`} onClick={() => setAtivoRef(a)}>{a}</button>
+                  ))}
+                </div>
+                <button type="button" className="btn btn-secondary" style={{ fontSize: 'var(--text-xs)', padding: '4px 10px', whiteSpace: 'nowrap' }} onClick={handleFetchOHLC} disabled={loadingOHLC}>
+                  {loadingOHLC
+                    ? <><Loader2 size={11} className="spin" /> Buscando...</>
+                    : <><RefreshCw size={11} /> Buscar OHLC</>}
+                </button>
               </div>
+              {ohlcFonte && <span className="field-hint" style={{ marginTop: 4, display: 'block' }}>Preenchido automaticamente — {ohlcFonte}</span>}
             </div>
             <div className="form-group" style={{ gridColumn: 'span 2' }}>
               <label className="form-label">Tipo de mercado</label>
@@ -431,7 +533,7 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
 
           {analyzing && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
-              <Loader2 size={13} className="spin" /> Gemini analisando seu dia e histórico...
+              <Loader2 size={13} className="spin" /> IA analisando seu dia e histórico...
             </div>
           )}
         </div>

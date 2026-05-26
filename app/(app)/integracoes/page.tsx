@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import BridgeConfigForm  from '@/components/BridgeConfigForm';
 import AnthropicKeyForm  from '@/components/AnthropicKeyForm';
+import FinnhubKeyForm    from '@/components/FinnhubKeyForm';
 
 export default async function IntegracoesPage() {
   const supabase = await createClient();
@@ -10,17 +11,26 @@ export default async function IntegracoesPage() {
     profit_key:   string | null;
     profit_email: string | null;
     gemini_key:   string | null;
+    finnhub_key?: string | null;
   } | null = null;
 
   try {
     const { data } = await supabase
       .from('bridge_config')
-      .select('profit_key, profit_email, gemini_key')
+      .select('profit_key, profit_email, gemini_key, finnhub_key')
       .eq('user_id', user!.id)
       .maybeSingle();
-    bridgeCfg = data;
+    bridgeCfg = data as typeof bridgeCfg;
   } catch {
-    // tabela ainda não existe
+    // tenta sem finnhub_key (migration ainda não aplicada)
+    try {
+      const { data } = await supabase
+        .from('bridge_config')
+        .select('profit_key, profit_email, gemini_key')
+        .eq('user_id', user!.id)
+        .maybeSingle();
+      bridgeCfg = data;
+    } catch {}
   }
 
   return (
@@ -56,7 +66,7 @@ export default async function IntegracoesPage() {
       </div>
 
       {/* Groq AI */}
-      <div className="card" style={{ maxWidth: 560 }}>
+      <div className="card" style={{ maxWidth: 560, marginBottom: 16 }}>
         <div className="card-header">
           <h2 className="card-title">Groq — Chave de API</h2>
           <p className="card-desc" style={{ marginTop: 4 }}>
@@ -66,6 +76,20 @@ export default async function IntegracoesPage() {
         </div>
         <div className="card-body">
           <AnthropicKeyForm hasKey={!!bridgeCfg?.gemini_key} />
+        </div>
+      </div>
+
+      {/* Finnhub — Calendário Econômico */}
+      <div className="card" style={{ maxWidth: 560 }}>
+        <div className="card-header">
+          <h2 className="card-title">Finnhub — Calendário Econômico</h2>
+          <p className="card-desc" style={{ marginTop: 4 }}>
+            Exibe eventos de alto impacto (Fed, COPOM, CPI, NFP…) no Diário.
+            Gratuito em <strong>finnhub.io</strong>. Aplique também a migration <code>migration_finnhub.sql</code> no Supabase.
+          </p>
+        </div>
+        <div className="card-body">
+          <FinnhubKeyForm hasKey={!!bridgeCfg?.finnhub_key} />
         </div>
       </div>
     </>

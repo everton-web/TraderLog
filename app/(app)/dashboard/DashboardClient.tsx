@@ -10,6 +10,7 @@ import { calcEstatisticas } from '@/lib/calculations';
 import { fmtRS, fmtPct } from '@/lib/formatters';
 import OperacoesTable     from '@/components/OperacoesTable';
 import DashboardInsight   from '@/components/DashboardInsight';
+import MercadoResumo      from '@/components/MercadoResumo';
 import type { Operacao } from '@/lib/types';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -216,6 +217,9 @@ export default function DashboardClient({ ops, capitalInicial }: { ops: Operacao
 
       {/* ── MAIN CONTENT ────────────────────────────── */}
       <div className="dash-panel-offset">
+
+        {/* Resumo do Mercado */}
+        <MercadoResumo />
 
         {/* Filtro de período */}
         <div className="dash-filter">

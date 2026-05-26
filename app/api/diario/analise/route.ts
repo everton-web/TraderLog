@@ -83,7 +83,8 @@ export async function POST(req: Request) {
     );
   }
 
-  const { entrada } = await req.json() as { entrada: EntradaRow };
+  interface CalEvent { country: string; event: string; impact: string; estimate: string | null; unit: string | null; }
+  const { entrada, eventos = [] } = await req.json() as { entrada: EntradaRow; eventos?: CalEvent[] };
   const dataHoje = entrada.data as string;
 
   const { data: opsHoje } = await supabase
@@ -137,6 +138,10 @@ export async function POST(req: Request) {
       ).join('\n')
     : '  Nenhuma operação registrada';
 
+  const calTexto = eventos.length > 0
+    ? eventos.map((e: CalEvent) => `  [${e.impact.toUpperCase()}] ${e.country} — ${e.event}${e.estimate != null ? ` | est: ${e.estimate}${e.unit ?? ''}` : ''}`).join('\n')
+    : '  Nenhum evento relevante próximo';
+
   const system = `Você é um coach de trading especializado em day trading de mini índice (WIN) e mini dólar (WDO) na B3.
 Analise o diário do trader com profundidade e forneça insights práticos, diretos e personalizados.
 Responda sempre em português brasileiro. Use markdown simples (##, **, bullet points).
@@ -178,6 +183,11 @@ ${ontem ? fmtEntradaHistorico(ontem as EntradaRow) : 'Nenhuma entrada registrada
 
 ## HISTÓRICO RECENTE (diário)
 ${historico?.slice(0, 5).map(e => fmtEntradaHistorico(e as EntradaRow)).join('\n\n---\n\n') || 'Sem histórico.'}
+
+---
+
+## CALENDÁRIO ECONÔMICO (hoje/amanhã)
+${calTexto}
 
 ---
 

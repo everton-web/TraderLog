@@ -6,8 +6,13 @@ export async function POST(req: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { gemini_key } = await req.json();
-  const now = new Date().toISOString();
+  const body = await req.json() as Record<string, string>;
+  const now  = new Date().toISOString();
+
+  // Aceita gemini_key e/ou finnhub_key
+  const updates: Record<string, string> = { updated_at: now };
+  if (body.gemini_key   != null) updates.gemini_key   = body.gemini_key;
+  if (body.finnhub_key  != null) updates.finnhub_key  = body.finnhub_key;
 
   const { data: existing } = await supabase
     .from('bridge_config')
@@ -18,11 +23,11 @@ export async function POST(req: Request) {
   const { error } = existing
     ? await supabase
         .from('bridge_config')
-        .update({ gemini_key, updated_at: now })
+        .update(updates)
         .eq('user_id', user.id)
     : await supabase
         .from('bridge_config')
-        .insert({ user_id: user.id, gemini_key, updated_at: now });
+        .insert({ user_id: user.id, ...updates });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });

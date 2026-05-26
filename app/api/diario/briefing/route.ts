@@ -72,8 +72,10 @@ export async function POST(req: Request) {
   if (!cfg?.gemini_key)
     return NextResponse.json({ error: 'Configure a API key do Groq em Integrações primeiro.' }, { status: 400 });
 
-  const body = await req.json().catch(() => ({})) as { data?: string };
+  interface CalEvent { country: string; event: string; impact: string; estimate: string | null; unit: string | null; }
+  const body = await req.json().catch(() => ({})) as { data?: string; eventos?: CalEvent[] };
   const dataRef = body.data ?? ontemISO();
+  const eventos = body.eventos ?? [];
 
   const [entradaRes, opsRes, historicoRes, recentesRes] = await Promise.allSettled([
     supabase.from('diario_entradas').select('*').eq('user_id', user.id).eq('data', dataRef).maybeSingle(),
@@ -116,6 +118,10 @@ export async function POST(req: Request) {
 Seu papel agora é gerar um briefing MATINAL: analise os dados de ontem e oriente o trader para o pregão de HOJE.
 Responda em português brasileiro. Use markdown simples (##, **, bullets). Seja conciso e objetivo.`;
 
+  const calTexto = eventos.length > 0
+    ? eventos.map(e => `  [${e.impact.toUpperCase()}] ${e.country} — ${e.event}${e.estimate != null ? ` | est: ${e.estimate}${e.unit ?? ''}` : ''}`).join('\n')
+    : '  Nenhum evento relevante identificado';
+
   const prompt = `## REFERÊNCIA — ${dataRef}
 ${fmtOHLC(entrada ?? {})}
 Ativo: ${entrada?.ativo_ref ?? 'WIN'} | Mercado: ${entrada?.mercado ? (MERCADO_LABELS[entrada.mercado as string] ?? entrada.mercado) : 'não informado'} | ATR: ${entrada?.atr_pts ?? '—'} pts | ADX: ${entrada?.adx_valor ?? '—'}
@@ -134,6 +140,9 @@ ${historicoTexto}
 
 ## PERFORMANCE — últimos 30 dias
 Taxa de acerto: ${acerto ?? '—'}% (${gains} G / ${losses} L) | Resultado: R$ ${rsTotal.toFixed(2)}
+
+## CALENDÁRIO ECONÔMICO DE HOJE
+${calTexto}
 
 ---
 
