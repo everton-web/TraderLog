@@ -125,9 +125,6 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
   const [analyzeError,   setAnalyzeError]   = useState('');
   const [loadingOHLC,    setLoadingOHLC]    = useState(false);
   const [ohlcFonte,      setOhlcFonte]      = useState('');
-  const [calendario,     setCalendario]     = useState<CalEvent[]>([]);
-  const [loadingCal,     setLoadingCal]     = useState(false);
-  const [calMsg,         setCalMsg]         = useState('');
 
   function buildPayload() {
     return {
