@@ -35,66 +35,81 @@ function renderResumo(text: string) {
 }
 
 function AmmfCard({ ativo, ohlc, loading }: { ativo: Ativo; ohlc: OhlcData | null; loading: boolean }) {
-  const range = ohlc ? ohlc.maximo - ohlc.minimo : null;
-  const dir   = ohlc
-    ? ohlc.fechamento > ohlc.abertura ? 'alta' : ohlc.fechamento < ohlc.abertura ? 'baixa' : 'lateral'
-    : null;
+  if (loading && !ohlc) {
+    return (
+      <div style={{ flex: 1, minWidth: 0, background: 'var(--bg-surface)', borderRadius: 8, padding: '10px 14px', border: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-muted)', height: 72 }}>
+          <Loader2 size={11} className="spin" /> carregando {ativo}FUT...
+        </div>
+      </div>
+    );
+  }
+
+  if (!ohlc) {
+    return (
+      <div style={{ flex: 1, minWidth: 0, background: 'var(--bg-surface)', borderRadius: 8, padding: '10px 14px', border: '1px solid var(--border)' }}>
+        <div style={{ fontSize: 11, color: 'var(--text-muted)', height: 72, display: 'flex', alignItems: 'center' }}>
+          {ativo}FUT indisponível
+        </div>
+      </div>
+    );
+  }
+
+  const range  = ohlc.maximo - ohlc.minimo;
+  const pctVar = ohlc.abertura > 0 ? ((ohlc.fechamento - ohlc.abertura) / ohlc.abertura) * 100 : 0;
+  const dir    = pctVar > 0 ? 'alta' : pctVar < 0 ? 'baixa' : 'lateral';
   const dirColor = dir === 'alta' ? 'var(--gain)' : dir === 'baixa' ? 'var(--loss)' : 'var(--text-muted)';
+  const pctStr = `${pctVar >= 0 ? '+' : ''}${pctVar.toFixed(2)}%`;
+
+  const frase = `Fechou em ${ohlc.fechamento.toLocaleString('pt-BR')} (${pctStr}). `
+    + `Máxima ${ohlc.maximo.toLocaleString('pt-BR')}, mínima ${ohlc.minimo.toLocaleString('pt-BR')}.`;
 
   return (
     <div style={{ flex: 1, minWidth: 0, background: 'var(--bg-surface)', borderRadius: 8, padding: '10px 14px', border: '1px solid var(--border)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-        <span style={{ fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '0.05em' }}>
-          {ativo}FUT
+
+      {/* Ativo tag + variação */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+        <span style={{
+          fontSize: 10, fontWeight: 800, letterSpacing: '0.06em',
+          color: '#fff', background: ativo === 'WIN' ? '#2563eb' : '#7c3aed',
+          borderRadius: 4, padding: '2px 7px', lineHeight: 1.6,
+        }}>
+          {ativo}
         </span>
-        {dir && (
-          <span style={{ fontSize: 10, color: dirColor, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            {dir}
-          </span>
-        )}
+        <span style={{ fontSize: 12, fontWeight: 700, color: dirColor }}>
+          {pctStr}
+        </span>
+        <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 'auto' }}>
+          {ohlc.data}
+        </span>
       </div>
 
-      {loading && !ohlc && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-muted)', height: 42 }}>
-          <Loader2 size={11} className="spin" /> carregando...
-        </div>
-      )}
-
-      {!loading && !ohlc && (
-        <div style={{ fontSize: 11, color: 'var(--text-muted)', height: 42, display: 'flex', alignItems: 'center' }}>
-          Indisponível
-        </div>
-      )}
-
-      {ohlc && (
-        <>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px 14px' }}>
-            {([
-              { label: 'Abertura',   val: ohlc.abertura,   color: undefined },
-              { label: 'Máxima',     val: ohlc.maximo,     color: 'var(--gain)' },
-              { label: 'Mínima',     val: ohlc.minimo,     color: 'var(--loss)' },
-              { label: 'Fechamento', val: ohlc.fechamento, color: dirColor },
-            ] as { label: string; val: number; color: string | undefined }[]).map(({ label, val, color }) => (
-              <div key={label}>
-                <span style={{ fontSize: 10, color: 'var(--text-muted)', display: 'block' }}>{label}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, fontFamily: 'var(--font-mono)', color: color ?? 'var(--text-primary)' }}>
-                  {val.toLocaleString('pt-BR')}
-                </span>
-              </div>
-            ))}
+      {/* AMMF grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 12px', marginBottom: 7 }}>
+        {([
+          { label: 'Abertura',   val: ohlc.abertura,   color: undefined },
+          { label: 'Máxima',     val: ohlc.maximo,     color: 'var(--gain)' },
+          { label: 'Mínima',     val: ohlc.minimo,     color: 'var(--loss)' },
+          { label: 'Fechamento', val: ohlc.fechamento, color: dirColor },
+        ] as { label: string; val: number; color: string | undefined }[]).map(({ label, val, color }) => (
+          <div key={label}>
+            <span style={{ fontSize: 10, color: 'var(--text-muted)', display: 'block' }}>{label}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, fontFamily: 'var(--font-mono)', color: color ?? 'var(--text-primary)' }}>
+              {val.toLocaleString('pt-BR')}
+            </span>
           </div>
-          <div style={{ marginTop: 6, display: 'flex', gap: 12 }}>
-            <div>
-              <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>Range </span>
-              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)' }}>{range} pts</span>
-            </div>
-            <div>
-              <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>Ref. </span>
-              <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{ohlc.data}</span>
-            </div>
-          </div>
-        </>
-      )}
+        ))}
+      </div>
+
+      {/* Range */}
+      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 7 }}>
+        Range: <strong style={{ color: 'var(--text-secondary)' }}>{range} pts</strong>
+      </div>
+
+      {/* Frase descritiva */}
+      <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.5, borderTop: '1px solid var(--border)', paddingTop: 7 }}>
+        {frase}
+      </div>
     </div>
   );
 }
@@ -135,7 +150,7 @@ export default function MercadoResumo() {
       if (data.error) { setError(data.error); return; }
       setResumo(data.resumo ?? '');
       const today = new Date().toISOString().split('T')[0];
-      try { localStorage.setItem(`traderlog-resumo-${av}-${today}`, JSON.stringify({ resumo: data.resumo })); } catch {}
+      try { localStorage.setItem(`traderlog-resumo-${av}-${today}`, JSON.stringify({ resumo: data.resumo, ativo: av })); } catch {}
     } finally {
       setLoading(false);
     }
@@ -146,8 +161,8 @@ export default function MercadoResumo() {
     try {
       const cached = localStorage.getItem(`traderlog-resumo-WIN-${today}`);
       if (cached) {
-        const { resumo: r } = JSON.parse(cached);
-        if (r) setResumo(r);
+        const { resumo: r, ativo: a } = JSON.parse(cached);
+        if (r) { setResumo(r); if (a) setAtivo(a); }
       }
     } catch {}
     fetchOhlcBoth();
@@ -181,7 +196,7 @@ export default function MercadoResumo() {
             <BarChart2 size={14} style={{ color: 'var(--gain)' }} /> Resumo do Mercado
           </div>
           <div className="dash-chart-sub">
-            {today.charAt(0).toUpperCase() + today.slice(1)} — AMMF de ontem + análise IA automática
+            {today.charAt(0).toUpperCase() + today.slice(1)} — AMMF de ontem + análise IA
           </div>
         </div>
 
@@ -221,6 +236,7 @@ export default function MercadoResumo() {
         <AmmfCard ativo="WDO" ohlc={wdoOhlc} loading={loadingOhlc} />
       </div>
 
+      {/* Análise IA */}
       {error && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 'var(--text-sm)', color: 'var(--loss)', paddingTop: 12, borderTop: '1px solid var(--border)', marginTop: 10 }}>
           <AlertCircle size={13} /> {error}
@@ -235,6 +251,17 @@ export default function MercadoResumo() {
 
       {resumo && (
         <div style={{ paddingTop: 12, borderTop: '1px solid var(--border)', marginTop: 10 }}>
+          {/* Tag do ativo analisado */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <span style={{
+              fontSize: 10, fontWeight: 800, letterSpacing: '0.06em',
+              color: '#fff', background: ativo === 'WIN' ? '#2563eb' : '#7c3aed',
+              borderRadius: 4, padding: '2px 7px', lineHeight: 1.6,
+            }}>
+              {ativo}
+            </span>
+            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Análise IA</span>
+          </div>
           {renderResumo(resumo)}
         </div>
       )}
