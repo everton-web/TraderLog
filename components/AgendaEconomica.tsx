@@ -80,9 +80,9 @@ export default function AgendaEconomica() {
   const [period,     setPeriod]     = useState<Period>('today');
   const [selected,   setSelected]   = useState(new Set(['BR', 'US', 'EU', 'GB']));
   const [impact,     setImpact]     = useState('high,medium');
-  const [events,     setEvents]     = useState<CalEvent[]>([]);
-  const [loading,    setLoading]    = useState(true);
-  const [missingKey, setMissingKey] = useState(false);
+  const [events,      setEvents]      = useState<CalEvent[]>([]);
+  const [loading,     setLoading]     = useState(true);
+  const [unavailable, setUnavailable] = useState(false);
 
   const label = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'short' });
 
@@ -93,9 +93,9 @@ export default function AgendaEconomica() {
     const url = `/api/mercado/calendario?from=${from}&to=${to}&paises=${countries}&relevancia=${impact}`;
     try {
       const res  = await fetch(url);
-      const data = await res.json() as { events?: CalEvent[]; missingKey?: boolean };
-      if (data.missingKey) { setMissingKey(true); setEvents([]); }
-      else { setMissingKey(false); setEvents(data.events ?? []); }
+      const data = await res.json() as { events?: CalEvent[]; unavailable?: boolean };
+      setUnavailable(!!data.unavailable);
+      setEvents(data.events ?? []);
     } catch { setEvents([]); }
     finally  { setLoading(false); }
   }, [period, selected, impact]);
@@ -162,11 +162,10 @@ export default function AgendaEconomica() {
       </div>
 
       {/* Body */}
-      {missingKey ? (
+      {unavailable ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 'var(--text-sm)', color: 'var(--text-muted)', padding: '12px 0' }}>
           <AlertCircle size={14} style={{ color: 'var(--pe-color)', flexShrink: 0 }} />
-          Configure a <strong style={{ color: 'var(--text-primary)' }}>API key do Finnhub</strong> em{' '}
-          <a href="/integracoes" style={{ color: 'var(--gain)' }}>Integrações</a> para ver o calendário econômico.
+          Serviço de calendário temporariamente indisponível. Tente novamente em instantes.
         </div>
       ) : loading ? (
         <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', padding: '12px 0' }}>Carregando eventos...</div>

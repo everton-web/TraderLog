@@ -193,7 +193,7 @@ export default function InstrucoesPage() {
           <FieldRow label="Distribuição de setups" desc="Quais setups estão gerando mais resultado e quais estão drenando." />
           <FieldRow label="Coach IA"               desc="Widget no painel direito com insights gerados pelo Groq sobre seu padrão recente de operações." />
           <FieldRow label="Resumo do Mercado"      desc="AMMF de ontem do WIN ou WDO via Yahoo Finance com análise de IA automática. Cache diário — regenera quando necessário." />
-          <FieldRow label="Agenda Econômica"       desc="Calendário econômico via Finnhub com filtros por país, impacto (Alto / Médio+ / Todos) e período (Hoje / Semana / Próx. semana)." />
+          <FieldRow label="Agenda Econômica"       desc="Calendário econômico via TradingView com filtros por país, impacto (Alto / Médio+ / Todos) e período (Hoje / Semana / Próx. semana). Sem necessidade de API key." />
           <Tip type="info">
             O Coach IA no dashboard foca em padrões estatísticos das suas operações (melhor dia da semana,
             setup mais lucrativo, horários). É diferente da análise do Diário, que avalia o dia específico.
