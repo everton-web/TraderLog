@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/lib/actions';
 import { LayoutDashboard, ClipboardList, Settings, User, Crown, LogOut, TrendingUp, BarChart2, CalendarDays, Link2, ClipboardCheck, BookOpen, HelpCircle } from 'lucide-react';
+import LogoImage from '@/components/LogoImage';
 import type { Profile } from '@/lib/types';
 
 const NAV_SECTIONS = [
@@ -58,8 +59,7 @@ export default function Sidebar({ profile, email }: { profile: Profile | null; e
           <TrendingUp size={15} color="#10b981" strokeWidth={2.5} />
         </div>
         <div className="logo-text">
-          <img src="/TraderLog.svg"   alt="TraderLog" className="sidebar-logo-img sidebar-logo--dark" />
-          <img src="/TraderLog-1.svg" alt="TraderLog" className="sidebar-logo-img sidebar-logo--light" />
+          <LogoImage className="sidebar-logo-img" />
           <span className="logo-sub">WIN &amp; WDO · B3</span>
         </div>
       </div>

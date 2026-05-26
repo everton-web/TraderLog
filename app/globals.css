@@ -143,15 +143,18 @@ input, button, select, textarea, optgroup { font-family: inherit; font-size: inh
 [data-theme="light"] .theme-toggle-thumb { left: calc(100% - 18px); }
 
 /* ─── AUTH ──────────────────────────────────────────────── */
-.auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg-base); padding: 20px; }
+.auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg-base); padding: 20px; position: relative; }
 .auth-card { width: 100%; max-width: 380px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 36px 32px; box-shadow: var(--shadow-lg); }
 .auth-header { text-align: center; margin-bottom: 28px; }
 .auth-title  { font-size: var(--text-2xl); font-weight: 800; letter-spacing: -0.5px; line-height: var(--lh-tight); }
 .auth-sub    { font-size: var(--text-sm); color: var(--text-muted); margin-top: 6px; line-height: var(--lh-normal); }
 .auth-logo-wrap { display: flex; justify-content: center; margin-bottom: 8px; }
 .auth-logo { height: 44px; width: auto; }
-[data-theme="dark"]  .auth-logo--light { display: none; }
-[data-theme="light"] .auth-logo--dark  { display: none; }
+.auth-theme-toggle { position: absolute; top: 20px; right: 20px; }
+
+/* Theme cycle button (3 modos) */
+.theme-cycle-btn { width: 32px; height: 32px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary); transition: all var(--transition); }
+.theme-cycle-btn:hover { border-color: var(--border-active); color: var(--text-primary); }
 .auth-footer { text-align: center; margin-top: 20px; font-size: var(--text-sm); color: var(--text-muted); line-height: var(--lh-snug); }
 .auth-footer a { color: var(--brand); text-decoration: none; }
 .auth-footer a:hover { text-decoration: underline; }
@@ -668,4 +671,36 @@ input, button, select, textarea, optgroup { font-family: inherit; font-size: inh
   .instrucoes-field-label { min-width: unset; }
   .instrucoes-ai-row { flex-direction: column; gap: 2px; }
   .instrucoes-ai-label { min-width: unset; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE OVERRIDES — devem ficar no final do arquivo
+   para sobrescrever corretamente os estilos de componentes
+   ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  /* Right panel: ocultar no mobile/tablet */
+  .right-panel { display: none; }
+  .dash-panel-offset { padding-right: 0; }
+
+  /* TopBar: sem busca até 900px */
+  .search-bar-top { display: none; }
+}
+
+@media (max-width: 640px) {
+  /* TopBar: compactar ao máximo */
+  .top-bar-page-title { font-size: var(--text-base); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+  .top-bar-date { display: none; }
+  .btn-cta-label { display: none; }
+  .btn-cta-top { padding: 7px 9px; min-width: 32px; justify-content: center; }
+
+  /* Dashboard KPI: 2 colunas */
+  .dash-kpi-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .dash-kpi-value { font-size: var(--text-xl); }
+
+  /* Dashboard chart: altura menor */
+  .dash-chart-body { height: 160px; }
+
+  /* Tabela: scroll horizontal */
+  .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 }

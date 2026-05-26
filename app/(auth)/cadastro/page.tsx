@@ -3,6 +3,8 @@ import { useActionState } from 'react';
 import Link from 'next/link';
 import { cadastro } from '@/lib/actions';
 import ThemeProvider from '@/components/ThemeProvider';
+import ThemeToggle from '@/components/ThemeToggle';
+import LogoImage from '@/components/LogoImage';
 
 export default function CadastroPage() {
   const [state, action, pending] = useActionState(cadastro, null);
@@ -11,11 +13,13 @@ export default function CadastroPage() {
     <>
       <ThemeProvider />
       <div className="auth-wrapper">
+        <div className="auth-theme-toggle">
+          <ThemeToggle />
+        </div>
         <div className="auth-card">
           <div className="auth-header">
             <div className="auth-logo-wrap">
-              <img src="/TraderLog.svg" alt="TraderLog" className="auth-logo auth-logo--dark" />
-              <img src="/TraderLog-1.svg" alt="TraderLog" className="auth-logo auth-logo--light" />
+              <LogoImage className="auth-logo" />
             </div>
             <p className="auth-sub">Crie sua conta e comece a registrar operações</p>
           </div>
