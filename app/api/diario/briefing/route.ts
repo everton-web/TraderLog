@@ -1,46 +1,80 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
-const MERCADO_LABELS: Record<string, string> = {
-  lateral:         'Lateral',
-  tendencia_alta:  'Tendência de Alta',
-  tendencia_baixa: 'Tendência de Baixa',
-  volatil:         'Volátil',
-};
-
-const PLANO_LABELS: Record<string, string> = {
-  sim: 'Sim', parcialmente: 'Parcialmente', nao: 'Não',
-};
-
-type Row = Record<string, unknown>;
-
-function fmtOHLC(e: Row): string {
-  const partes = [
-    e.abertura   != null ? `Abertura: ${e.abertura}`   : null,
-    e.maximo     != null ? `Máximo: ${e.maximo}`       : null,
-    e.minimo     != null ? `Mínimo: ${e.minimo}`       : null,
-    e.fechamento != null ? `Fechamento: ${e.fechamento}` : null,
-  ].filter(Boolean);
-  if (!partes.length) return 'OHLC não informado';
-  const range = e.maximo != null && e.minimo != null
-    ? ` | Range: ${(Number(e.maximo) - Number(e.minimo)).toFixed(0)} pts` : '';
-  return partes.join(' | ') + range;
+interface OhlcResult {
+  data:       string;
+  abertura:   number;
+  maximo:     number;
+  minimo:     number;
+  fechamento: number;
 }
 
-async function callGroq(apiKey: string, system: string, prompt: string, maxTokens = 900): Promise<string> {
+interface FinnhubEvent {
+  country:  string;
+  event:    string;
+  impact:   string;
+  estimate: string | null;
+  unit:     string | null;
+  time:     string;
+}
+
+async function fetchOHLC(ativo: 'WIN' | 'WDO'): Promise<OhlcResult | null> {
+  const symbol = ativo === 'WIN' ? '^BVSP' : 'BRL=X';
+  try {
+    const res = await fetch(
+      `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=5d`,
+      { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' } }
+    );
+    if (!res.ok) return null;
+    const json = await res.json() as {
+      chart: { result?: [{ timestamp: number[]; indicators: { quote: [{ open: (number|null)[]; high: (number|null)[]; low: (number|null)[]; close: (number|null)[] }] } }] };
+    };
+    const result = json.chart.result?.[0];
+    if (!result) return null;
+    const t = result.timestamp;
+    const q = result.indicators.quote[0];
+    let idx = t.length - 1;
+    while (idx >= 0 && q.close[idx] == null) idx--;
+    if (idx < 0) return null;
+    const mult = ativo === 'WDO' ? 1000 : 1;
+    const c = q.close[idx]!;
+    return {
+      data:       new Date(t[idx] * 1000).toISOString().split('T')[0],
+      abertura:   Math.round((q.open[idx]  ?? c) * mult),
+      maximo:     Math.round((q.high[idx]  ?? c) * mult),
+      minimo:     Math.round((q.low[idx]   ?? c) * mult),
+      fechamento: Math.round(c * mult),
+    };
+  } catch { return null; }
+}
+
+async function fetchCalendario(finnhubKey: string): Promise<FinnhubEvent[]> {
+  try {
+    const hoje = new Date().toISOString().split('T')[0];
+    const res  = await fetch(`https://finnhub.io/api/v1/calendar/economic?from=${hoje}&to=${hoje}&token=${finnhubKey}`);
+    if (!res.ok) return [];
+    const data = await res.json() as { economicCalendar?: FinnhubEvent[] };
+    return (data.economicCalendar ?? []).filter(e =>
+      ['US', 'BR', 'EU', 'GB'].includes(e.country) && ['high', 'medium'].includes(e.impact)
+    );
+  } catch { return []; }
+}
+
+function fmtOHLC(ativo: string, d: OhlcResult | null): string {
+  if (!d) return `${ativo}FUT: dados indisponíveis`;
+  const range = d.maximo - d.minimo;
+  const dir   = d.fechamento > d.abertura ? 'alta' : d.fechamento < d.abertura ? 'baixa' : 'lateral';
+  return `${ativo}FUT (${d.data}): Abertura ${d.abertura.toLocaleString('pt-BR')} | Máxima ${d.maximo.toLocaleString('pt-BR')} | Mínima ${d.minimo.toLocaleString('pt-BR')} | Fechamento ${d.fechamento.toLocaleString('pt-BR')} | Range ${range} pts | ${dir}`;
+}
+
+async function callGroq(apiKey: string, system: string, prompt: string): Promise<string> {
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
     body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: prompt },
-      ],
-      max_tokens: maxTokens,
+      model:       'llama-3.3-70b-versatile',
+      messages:    [{ role: 'system', content: system }, { role: 'user', content: prompt }],
+      max_tokens:  600,
       temperature: 0.6,
     }),
   });
@@ -52,116 +86,129 @@ async function callGroq(apiKey: string, system: string, prompt: string, maxToken
   return data.choices?.[0]?.message?.content ?? '';
 }
 
-function ontemISO(): string {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return d.toISOString().split('T')[0];
-}
-
-export async function POST(req: Request) {
+export async function POST() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { data: cfg } = await supabase
     .from('bridge_config')
-    .select('gemini_key')
+    .select('gemini_key, finnhub_key')
     .eq('user_id', user.id)
     .maybeSingle();
 
   if (!cfg?.gemini_key)
     return NextResponse.json({ error: 'Configure a API key do Groq em Integrações primeiro.' }, { status: 400 });
 
-  interface CalEvent { country: string; event: string; impact: string; estimate: string | null; unit: string | null; }
-  const body = await req.json().catch(() => ({})) as { data?: string; eventos?: CalEvent[] };
-  const dataRef = body.data ?? ontemISO();
-  const eventos = body.eventos ?? [];
-
-  const [entradaRes, opsRes, historicoRes, recentesRes] = await Promise.allSettled([
-    supabase.from('diario_entradas').select('*').eq('user_id', user.id).eq('data', dataRef).maybeSingle(),
-    supabase.from('operacoes')
-      .select('ativo, tipo, setup, pe, stop, saida, pts_final, rs_final, situacao')
-      .eq('user_id', user.id).eq('data', dataRef).order('created_at'),
-    supabase.from('diario_entradas')
-      .select('data, mercado, atr_pts, adx_valor, resultado_pts, emocional, plano_seguido')
-      .eq('user_id', user.id).lt('data', dataRef)
-      .order('data', { ascending: false }).limit(5),
-    supabase.from('operacoes')
-      .select('situacao, rs_final')
+  // Busca tudo em paralelo — OHLC de ambos ativos, calendário e histórico do trader
+  const trinta = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const [winRes, wdoRes, calRes, historicoRes, recentesRes] = await Promise.allSettled([
+    fetchOHLC('WIN'),
+    fetchOHLC('WDO'),
+    cfg.finnhub_key ? fetchCalendario(cfg.finnhub_key as string) : Promise.resolve([] as FinnhubEvent[]),
+    supabase
+      .from('diario_entradas')
+      .select('data, resultado_pts, emocional, plano_seguido')
       .eq('user_id', user.id)
-      .gte('data', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]),
+      .order('data', { ascending: false })
+      .limit(7),
+    supabase
+      .from('operacoes')
+      .select('situacao, rs_final, setup, dia_semana, ativo')
+      .eq('user_id', user.id)
+      .gte('data', trinta),
   ]);
 
-  const entrada   = entradaRes.status  === 'fulfilled' ? entradaRes.value.data  as Row | null : null;
-  const ops       = opsRes.status      === 'fulfilled' ? (opsRes.value.data       ?? [])        : [];
-  const historico = historicoRes.status === 'fulfilled' ? (historicoRes.value.data ?? [])        : [];
-  const recentes  = recentesRes.status  === 'fulfilled' ? (recentesRes.value.data  ?? [])        : [];
+  const win       = winRes.status       === 'fulfilled' ? winRes.value       : null;
+  const wdo       = wdoRes.status       === 'fulfilled' ? wdoRes.value       : null;
+  const eventos   = calRes.status       === 'fulfilled' ? calRes.value       : [];
+  const historico = historicoRes.status === 'fulfilled' ? (historicoRes.value.data ?? []) : [];
+  const recentes  = recentesRes.status  === 'fulfilled' ? (recentesRes.value.data ?? []) : [];
 
-  const gains   = recentes.filter((o: Row) => o.situacao === 'Gain').length;
-  const losses  = recentes.filter((o: Row) => o.situacao === 'Loss').length;
-  const rsTotal = recentes.reduce((s: number, o: Row) => s + (Number(o.rs_final) || 0), 0);
+  // Estatísticas dos últimos 30 dias
+  const gains   = recentes.filter(o => o.situacao === 'Gain').length;
+  const losses  = recentes.filter(o => o.situacao === 'Loss').length;
+  const rsTotal = recentes.reduce((s, o) => s + (o.rs_final ?? 0), 0);
   const acerto  = (gains + losses) > 0 ? ((gains / (gains + losses)) * 100).toFixed(1) : null;
 
-  const opsTexto = ops.length
-    ? ops.map((o: Row) =>
-        `  ${o.ativo} ${o.tipo}${o.setup ? ` [${o.setup}]` : ''} | PE ${o.pe} → Saída ${o.saida ?? '—'} | ${o.pts_final != null ? `${Number(o.pts_final) > 0 ? '+' : ''}${o.pts_final} pts` : '—'} | ${o.situacao ?? '—'}`
-      ).join('\n')
-    : '  Nenhuma operação registrada';
+  // Por dia da semana
+  const byDay: Record<string, { rs: number; count: number; wins: number }> = {};
+  recentes.forEach(o => {
+    const d = o.dia_semana;
+    if (!d) return;
+    if (!byDay[d]) byDay[d] = { rs: 0, count: 0, wins: 0 };
+    byDay[d].rs    += o.rs_final ?? 0;
+    byDay[d].count += 1;
+    if (o.situacao === 'Gain') byDay[d].wins++;
+  });
 
-  const historicoTexto = historico.length
-    ? historico.map((e: Row) =>
-        `  ${e.data} | ${e.mercado ? (MERCADO_LABELS[e.mercado as string] ?? e.mercado) : '—'} | ATR ${e.atr_pts ?? '—'} | ADX ${e.adx_valor ?? '—'} | Resultado: ${e.resultado_pts != null ? `${Number(e.resultado_pts) > 0 ? '+' : ''}${e.resultado_pts} pts` : '—'} | Emocional: ${e.emocional ?? '—'}/5`
-      ).join('\n')
-    : '  Sem histórico anterior';
-
-  const system = `Você é um coach de trading especializado em day trading de mini índice (WIN) e mini dólar (WDO) na B3.
-Seu papel agora é gerar um briefing MATINAL: analise os dados de ontem e oriente o trader para o pregão de HOJE.
-Responda em português brasileiro. Use markdown simples (##, **, bullets). Seja conciso e objetivo.`;
+  const diaSemana  = new Date().toLocaleDateString('pt-BR', { weekday: 'long' });
+  const dataHoje   = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
   const calTexto = eventos.length > 0
-    ? eventos.map(e => `  [${e.impact.toUpperCase()}] ${e.country} — ${e.event}${e.estimate != null ? ` | est: ${e.estimate}${e.unit ?? ''}` : ''}`).join('\n')
-    : '  Nenhum evento relevante identificado';
+    ? eventos
+        .sort((a, b) => (a.time ?? '').localeCompare(b.time ?? ''))
+        .map(e => {
+          const hora = e.time ? new Date(e.time.replace(' ', 'T') + 'Z')
+            .toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' }) : '—';
+          return `  [${e.impact.toUpperCase()}] ${hora} — ${e.country}: ${e.event}${e.estimate ? ` (est: ${e.estimate}${e.unit ?? ''})` : ''}`;
+        }).join('\n')
+    : cfg.finnhub_key
+      ? '  Agenda limpa hoje'
+      : '  (Configure Finnhub em Integrações para ver o calendário)';
 
-  const prompt = `## REFERÊNCIA — ${dataRef}
-${fmtOHLC(entrada ?? {})}
-Ativo: ${entrada?.ativo_ref ?? 'WIN'} | Mercado: ${entrada?.mercado ? (MERCADO_LABELS[entrada.mercado as string] ?? entrada.mercado) : 'não informado'} | ATR: ${entrada?.atr_pts ?? '—'} pts | ADX: ${entrada?.adx_valor ?? '—'}
-Resultado do dia: ${entrada?.resultado_pts != null ? `${Number(entrada.resultado_pts) > 0 ? '+' : ''}${entrada.resultado_pts} pts` : '—'}
+  const historicoTexto = historico.length > 0
+    ? historico.map(e =>
+        `  ${e.data}: resultado ${e.resultado_pts != null ? `${Number(e.resultado_pts) > 0 ? '+' : ''}${e.resultado_pts} pts` : '—'} | emocional ${e.emocional ?? '—'}/5 | plano ${e.plano_seguido ?? '—'}`
+      ).join('\n')
+    : '  Sem entradas no diário ainda';
 
-Operações:
-${opsTexto}
+  const byDayTexto = Object.entries(byDay).length > 0
+    ? Object.entries(byDay)
+        .map(([d, v]) => `  ${d}: ${v.wins}/${v.count} wins, R$${v.rs.toFixed(0)}`)
+        .join('\n')
+    : '  —';
 
-Plano seguido: ${entrada?.plano_seguido ? (PLANO_LABELS[entrada.plano_seguido as string] ?? entrada.plano_seguido) : '—'}
-Emocional: ${entrada?.emocional ?? '—'}/5
-O que foi diferente do plano: ${entrada?.ajustes ?? '—'}
-Observações: ${entrada?.observacoes ?? '—'}
+  const system = `Você é um coach de day trading especializado em WIN (mini índice Ibovespa) e WDO (mini dólar) na B3.
+Gere briefings matinais objetivos, específicos e personalizados para o trader começar o pregão.
+Responda em português brasileiro. Use markdown simples (##, bullets). Cite sempre números reais dos dados.`;
 
-## CONTEXTO RECENTE (5 dias antes)
-${historicoTexto}
+  const prompt = `# BRIEFING MATINAL — ${dataHoje} (${diaSemana})
 
-## PERFORMANCE — últimos 30 dias
-Taxa de acerto: ${acerto ?? '—'}% (${gains} G / ${losses} L) | Resultado: R$ ${rsTotal.toFixed(2)}
+## MERCADO — PREGÃO DE ONTEM
+${fmtOHLC('WIN', win)}
+${fmtOHLC('WDO', wdo)}
 
 ## CALENDÁRIO ECONÔMICO DE HOJE
 ${calTexto}
 
+## MEU DESEMPENHO — últimos 30 dias
+Acerto: ${acerto ?? '—'}% | ${gains} gains / ${losses} losses | Resultado acumulado: R$${rsTotal.toFixed(0)}
+
+Por dia da semana:
+${byDayTexto}
+
+## DIÁRIO RECENTE
+${historicoTexto}
+
 ---
 
-## SOLICITAÇÃO — Briefing matinal para HOJE
+Gere o briefing com exatamente 3 seções:
 
-## O mercado ontem
-Em 2-3 linhas: o que o mercado fez? Qual foi o contexto técnico (range, tendência, OHLC)?
+## Contexto do mercado
+O que WIN e WDO fizeram ontem? Range, direção, fechamento. Relação entre os dois (dólar subiu, índice caiu?). Máximo 3 linhas.
 
 ## O que observar hoje
-Com base no fechamento e range de ontem: que cenários são prováveis? Que níveis são chave? Seja específico — cite os preços.
+Níveis técnicos chave de WIN e WDO baseados no OHLC de ontem (suporte, resistência, pontos de atenção). Eventos do calendário que podem mover os ativos — cite horários em BRT. Cenário mais provável. Cite os preços e horários reais.
 
-## Gestão e foco
-1-2 pontos práticos: armadilha comum para esse contexto, postura emocional recomendada.
+## Foco do dia
+1-2 alertas personalizados para hoje: padrão do dia da semana no meu histórico + postura recomendada.
 
-Máximo 280 palavras. Cite os números reais dos dados. Nada genérico.`;
+Máximo 280 palavras. Zero generalidade — apenas dados reais.`;
 
   try {
     const briefing = await callGroq(cfg.gemini_key, system, prompt);
-    return NextResponse.json({ briefing, dataRef });
+    return NextResponse.json({ briefing });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Erro ao chamar o Groq';
     return NextResponse.json({ error: msg }, { status: 500 });
