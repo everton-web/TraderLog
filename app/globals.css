@@ -105,6 +105,9 @@ input, button, select, textarea, optgroup { font-family: inherit; font-size: inh
 .logo-title { font-size: var(--text-lg); letter-spacing: -0.5px; line-height: var(--lh-tight); }
 .logo-bold  { font-weight: 500; color: var(--text-primary); }
 .logo-light { font-weight: 200; font-style: italic; color: var(--text-secondary); }
+.sidebar-logo-img { height: 22px; width: auto; display: block; }
+[data-theme="dark"]  .sidebar-logo--light { display: none; }
+[data-theme="light"] .sidebar-logo--dark  { display: none; }
 .logo-sub   { font-size: var(--text-xs); letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; margin-top: 3px; display: block; line-height: var(--lh-snug); }
 .sidebar-nav { flex: 1; padding: 10px 8px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
 .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius); color: var(--text-secondary); text-decoration: none; font-size: var(--text-base); font-weight: 500; line-height: var(--lh-snug); transition: background var(--transition), color var(--transition); cursor: pointer; border: none; background: none; width: 100%; text-align: left; }

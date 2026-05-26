@@ -58,10 +58,8 @@ export default function Sidebar({ profile, email }: { profile: Profile | null; e
           <TrendingUp size={15} color="#10b981" strokeWidth={2.5} />
         </div>
         <div className="logo-text">
-          <span className="logo-title">
-            <span className="logo-bold">Trader</span>
-            <span className="logo-light">Log</span>
-          </span>
+          <img src="/TraderLog.svg"   alt="TraderLog" className="sidebar-logo-img sidebar-logo--dark" />
+          <img src="/TraderLog-1.svg" alt="TraderLog" className="sidebar-logo-img sidebar-logo--light" />
           <span className="logo-sub">WIN &amp; WDO · B3</span>
         </div>
       </div>
