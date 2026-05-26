@@ -516,3 +516,14 @@ input, button, select, textarea, optgroup { font-family: inherit; font-size: inh
 .diario-analise { background: var(--bg-surface); border: 1px solid var(--border-active); border-radius: var(--radius-lg); overflow: hidden; margin-top: 6px; }
 .diario-analise-header { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: var(--text-sm); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); }
 .diario-analise-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; }
+.diario-key-warning { background: var(--pe-bg); border: 1px solid rgba(245,158,11,0.25); color: var(--pe-color); padding: 10px 14px; border-radius: var(--radius); font-size: var(--text-sm); margin-bottom: 18px; line-height: var(--lh-normal); }
+.diario-key-warning a { color: var(--pe-color); font-weight: 700; }
+
+/* ── Dashboard Coach IA ───────────────────────────────────────────────────── */
+.insight-btn { display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%; padding: 6px 10px; background: var(--brand-subtle); border: 1px solid var(--brand-border); border-radius: var(--radius); font-size: var(--text-sm); font-weight: 600; color: var(--brand); cursor: pointer; font-family: var(--font); transition: background var(--transition); }
+.insight-btn:hover { background: rgba(255,255,255,0.1); }
+.insight-result { display: flex; flex-direction: column; gap: 7px; }
+.insight-line { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.5; padding-left: 12px; position: relative; }
+.insight-line::before { content: '•'; position: absolute; left: 0; color: var(--gain); font-weight: 700; }
+.insight-refresh { display: inline-flex; align-items: center; gap: 4px; background: none; border: none; font-size: var(--text-xs); color: var(--text-muted); cursor: pointer; font-family: var(--font); padding: 4px 0 0; transition: color var(--transition); }
+.insight-refresh:hover { color: var(--text-secondary); }

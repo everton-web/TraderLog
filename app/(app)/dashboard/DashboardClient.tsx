@@ -7,7 +7,8 @@ import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { calcEstatisticas } from '@/lib/calculations';
 import { fmtRS, fmtPct } from '@/lib/formatters';
-import OperacoesTable from '@/components/OperacoesTable';
+import OperacoesTable     from '@/components/OperacoesTable';
+import DashboardInsight   from '@/components/DashboardInsight';
 import type { Operacao } from '@/lib/types';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -175,6 +176,14 @@ export default function DashboardClient({ ops, capitalInicial }: { ops: Operacao
               }}
             />
           </div>
+        </div>
+
+        {/* Coach IA */}
+        <div className="rp-widget">
+          <div className="rp-widget-title" style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            Coach IA
+          </div>
+          <DashboardInsight ops={filtered} />
         </div>
 
         {/* Feed */}
