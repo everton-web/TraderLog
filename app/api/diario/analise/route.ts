@@ -83,9 +83,30 @@ export async function POST(req: Request) {
     );
   }
 
-  interface CalEvent { country: string; event: string; impact: string; estimate: string | null; unit: string | null; }
-  const { entrada, eventos = [] } = await req.json() as { entrada: EntradaRow; eventos?: CalEvent[] };
+  const { entrada } = await req.json() as { entrada: EntradaRow };
   const dataHoje = entrada.data as string;
+
+  // Busca calendário internamente (hoje + amanhã)
+  let eventos: { country: string; event: string; impact: string; estimate: string | null; unit: string | null }[] = [];
+  try {
+    const { data: fhCfg } = await supabase
+      .from('bridge_config')
+      .select('finnhub_key')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    const finnhubKey = (fhCfg as Record<string, string | null> | null)?.finnhub_key ?? null;
+    if (finnhubKey) {
+      const amanha = new Date(); amanha.setDate(amanha.getDate() + 1);
+      const url = `https://finnhub.io/api/v1/calendar/economic?from=${dataHoje}&to=${amanha.toISOString().split('T')[0]}&token=${finnhubKey}`;
+      const calRes = await fetch(url);
+      if (calRes.ok) {
+        const calData = await calRes.json() as { economicCalendar?: typeof eventos };
+        eventos = (calData.economicCalendar ?? []).filter(e =>
+          ['US', 'BR', 'EU', 'GB'].includes(e.country) && ['high', 'medium'].includes(e.impact)
+        );
+      }
+    }
+  } catch {}
 
   const { data: opsHoje } = await supabase
     .from('operacoes')
@@ -139,7 +160,7 @@ export async function POST(req: Request) {
     : '  Nenhuma operação registrada';
 
   const calTexto = eventos.length > 0
-    ? eventos.map((e: CalEvent) => `  [${e.impact.toUpperCase()}] ${e.country} — ${e.event}${e.estimate != null ? ` | est: ${e.estimate}${e.unit ?? ''}` : ''}`).join('\n')
+    ? eventos.map(e => `  [${e.impact.toUpperCase()}] ${e.country} — ${e.event}${e.estimate != null ? ` | est: ${e.estimate}${e.unit ?? ''}` : ''}`).join('\n')
     : '  Nenhum evento relevante próximo';
 
   const system = `Você é um coach de trading especializado em day trading de mini índice (WIN) e mini dólar (WDO) na B3.

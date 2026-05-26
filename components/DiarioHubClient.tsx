@@ -35,16 +35,6 @@ interface InitialEntry {
   analise_ia?:    string | null;
 }
 
-interface CalEvent {
-  country:  string;
-  event:    string;
-  impact:   string;
-  time:     string;
-  estimate: string | null;
-  actual:   string | null;
-  prev:     string | null;
-  unit:     string | null;
-}
 
 interface Props {
   config:       Configuracao | null;
