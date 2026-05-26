@@ -13,9 +13,9 @@ export default function LoginPage() {
       <div className="auth-wrapper">
         <div className="auth-card">
           <div className="auth-header">
-            <div className="auth-title">
-              <span className="logo-bold">Trade</span>
-              <span className="logo-light">Log</span>
+            <div className="auth-logo-wrap">
+              <img src="/TraderLog.svg" alt="TraderLog" className="auth-logo auth-logo--dark" />
+              <img src="/TraderLog-1.svg" alt="TraderLog" className="auth-logo auth-logo--light" />
             </div>
             <p className="auth-sub">Acesse o seu diário e acompanhe resultados</p>
           </div>

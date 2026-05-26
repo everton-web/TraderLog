@@ -59,7 +59,9 @@
       "Bash(findstr /i \"ready error aliased production\")",
       "Skill(vercel:deploy)",
       "PowerShell(vercel *)",
-      "Bash(Select-Object Name, PSIsContainer)"
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(Select-Object Name)",
+      "Bash(Select-Object Name, Length, LastWriteTime)"
     ]
   }
 }

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
 import Sidebar from '@/components/Sidebar';
+import SidebarOverlay from '@/components/SidebarOverlay';
 import TopBar from '@/components/TopBar';
 import ThemeProvider from '@/components/ThemeProvider';
 import { ToastProvider } from '@/components/Toast';
@@ -23,6 +24,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <ToastProvider>
         <div className="app-wrapper">
           <Sidebar profile={profile as Profile} email={user.email} />
+          <SidebarOverlay />
           <div className="main-content">
             <TopBar profile={profile as Profile} />
             <div className="page-content">

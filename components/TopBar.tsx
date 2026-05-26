@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Bell, Plus, Search } from 'lucide-react';
+import { Bell, Menu, Plus, Search } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import type { Profile } from '@/lib/types';
 
@@ -51,8 +51,17 @@ export default function TopBar({ profile }: { profile: Profile | null }) {
     return () => clearInterval(t);
   }, []);
 
+  function toggleSidebar() {
+    document.getElementById('sidebar')?.classList.toggle('open');
+    document.getElementById('sidebar-overlay')?.classList.toggle('open');
+  }
+
   return (
     <header className="top-bar">
+      <button className="btn-mobile-menu" aria-label="Menu" onClick={toggleSidebar}>
+        <Menu size={20} strokeWidth={1.75} />
+      </button>
+
       <div className="top-bar-title-group">
         <div className="top-bar-page-title">{pageTitle}</div>
         {dateStr && <div className="top-bar-date">{dateStr}</div>}
@@ -73,7 +82,7 @@ export default function TopBar({ profile }: { profile: Profile | null }) {
         {pathname !== '/nova' && (
           <Link href="/nova" className="btn-cta-top">
             <Plus size={13} strokeWidth={2.5} />
-            Nova Operação
+            <span className="btn-cta-label">Nova Operação</span>
           </Link>
         )}
       </div>
