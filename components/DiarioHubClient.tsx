@@ -13,6 +13,7 @@ interface TodayOp {
   ativo:     string;
   tipo:      string;
   setup:     string | null;
+  obs:       string | null;
   pts_final: number | null;
   situacao:  string | null;
   rs_final:  number | null;
@@ -325,13 +326,20 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
               const cls      = op.situacao === 'Gain' ? 'gain' : op.situacao === 'Loss' ? 'loss' : 'pe';
               const ptsColor = op.situacao === 'Gain' ? 'var(--gain)' : op.situacao === 'Loss' ? 'var(--loss)' : 'var(--pe-color)';
               return (
-                <div key={op.id} className="diario-op-row">
-                  <div className={`rp-feed-dot ${cls}`} style={{ flexShrink: 0, marginTop: 0 }} />
-                  <span className="diario-op-ativo">{op.ativo} · {op.tipo}</span>
-                  {op.setup && <span className="diario-op-setup">{op.setup}</span>}
-                  <span style={{ marginLeft: 'auto', fontWeight: 700, fontSize: 'var(--text-sm)', color: ptsColor, fontVariantNumeric: 'tabular-nums' }}>
-                    {op.pts_final != null ? `${op.pts_final > 0 ? '+' : ''}${op.pts_final} pts` : '—'}
-                  </span>
+                <div key={op.id} className="diario-op-row" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
+                    <div className={`rp-feed-dot ${cls}`} style={{ flexShrink: 0 }} />
+                    <span className="diario-op-ativo">{op.ativo} · {op.tipo}</span>
+                    {op.setup && <span className="diario-op-setup">{op.setup}</span>}
+                    <span style={{ marginLeft: 'auto', fontWeight: 700, fontSize: 'var(--text-sm)', color: ptsColor, fontVariantNumeric: 'tabular-nums' }}>
+                      {op.pts_final != null ? `${op.pts_final > 0 ? '+' : ''}${op.pts_final} pts` : '—'}
+                    </span>
+                  </div>
+                  {op.obs && (
+                    <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', paddingLeft: 20, lineHeight: 1.5 }}>
+                      {op.obs}
+                    </p>
+                  )}
                 </div>
               );
             })}

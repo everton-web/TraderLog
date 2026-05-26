@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { deletarOperacao } from '@/lib/actions';
 import { useToast } from './Toast';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Pencil } from 'lucide-react';
 import type { Operacao, RowEnriquecida } from '@/lib/types';
 import { formatDate, fmtRS, fmtPts, fmtPct } from '@/lib/formatters';
 
@@ -14,11 +14,12 @@ interface Props {
   selectedIds?: Set<string>;
   onToggleSelect?: (id: string) => void;
   onToggleAll?: (allIds: string[]) => void;
+  onEdit?: (op: Operacao) => void;
 }
 
 export default function OperacoesTable({
   ops, rows, limit, showDrawdown = false,
-  selectedIds, onToggleSelect, onToggleAll,
+  selectedIds, onToggleSelect, onToggleAll, onEdit,
 }: Props) {
   const { showToast } = useToast();
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -139,7 +140,16 @@ export default function OperacoesTable({
                     {row.ddPct > 0 ? '-' + (row.ddPct * 100).toFixed(1) + '%' : '—'}
                   </td>
                   <td><span className={badgeClass(op.situacao)}>{op.situacao ?? '—'}</span></td>
-                  <td onClick={e => e.stopPropagation()}>
+                  <td onClick={e => e.stopPropagation()} style={{ whiteSpace: 'nowrap' }}>
+                    {onEdit && (
+                      <button
+                        className="btn btn-ghost"
+                        style={{ padding: '2px 8px', fontSize: 11 }}
+                        onClick={() => onEdit(op)}
+                      >
+                        <Pencil size={12} strokeWidth={1.75} />
+                      </button>
+                    )}
                     <button
                       className="btn btn-ghost"
                       style={{ padding: '2px 8px', fontSize: 11 }}
@@ -199,7 +209,16 @@ export default function OperacoesTable({
                 {fmtRS(op.rs_final)}
               </td>
               <td><span className={badgeClass(op.situacao)}>{op.situacao ?? '—'}</span></td>
-              <td>
+              <td style={{ whiteSpace: 'nowrap' }}>
+                {onEdit && (
+                  <button
+                    className="btn btn-ghost"
+                    style={{ padding: '2px 8px', fontSize: 11 }}
+                    onClick={() => onEdit(op)}
+                  >
+                    <Pencil size={12} strokeWidth={1.75} />
+                  </button>
+                )}
                 <button
                   className="btn btn-ghost"
                   style={{ padding: '2px 8px', fontSize: 11 }}

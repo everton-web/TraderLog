@@ -74,12 +74,12 @@ function buildMarkdown(
   // Operações
   lines.push(`## Operações do Dia (${ops.length})`);
   if (ops.length > 0) {
-    lines.push('| # | Ativo | Tipo | Setup | PE | Stop | Saída | Pts | Situação | R$ |');
-    lines.push('|---|-------|------|-------|----|------|-------|-----|----------|----|');
+    lines.push('| # | Ativo | Tipo | Setup | PE | Stop | Saída | Pts | Situação | R$ | Observações |');
+    lines.push('|---|-------|------|-------|----|------|-------|-----|----------|----|-------------|');
     ops.forEach((op, i) => {
       const pts = op.pts_final != null ? `${op.pts_final > 0 ? '+' : ''}${op.pts_final}` : '—';
       const rs  = op.rs_final  != null ? fmtRS(op.rs_final) : '—';
-      lines.push(`| ${i + 1} | ${op.ativo} | ${op.tipo} | ${op.setup ?? '—'} | ${op.pe} | ${op.stop} | ${op.saida ?? '—'} | ${pts} | ${op.situacao ?? '—'} | ${rs} |`);
+      lines.push(`| ${i + 1} | ${op.ativo} | ${op.tipo} | ${op.setup ?? '—'} | ${op.pe} | ${op.stop} | ${op.saida ?? '—'} | ${pts} | ${op.situacao ?? '—'} | ${rs} | ${op.obs ?? '—'} |`);
     });
     lines.push('');
     const totalPts = ops.reduce((a, o) => a + (o.pts_final ?? 0), 0);

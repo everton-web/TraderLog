@@ -1,20 +1,23 @@
 'use client';
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import OperacoesTable from '@/components/OperacoesTable';
+import OperacaoForm from '@/components/OperacaoForm';
 import { calcEstatisticas, gerarCSV } from '@/lib/calculations';
 import { enriquecerLinhas } from '@/lib/SizingEngine';
 import { fmtRS } from '@/lib/formatters';
 import { X, Download, Trash2, CheckSquare } from 'lucide-react';
 import { deletarOperacoes } from '@/lib/actions';
 import { useToast } from '@/components/Toast';
-import type { Operacao } from '@/lib/types';
+import type { Operacao, Configuracao } from '@/lib/types';
 
 export default function HistoricoClient({
   ops,
   capitalInicial,
+  config,
 }: {
   ops: Operacao[];
   capitalInicial: number;
+  config: Configuracao | null;
 }) {
   const { showToast } = useToast();
   const [filterAtivo, setFilterAtivo] = useState('');
@@ -22,7 +25,8 @@ export default function HistoricoClient({
   const [filterDe,    setFilterDe]    = useState('');
   const [filterAte,   setFilterAte]   = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [deleting, setDeleting]       = useState(false);
+  const [deleting,    setDeleting]    = useState(false);
+  const [editingOp,   setEditingOp]   = useState<Operacao | null>(null);
 
   // ops chegam em ordem decrescente do servidor — inverte para cálculo acumulado
   const opsAsc = useMemo(() => [...ops].reverse(), [ops]);
@@ -225,8 +229,31 @@ export default function HistoricoClient({
           selectedIds={selectedIds}
           onToggleSelect={toggleSelect}
           onToggleAll={toggleAll}
+          onEdit={setEditingOp}
         />
       </div>
+
+      {editingOp && (
+        <div className="modal-overlay" onClick={() => setEditingOp(null)}>
+          <div className="modal-card" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 style={{ fontSize: 'var(--text-md)', fontWeight: 700, color: 'var(--text-primary)' }}>
+                Editar Operação
+              </h2>
+              <button className="btn btn-ghost" style={{ padding: '4px 8px' }} onClick={() => setEditingOp(null)}>
+                <X size={16} />
+              </button>
+            </div>
+            <OperacaoForm
+              key={editingOp.id}
+              config={config}
+              operacaoId={editingOp.id}
+              initialData={editingOp}
+              onSuccess={() => setEditingOp(null)}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -11,7 +11,7 @@ export default async function DiarioPage() {
   const [cfgRes, entradaRes, opsRes, keyRes] = await Promise.allSettled([
     supabase.from('configuracoes').select('*').eq('user_id', user!.id).single(),
     supabase.from('diario_entradas').select('*').eq('user_id', user!.id).eq('data', today).maybeSingle(),
-    supabase.from('operacoes').select('id, ativo, tipo, setup, pts_final, situacao, rs_final').eq('user_id', user!.id).eq('data', today).order('created_at'),
+    supabase.from('operacoes').select('id, ativo, tipo, setup, obs, pts_final, situacao, rs_final').eq('user_id', user!.id).eq('data', today).order('created_at'),
     supabase.from('bridge_config').select('gemini_key').eq('user_id', user!.id).maybeSingle(),
   ]);
 

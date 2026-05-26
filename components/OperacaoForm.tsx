@@ -1,24 +1,36 @@
 'use client';
 import { useState, useCallback } from 'react';
-import { salvarOperacao } from '@/lib/actions';
+import { salvarOperacao, atualizarOperacao } from '@/lib/actions';
 import { calcular } from '@/lib/calculations';
 import { useToast } from './Toast';
 import { hojeISO, diaSemana, fmtRS, fmtPts, fmtPct } from '@/lib/formatters';
 import { Trash2, Check, TrendingUp, TrendingDown } from 'lucide-react';
-import type { Ativo, TipoOp, Configuracao } from '@/lib/types';
+import type { Ativo, TipoOp, Configuracao, Operacao } from '@/lib/types';
 
-export default function OperacaoForm({ config, onSuccess }: { config: Configuracao | null; onSuccess?: () => void }) {
+interface Props {
+  config: Configuracao | null;
+  onSuccess?: () => void;
+  operacaoId?: string;
+  initialData?: Operacao;
+}
+
+export default function OperacaoForm({ config, onSuccess, operacaoId, initialData }: Props) {
   const { showToast } = useToast();
-  const [ativo, setAtivo]       = useState<Ativo>('WIN');
-  const [tipo, setTipo]         = useState<TipoOp>('Compra');
-  const [data, setData]         = useState(hojeISO());
-  const [pe, setPe]             = useState('');
-  const [stop, setStop]         = useState('');
-  const [saida, setSaida]       = useState('');
-  const [qtdeRP, setQtdeRP]     = useState('0');
-  const [qtdeTotal, setQtdeTotal] = useState(config?.mao_fixa ? String(config.contratos_fixos || 1) : '1');
-  const [setup, setSetup]       = useState('');
-  const [obs, setObs]           = useState('');
+  const isEdit = !!operacaoId;
+
+  const [ativo, setAtivo]       = useState<Ativo>((initialData?.ativo as Ativo) ?? 'WIN');
+  const [tipo, setTipo]         = useState<TipoOp>((initialData?.tipo as TipoOp) ?? 'Compra');
+  const [data, setData]         = useState(initialData?.data ?? hojeISO());
+  const [pe, setPe]             = useState(initialData?.pe?.toString() ?? '');
+  const [stop, setStop]         = useState(initialData?.stop?.toString() ?? '');
+  const [saida, setSaida]       = useState(initialData?.saida?.toString() ?? '');
+  const [qtdeRP, setQtdeRP]     = useState(initialData?.qtde_rp?.toString() ?? '0');
+  const [qtdeTotal, setQtdeTotal] = useState(
+    initialData?.qtde_total?.toString() ??
+    (config?.mao_fixa ? String(config.contratos_fixos || 1) : '1')
+  );
+  const [setup, setSetup]       = useState(initialData?.setup ?? '');
+  const [obs, setObs]           = useState(initialData?.obs ?? '');
   const [saving, setSaving]     = useState(false);
 
   const capital = config ? config.capital : 2000;
@@ -36,17 +48,18 @@ export default function OperacaoForm({ config, onSuccess }: { config: Configurac
   });
 
   const reset = useCallback(() => {
+    if (isEdit) return;
     setAtivo('WIN'); setTipo('Compra'); setData(hojeISO());
     setPe(''); setStop(''); setSaida('');
     setQtdeRP('0'); setQtdeTotal(config?.mao_fixa ? String(config.contratos_fixos || 1) : '1');
     setSetup(''); setObs('');
-  }, [config]);
+  }, [config, isEdit]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!pe || !stop || !saida || !data) { showToast('Preencha PE, Stop e Saída', 'error'); return; }
     setSaving(true);
-    const res = await salvarOperacao({
+    const payload = {
       data, dia_semana: diaSemana(data),
       ativo, tipo,
       pe: Number(pe), stop: Number(stop),
@@ -61,10 +74,17 @@ export default function OperacaoForm({ config, onSuccess }: { config: Configurac
       rs_final:  calc.rsFinal,
       pct_risco: calc.pctRisco,
       setup, obs,
-    });
+    };
+    const res = isEdit
+      ? await atualizarOperacao(operacaoId!, payload)
+      : await salvarOperacao(payload);
     setSaving(false);
     if (res?.error) showToast('Erro: ' + res.error, 'error');
-    else { showToast('Operação salva!', 'success'); if (onSuccess) onSuccess(); else window.location.href = '/historico'; }
+    else {
+      showToast(isEdit ? 'Operação atualizada!' : 'Operação salva!', 'success');
+      reset();
+      if (onSuccess) onSuccess();
+    }
   };
 
   const showPreview = pe || saida;
@@ -203,9 +223,11 @@ export default function OperacaoForm({ config, onSuccess }: { config: Configurac
       )}
 
       <div className="form-actions">
-        <button type="button" className="btn btn-secondary" onClick={reset}><Trash2 size={13} strokeWidth={1.75} /> Limpar</button>
+        {!isEdit && (
+          <button type="button" className="btn btn-secondary" onClick={reset}><Trash2 size={13} strokeWidth={1.75} /> Limpar</button>
+        )}
         <button type="submit" className="btn btn-primary" disabled={saving}>
-          <Check size={13} strokeWidth={2.5} /> {saving ? 'Salvando...' : 'Salvar Operação'}
+          <Check size={13} strokeWidth={2.5} /> {saving ? 'Salvando...' : isEdit ? 'Atualizar Operação' : 'Salvar Operação'}
         </button>
       </div>
     </form>

@@ -17,17 +17,16 @@ export default async function HistoricoPage() {
       .order('created_at', { ascending: false }),
     supabase
       .from('configuracoes')
-      .select('capital')
+      .select('*')
       .eq('user_id', user!.id)
       .single(),
   ]);
 
-  const capitalInicial = (cfg as Pick<Configuracao, 'capital'> | null)?.capital ?? 2000;
-
   return (
     <HistoricoClient
       ops={(ops || []) as Operacao[]}
-      capitalInicial={capitalInicial}
+      capitalInicial={(cfg as Configuracao | null)?.capital ?? 2000}
+      config={(cfg as Configuracao | null)}
     />
   );
 }

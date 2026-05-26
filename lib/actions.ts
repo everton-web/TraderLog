@@ -56,6 +56,29 @@ export async function salvarOperacao(op: {
   return { success: true };
 }
 
+export async function atualizarOperacao(id: string, op: {
+  data: string; dia_semana: string; ativo: Ativo; tipo: TipoOp;
+  pe: number; stop: number; risco_pts: number | null; alvo1: number | null;
+  qtde_rp: number; qtde_total: number; qtde_final: number;
+  saida: number; pts_final: number | null; situacao: Situacao | null;
+  rs_final: number | null; pct_risco: number | null;
+  setup: string; obs: string;
+}) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Não autenticado' };
+  const { error } = await supabase
+    .from('operacoes')
+    .update({ ...op })
+    .eq('id', id)
+    .eq('user_id', user.id);
+  if (error) return { error: error.message };
+  revalidatePath('/dashboard');
+  revalidatePath('/historico');
+  revalidatePath('/diario');
+  return { success: true };
+}
+
 export async function deletarOperacao(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from('operacoes').delete().eq('id', id);
