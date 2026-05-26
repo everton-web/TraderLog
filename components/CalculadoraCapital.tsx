@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { TrendingUp, ShieldAlert, Target, Wallet, RotateCcw, Save, CheckCircle2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { ShieldAlert, Target, Wallet, RotateCcw, Save, CheckCircle2, TrendingUp } from "lucide-react";
+import { atualizarConfigPlano } from "@/lib/actions";
 
 function fmt(v: number): string {
   return "R$ " + Math.round(v).toLocaleString("pt-BR");
@@ -15,7 +16,9 @@ export function CalculadoraCapital() {
   const [maxStops,  setMaxStops]  = useState(2);
   const [contratos, setContratos] = useState(2);
   const [saved,     setSaved]     = useState(false);
+  const loaded = useRef(false);
 
+  // Carrega do localStorage na montagem
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -27,10 +30,18 @@ export function CalculadoraCapital() {
         if (p.contratos) setContratos(p.contratos);
       }
     } catch {}
+    loaded.current = true;
   }, []);
 
-  function handleSave() {
+  // Auto-salva no localStorage sempre que qualquer slider mudar (após carga inicial)
+  useEffect(() => {
+    if (!loaded.current) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ stop, rrRaw, maxStops, contratos }));
+  }, [stop, rrRaw, maxStops, contratos]);
+
+  async function handleSave() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ stop, rrRaw, maxStops, contratos }));
+    await atualizarConfigPlano(rrRaw / 10, contratos);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   }

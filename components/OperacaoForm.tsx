@@ -1,5 +1,5 @@
 'use client';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { salvarOperacao, atualizarOperacao } from '@/lib/actions';
 import { calcular } from '@/lib/calculations';
 import { useToast } from './Toast';
@@ -33,8 +33,23 @@ export default function OperacaoForm({ config, onSuccess, operacaoId, initialDat
   const [obs, setObs]           = useState(initialData?.obs ?? '');
   const [saving, setSaving]     = useState(false);
 
-  const capital = config ? config.capital : 2000;
-  const alvoMult = config?.alvo_mult ?? 1.0;
+  const [localAlvoMult, setLocalAlvoMult] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (isEdit) return;
+    try {
+      const raw = localStorage.getItem('plano-config');
+      if (raw) {
+        const p = JSON.parse(raw);
+        if (p.rrRaw)     setLocalAlvoMult(p.rrRaw / 10);
+        if (p.contratos) setQtdeTotal(String(p.contratos));
+      }
+    } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const capital   = config ? config.capital : 2000;
+  const alvoMult  = localAlvoMult ?? config?.alvo_mult ?? 1.0;
 
   const calc = calcular({
     ativo, tipo,

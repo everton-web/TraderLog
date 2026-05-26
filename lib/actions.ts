@@ -101,6 +101,19 @@ export async function deletarOperacoes(ids: string[]) {
 }
 
 // ─── CONFIG ─────────────────────────────────────────────
+export async function atualizarConfigPlano(alvo_mult: number, contratos_fixos: number) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'Não autenticado' };
+  await supabase
+    .from('configuracoes')
+    .update({ alvo_mult, contratos_fixos })
+    .eq('user_id', user.id);
+  revalidatePath('/dashboard');
+  revalidatePath('/nova');
+  return { success: true };
+}
+
 export async function salvarConfig(_: unknown, formData: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
