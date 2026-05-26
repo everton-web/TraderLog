@@ -67,7 +67,9 @@
       "Bash(Remove-Item *)",
       "Bash(rm components/AgendaEconomica.tsx)",
       "Bash(rm app/api/mercado/calendario/route.ts)",
-      "Bash(rmdir app/api/mercado/calendario)"
+      "Bash(rmdir app/api/mercado/calendario)",
+      "WebFetch(domain:docs.tradingeconomics.com)",
+      "WebFetch(domain:api.tradingeconomics.com)"
     ]
   }
 }
