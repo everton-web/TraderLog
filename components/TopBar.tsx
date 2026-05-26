@@ -7,12 +7,18 @@ import ThemeToggle from './ThemeToggle';
 import type { Profile } from '@/lib/types';
 
 const PAGE_TITLES: Record<string, string> = {
-  '/dashboard': 'Visão Geral',
-  '/nova':      'Nova Operação',
-  '/historico': 'Histórico',
-  '/config':    'Configurações',
-  '/perfil':    'Meu Perfil',
-  '/admin':     'Painel Admin',
+  '/dashboard':  'Visão Geral',
+  '/diario':     'Diário',
+  '/nova':       'Nova Operação',
+  '/historico':  'Histórico',
+  '/calendario': 'Calendário',
+  '/checklist':  'Checklist',
+  '/plano':      'Plano de Capital',
+  '/config':     'Configurações',
+  '/perfil':     'Meu Perfil',
+  '/integracoes':'Integrações',
+  '/instrucoes': 'Instruções',
+  '/admin':      'Painel Admin',
 };
 
 function getWeekNumber(d: Date): number {

@@ -381,6 +381,7 @@ input, button, select, textarea, optgroup { font-family: inherit; font-size: inh
 .top-bar-title-group { flex: 1; min-width: 0; }
 .top-bar-page-title  { font-size: var(--text-lg); font-weight: 700; letter-spacing: -0.3px; line-height: var(--lh-tight); }
 .top-bar-date        { font-size: var(--text-sm); color: var(--text-muted); margin-top: 2px; line-height: var(--lh-snug); }
+.top-bar-right       { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .search-bar-top {
   display: flex; align-items: center; gap: 8px;
   background: var(--bg-card); border: 1px solid var(--border);
@@ -413,7 +414,7 @@ input, button, select, textarea, optgroup { font-family: inherit; font-size: inh
 .btn-icon-logout:hover { color: var(--loss); background: var(--loss-bg); }
 
 /* ─── DASHBOARD NOVO — LAYOUT ────────────────── */
-.dash-panel-offset { padding-right: 296px; }
+.dash-panel-offset { padding-right: calc(var(--right-w) + 8px); }
 
 /* KPI row */
 .dash-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
