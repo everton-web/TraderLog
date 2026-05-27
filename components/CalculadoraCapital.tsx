@@ -57,7 +57,7 @@ export function CalculadoraCapital() {
   const alvo  = stop * rr * contratos * tick;
   const lossD  = risco * maxStops;
   const colchao = lossD * 3;
-  const margem  = 310;
+  const margem  = 155 * contratos;
 
   const capMin  = margem + colchao;
   const capIdeal = capMin + lossD * 2;
