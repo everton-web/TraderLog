@@ -115,7 +115,7 @@ export default function OperacoesTable({
                   <td><span style={{ fontWeight: 700 }}>{op.ativo}</span></td>
                   <td style={{ color: op.tipo === 'Compra' ? 'var(--gain)' : 'var(--loss)' }}>{op.tipo}</td>
                   <td className="mono">{op.pe?.toLocaleString('pt-BR')}</td>
-                  <td className="mono">{op.stop?.toLocaleString('pt-BR')}</td>
+                  <td className="mono">{op.stop != null ? op.stop.toLocaleString('pt-BR') : '—'}</td>
                   <td className="mono" style={{ color: 'var(--text-muted)' }}>
                     {op.risco_pts != null ? op.risco_pts.toLocaleString('pt-BR') : '—'}
                   </td>

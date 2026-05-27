@@ -13,7 +13,7 @@ interface ParsedOp {
   ativo:      'WIN' | 'WDO';
   tipo:       'Compra' | 'Venda';
   pe:         number;
-  stop:       null;
+  stop:       number | null;
   saida:      number;
   pts_final:  number | null;
   rs_final:   number;

@@ -99,7 +99,7 @@ export function gerarCSV(ops: Operacao[]): string {
   const headers = ['#','Data','Dia','Ativo','Tipo','PE','Stop','Risco pts','Alvo 1','Qtde RP','Qtde Total','Saída','Pts Final','Qtde Final','Situação','R$ Final','% Risco','Setup','Obs'];
   const rows = ops.map((o, i) => [
     i + 1, o.data, o.dia_semana, o.ativo, o.tipo,
-    o.pe, o.stop, o.risco_pts ?? '', o.alvo1 ?? '',
+    o.pe, o.stop ?? '', o.risco_pts ?? '', o.alvo1 ?? '',
     o.qtde_rp, o.qtde_total, o.saida ?? '', o.pts_final ?? '',
     o.qtde_final ?? '', o.situacao ?? '', o.rs_final ?? '',
     o.pct_risco != null ? (o.pct_risco * 100).toFixed(2) + '%' : '',

@@ -79,7 +79,7 @@ function buildMarkdown(
     ops.forEach((op, i) => {
       const pts = op.pts_final != null ? `${op.pts_final > 0 ? '+' : ''}${op.pts_final}` : '—';
       const rs  = op.rs_final  != null ? fmtRS(op.rs_final) : '—';
-      lines.push(`| ${i + 1} | ${op.ativo} | ${op.tipo} | ${op.setup ?? '—'} | ${op.pe} | ${op.stop} | ${op.saida ?? '—'} | ${pts} | ${op.situacao ?? '—'} | ${rs} | ${op.obs ?? '—'} |`);
+      lines.push(`| ${i + 1} | ${op.ativo} | ${op.tipo} | ${op.setup ?? '—'} | ${op.pe} | ${op.stop ?? '—'} | ${op.saida ?? '—'} | ${pts} | ${op.situacao ?? '—'} | ${rs} | ${op.obs ?? '—'} |`);
     });
     lines.push('');
     const totalPts = ops.reduce((a, o) => a + (o.pts_final ?? 0), 0);

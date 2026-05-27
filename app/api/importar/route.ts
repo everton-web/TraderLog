@@ -7,7 +7,7 @@ interface OperacaoImport {
   ativo: string;
   tipo: string;
   pe: number;
-  stop: null;
+  stop: number | null;
   saida: number;
   pts_final: number | null;
   rs_final: number;

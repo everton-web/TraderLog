@@ -29,7 +29,7 @@ export interface Operacao {
   ativo: Ativo;
   tipo: TipoOp;
   pe: number;
-  stop: number;
+  stop: number | null;
   risco_pts: number | null;
   alvo1: number | null;
   qtde_rp: number;
