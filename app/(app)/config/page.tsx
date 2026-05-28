@@ -2,14 +2,17 @@ import { createClient } from '@/utils/supabase/server';
 import ConfigClient from './ConfigClient';
 import { calcEstatisticas } from '@/lib/calculations';
 import type { Configuracao, Operacao } from '@/lib/types';
+import { getAmbiente } from '@/lib/ambiente';
 
 export default async function ConfigPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  const ambiente = await getAmbiente();
+
   const [{ data: cfg }, { data: ops }] = await Promise.all([
     supabase.from('configuracoes').select('*').eq('user_id', user!.id).single(),
-    supabase.from('operacoes').select('*').eq('user_id', user!.id),
+    supabase.from('operacoes').select('*').eq('user_id', user!.id).eq('ambiente', ambiente),
   ]);
 
   const stat = calcEstatisticas((ops || []) as Operacao[]);

@@ -1,9 +1,11 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
+import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import type { Ativo, TipoOp, Situacao } from './types';
+import { AMBIENTE_COOKIE, type Ambiente } from './ambiente';
 
 // ─── AUTH ───────────────────────────────────────────────
 export async function login(_: unknown, formData: FormData) {
@@ -34,6 +36,13 @@ export async function logout() {
   redirect('/login');
 }
 
+// ─── AMBIENTE ───────────────────────────────────────────
+export async function setAmbiente(ambiente: Ambiente) {
+  const store = await cookies();
+  store.set(AMBIENTE_COOKIE, ambiente, { path: '/', maxAge: 365 * 24 * 60 * 60 });
+  revalidatePath('/', 'layout');
+}
+
 // ─── OPERAÇÕES ──────────────────────────────────────────
 export async function salvarOperacao(op: {
   data: string; dia_semana: string; ativo: Ativo; tipo: TipoOp;
@@ -41,7 +50,7 @@ export async function salvarOperacao(op: {
   qtde_rp: number; qtde_total: number; qtde_final: number;
   saida: number; pts_final: number | null; situacao: Situacao | null;
   rs_final: number | null; pct_risco: number | null;
-  setup: string; obs: string;
+  setup: string; obs: string; ambiente: Ambiente;
 }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -62,7 +71,7 @@ export async function atualizarOperacao(id: string, op: {
   qtde_rp: number; qtde_total: number; qtde_final: number;
   saida: number; pts_final: number | null; situacao: Situacao | null;
   rs_final: number | null; pct_risco: number | null;
-  setup: string; obs: string;
+  setup: string; obs: string; ambiente: Ambiente;
 }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

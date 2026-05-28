@@ -3,6 +3,7 @@ import { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { Upload, FileText, CheckSquare, Square, Loader2, CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { fmtRS } from '@/lib/formatters';
+import type { Ambiente } from '@/lib/ambiente';
 
 const DIAS = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
 
@@ -14,6 +15,7 @@ interface ParsedOp {
   tipo:       'Compra' | 'Venda';
   pe:         number;
   stop:       number | null;
+  ambiente:   Ambiente;
   saida:      number;
   pts_final:  number | null;
   rs_final:   number;
@@ -91,7 +93,7 @@ function parseProfit(text: string): { ops: ParsedOp[]; fileDate: string | null }
       _key: `${data}-${ativo}-${pe}-${saida}-${rs_final}-${hora}`,
       data, dia_semana, ativo, tipo, pe, stop: null,
       saida, pts_final, rs_final, situacao,
-      qtde_total: qtde, qtde_final: qtde, hora,
+      qtde_total: qtde, qtde_final: qtde, hora, ambiente: 'real' as Ambiente, // sobrescrito em doImport
     });
   }
 
@@ -100,7 +102,7 @@ function parseProfit(text: string): { ops: ParsedOp[]; fileDate: string | null }
 
 type Step = 'upload' | 'preview' | 'done';
 
-export default function ImportarClient() {
+export default function ImportarClient({ ambiente }: { ambiente: Ambiente }) {
   const fileRef  = useRef<HTMLInputElement>(null);
   const [step,      setStep]      = useState<Step>('upload');
   const [dragging,  setDragging]  = useState(false);
@@ -162,7 +164,7 @@ export default function ImportarClient() {
     const toImport = ops
       .filter(o => selected.has(o._key))
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      .map(({ _key, hora, ...rest }) => rest);
+      .map(({ _key, hora, ...rest }) => ({ ...rest, ambiente }));
 
     try {
       const res  = await fetch('/api/importar', {

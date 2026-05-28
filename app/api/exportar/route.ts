@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { calcEstatisticas } from '@/lib/calculations';
 import type { Operacao } from '@/lib/types';
+import { getAmbiente } from '@/lib/ambiente';
 
 const MERCADO_LABEL: Record<string, string> = {
   lateral:         'Lateral',
@@ -164,11 +165,12 @@ export async function GET(req: Request) {
 
   const url  = new URL(req.url);
   const data = url.searchParams.get('data') || new Date().toISOString().split('T')[0];
+  const ambiente = await getAmbiente();
 
   const [entradaRes, opsRes, recentRes, profileRes] = await Promise.allSettled([
     supabase.from('diario_entradas').select('*').eq('user_id', user.id).eq('data', data).maybeSingle(),
-    supabase.from('operacoes').select('*').eq('user_id', user.id).eq('data', data).order('created_at'),
-    supabase.from('operacoes').select('*').eq('user_id', user.id)
+    supabase.from('operacoes').select('*').eq('user_id', user.id).eq('data', data).eq('ambiente', ambiente).order('created_at'),
+    supabase.from('operacoes').select('*').eq('user_id', user.id).eq('ambiente', ambiente)
       .gte('data', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
       .order('data', { ascending: false }),
     supabase.from('profiles').select('nome').eq('id', user.id).single(),

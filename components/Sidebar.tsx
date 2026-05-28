@@ -1,10 +1,12 @@
 'use client';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { logout } from '@/lib/actions';
+import { usePathname, useRouter } from 'next/navigation';
+import { useTransition } from 'react';
+import { logout, setAmbiente } from '@/lib/actions';
 import { LayoutDashboard, ClipboardList, Settings, User, Crown, LogOut, TrendingUp, BarChart2, CalendarDays, Link2, ClipboardCheck, BookOpen, HelpCircle, Upload } from 'lucide-react';
 import LogoImage from '@/components/LogoImage';
 import type { Profile } from '@/lib/types';
+import type { Ambiente } from '@/lib/ambiente';
 
 const NAV_SECTIONS = [
   {
@@ -41,9 +43,19 @@ function getGreeting() {
   return 'Boa noite 🌙';
 }
 
-export default function Sidebar({ profile, email }: { profile: Profile | null; email?: string | null }) {
+export default function Sidebar({ profile, email, ambiente }: { profile: Profile | null; email?: string | null; ambiente: Ambiente }) {
   const pathname = usePathname();
+  const router   = useRouter();
   const isAdmin  = profile?.role === 'admin';
+  const [isPending, startTransition] = useTransition();
+
+  function handleAmbiente(next: Ambiente) {
+    if (next === ambiente || isPending) return;
+    startTransition(async () => {
+      await setAmbiente(next);
+      router.refresh();
+    });
+  }
 
   const firstName = profile?.nome?.split(' ')[0] ?? 'Trader';
   const initials  = profile?.nome
@@ -62,6 +74,24 @@ export default function Sidebar({ profile, email }: { profile: Profile | null; e
           <LogoImage className="sidebar-logo-img" />
           <span className="logo-sub">WIN &amp; WDO · B3</span>
         </div>
+      </div>
+
+      {/* Ambiente toggle */}
+      <div className="ambiente-toggle">
+        <button
+          className={`ambiente-btn${ambiente === 'real' ? ' active real' : ''}`}
+          onClick={() => handleAmbiente('real')}
+          disabled={isPending}
+        >
+          Real
+        </button>
+        <button
+          className={`ambiente-btn${ambiente === 'simulador' ? ' active simulador' : ''}`}
+          onClick={() => handleAmbiente('simulador')}
+          disabled={isPending}
+        >
+          Simulador
+        </button>
       </div>
 
       {/* Greeting */}

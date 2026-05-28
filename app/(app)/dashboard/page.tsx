@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import DashboardClient from './DashboardClient';
 import type { Operacao, Configuracao } from '@/lib/types';
+import { getAmbiente } from '@/lib/ambiente';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,8 +9,10 @@ export default async function DashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  const ambiente = await getAmbiente();
+
   const [{ data: ops }, { data: cfg }] = await Promise.all([
-    supabase.from('operacoes').select('*').eq('user_id', user!.id).order('data', { ascending: true }),
+    supabase.from('operacoes').select('*').eq('user_id', user!.id).eq('ambiente', ambiente).order('data', { ascending: true }),
     supabase.from('configuracoes').select('*').eq('user_id', user!.id).single(),
   ]);
 

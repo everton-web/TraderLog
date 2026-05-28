@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { getAmbiente } from '@/lib/ambiente';
 
 const PLANO_LABELS: Record<string, string> = {
   sim: 'Sim', parcialmente: 'Parcialmente', nao: 'Não',
@@ -106,7 +107,8 @@ export async function POST(req: Request) {
   }
 
   const { entrada } = await req.json() as { entrada: EntradaRow };
-  const dataHoje = entrada.data as string;
+  const dataHoje  = entrada.data as string;
+  const ambiente  = await getAmbiente();
 
   const trinta = new Date();
   trinta.setDate(trinta.getDate() - 30);
@@ -137,6 +139,7 @@ export async function POST(req: Request) {
       .select('ativo, tipo, setup, pe, stop, saida, pts_final, rs_final, situacao, obs')
       .eq('user_id', user.id)
       .eq('data', dataHoje)
+      .eq('ambiente', ambiente)
       .order('created_at'),
     supabase
       .from('diario_entradas')
@@ -149,6 +152,7 @@ export async function POST(req: Request) {
       .from('operacoes')
       .select('data, situacao, rs_final, pts_final')
       .eq('user_id', user.id)
+      .eq('ambiente', ambiente)
       .gte('data', trinta.toISOString().split('T')[0])
       .order('data', { ascending: false }),
   ]);

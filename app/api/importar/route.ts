@@ -14,6 +14,7 @@ interface OperacaoImport {
   situacao: string;
   qtde_total: number;
   qtde_final: number;
+  ambiente: 'real' | 'simulador';
 }
 
 export async function POST(req: Request) {

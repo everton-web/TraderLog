@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { getAmbiente } from '@/lib/ambiente';
 
 interface OhlcResult {
   data:       string;
@@ -101,7 +102,8 @@ export async function POST() {
     return NextResponse.json({ error: 'Configure a API key do Groq em Integrações primeiro.' }, { status: 400 });
 
   // Busca tudo em paralelo — OHLC de ambos ativos, calendário e histórico do trader
-  const trinta = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const trinta  = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const ambiente = await getAmbiente();
   const [winRes, wdoRes, calRes, historicoRes, recentesRes] = await Promise.allSettled([
     fetchOHLC('WIN'),
     fetchOHLC('WDO'),
@@ -116,6 +118,7 @@ export async function POST() {
       .from('operacoes')
       .select('situacao, rs_final, setup, dia_semana, ativo')
       .eq('user_id', user.id)
+      .eq('ambiente', ambiente)
       .gte('data', trinta),
   ]);
 

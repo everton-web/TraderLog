@@ -42,6 +42,7 @@ export interface Operacao {
   pct_risco: number | null;
   setup: string | null;
   obs: string | null;
+  ambiente: 'real' | 'simulador';
   created_at: string;
 }
 

@@ -6,15 +6,17 @@ import { useToast } from './Toast';
 import { hojeISO, diaSemana, fmtRS, fmtPts, fmtPct } from '@/lib/formatters';
 import { Trash2, Check, TrendingUp, TrendingDown } from 'lucide-react';
 import type { Ativo, TipoOp, Configuracao, Operacao } from '@/lib/types';
+import type { Ambiente } from '@/lib/ambiente';
 
 interface Props {
   config: Configuracao | null;
   onSuccess?: () => void;
   operacaoId?: string;
   initialData?: Operacao;
+  ambiente?: Ambiente;
 }
 
-export default function OperacaoForm({ config, onSuccess, operacaoId, initialData }: Props) {
+export default function OperacaoForm({ config, onSuccess, operacaoId, initialData, ambiente = 'real' }: Props) {
   const { showToast } = useToast();
   const isEdit = !!operacaoId;
 
@@ -74,6 +76,7 @@ export default function OperacaoForm({ config, onSuccess, operacaoId, initialDat
     e.preventDefault();
     if (!pe || !stop || !saida || !data) { showToast('Preencha PE, Stop e Saída', 'error'); return; }
     setSaving(true);
+    const ambienteAtual: Ambiente = initialData?.ambiente ?? ambiente;
     const payload = {
       data, dia_semana: diaSemana(data),
       ativo, tipo,
@@ -89,6 +92,7 @@ export default function OperacaoForm({ config, onSuccess, operacaoId, initialDat
       rs_final:  calc.rsFinal,
       pct_risco: calc.pctRisco,
       setup, obs,
+      ambiente: ambienteAtual,
     };
     const res = isEdit
       ? await atualizarOperacao(operacaoId!, payload)

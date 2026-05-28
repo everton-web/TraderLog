@@ -1,17 +1,19 @@
 import { createClient } from '@/utils/supabase/server';
 import DiarioHubClient from '@/components/DiarioHubClient';
 import type { Configuracao } from '@/lib/types';
+import { getAmbiente } from '@/lib/ambiente';
 
 export default async function DiarioPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const today = new Date().toISOString().split('T')[0];
+  const today   = new Date().toISOString().split('T')[0];
+  const ambiente = await getAmbiente();
 
   const [cfgRes, entradaRes, opsRes, keyRes] = await Promise.allSettled([
     supabase.from('configuracoes').select('*').eq('user_id', user!.id).single(),
     supabase.from('diario_entradas').select('*').eq('user_id', user!.id).eq('data', today).maybeSingle(),
-    supabase.from('operacoes').select('id, ativo, tipo, setup, obs, pts_final, situacao, rs_final').eq('user_id', user!.id).eq('data', today).order('created_at'),
+    supabase.from('operacoes').select('id, ativo, tipo, setup, obs, pts_final, situacao, rs_final').eq('user_id', user!.id).eq('data', today).eq('ambiente', ambiente).order('created_at'),
     supabase.from('bridge_config').select('gemini_key').eq('user_id', user!.id).maybeSingle(),
   ]);
 

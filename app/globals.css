@@ -475,6 +475,13 @@ input, button, select, textarea, optgroup { font-family: inherit; font-size: inh
 .btn-cta-top { display: inline-flex; align-items: center; gap: 6px; background: var(--gain); color: #fff; border: none; border-radius: var(--radius); padding: 7px 14px; font-size: var(--text-base); font-weight: 700; cursor: pointer; font-family: var(--font); text-decoration: none; white-space: nowrap; transition: opacity var(--transition); line-height: var(--lh-snug); }
 .btn-cta-top:hover { opacity: 0.88; }
 
+/* ─── AMBIENTE TOGGLE ────────────────────────── */
+.ambiente-toggle { display: flex; gap: 3px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; margin: 10px 10px 0; }
+.ambiente-btn { flex: 1; padding: 5px 6px; border-radius: 5px; border: none; background: transparent; cursor: pointer; font-size: var(--text-xs); font-weight: 700; color: var(--text-muted); transition: all .15s; font-family: var(--font); letter-spacing: 0.03em; }
+.ambiente-btn:disabled { opacity: 0.6; cursor: default; }
+.ambiente-btn.active.real { background: var(--bg-card); color: var(--gain); box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.ambiente-btn.active.simulador { background: var(--bg-card); color: #a855f7; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+
 /* ─── SIDEBAR GREETING ───────────────────────── */
 .sidebar-greeting { padding: 15px 14px 13px; border-bottom: 1px solid var(--border); }
 .greeting-hi   { font-size: var(--text-sm); color: var(--text-muted); margin-bottom: 2px; line-height: var(--lh-snug); }

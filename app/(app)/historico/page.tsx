@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import HistoricoClient from './HistoricoClient';
 import type { Operacao, Configuracao } from '@/lib/types';
+import { getAmbiente } from '@/lib/ambiente';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,11 +9,14 @@ export default async function HistoricoPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  const ambiente = await getAmbiente();
+
   const [{ data: ops }, { data: cfg }] = await Promise.all([
     supabase
       .from('operacoes')
       .select('*')
       .eq('user_id', user!.id)
+      .eq('ambiente', ambiente)
       .order('data', { ascending: false })
       .order('created_at', { ascending: false }),
     supabase
