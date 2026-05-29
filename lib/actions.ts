@@ -19,14 +19,24 @@ export async function login(_: unknown, formData: FormData) {
 }
 
 export async function cadastro(_: unknown, formData: FormData) {
-  const supabase = await createClient();
+  const { createClient: createAdminClient } = await import('@supabase/supabase-js');
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
   const nome = formData.get('nome') as string;
-  const { error } = await supabase.auth.signUp({
+  const { error } = await admin.auth.admin.createUser({
     email: formData.get('email') as string,
     password: formData.get('password') as string,
-    options: { data: { nome } },
+    email_confirm: true,
+    user_metadata: { nome },
   });
   if (error) return { error: error.message };
+  const supabase = await createClient();
+  await supabase.auth.signInWithPassword({
+    email: formData.get('email') as string,
+    password: formData.get('password') as string,
+  });
   redirect('/onboarding');
 }
 

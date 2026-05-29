@@ -76,7 +76,8 @@
       "WebFetch(domain:www.b3.com.br)",
       "WebFetch(domain:statusinvest.com.br)",
       "WebFetch(domain:query1.finance.yahoo.com)",
-      "Bash(pkill -f \"next dev\")"
+      "Bash(pkill -f \"next dev\")",
+      "Read(//tmp/**)"
     ]
   }
 }
