@@ -4,15 +4,6 @@ import { BarChart2, Loader2, RefreshCw, AlertCircle } from 'lucide-react';
 
 type Ativo = 'WIN' | 'WDO';
 
-interface OhlcData {
-  data:       string;
-  ativo:      string;
-  abertura:   number;
-  maximo:     number;
-  minimo:     number;
-  fechamento: number;
-}
-
 const ATIVO_COLOR: Record<Ativo, string> = { WIN: '#2563eb', WDO: '#7c3aed' };
 
 function renderResumo(text: string) {
@@ -40,140 +31,140 @@ function renderResumo(text: string) {
   });
 }
 
-function MercadoCard({ ativo, ohlc, loadingOhlc }: { ativo: Ativo; ohlc: OhlcData | null; loadingOhlc: boolean }) {
-  const [loading, setLoading] = useState(false);
-  const [resumo,  setResumo]  = useState('');
-  const [error,   setError]   = useState('');
+function MercadoCard({ ativo }: { ativo: Ativo }) {
+  const today      = new Date().toISOString().split('T')[0];
+  const ammfKey    = `traderlog-ammf-${ativo}-${today}`;
+  const resumoKey  = `traderlog-resumo-${ativo}-${today}`;
+
+  const [abertura,    setAbertura]    = useState('');
+  const [maximo,      setMaximo]      = useState('');
+  const [minimo,      setMinimo]      = useState('');
+  const [fechamento,  setFechamento]  = useState('');
+  const [loading,     setLoading]     = useState(false);
+  const [resumo,      setResumo]      = useState('');
+  const [error,       setError]       = useState('');
 
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
     try {
-      const cached = localStorage.getItem(`traderlog-resumo-${ativo}-${today}`);
+      const ammf = localStorage.getItem(ammfKey);
+      if (ammf) {
+        const p = JSON.parse(ammf);
+        if (p.abertura)   setAbertura(String(p.abertura));
+        if (p.maximo)     setMaximo(String(p.maximo));
+        if (p.minimo)     setMinimo(String(p.minimo));
+        if (p.fechamento) setFechamento(String(p.fechamento));
+      }
+      const cached = localStorage.getItem(resumoKey);
       if (cached) {
         const { resumo: r } = JSON.parse(cached);
         if (r) setResumo(r);
       }
     } catch {}
-  }, [ativo]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const hasAmmf = abertura && maximo && minimo && fechamento;
+  const color   = ATIVO_COLOR[ativo];
+
+  const pctVar  = hasAmmf && Number(abertura) > 0
+    ? ((Number(fechamento) - Number(abertura)) / Number(abertura)) * 100
+    : null;
+  const dirColor = pctVar == null ? 'var(--text-muted)' : pctVar > 0 ? 'var(--gain)' : pctVar < 0 ? 'var(--loss)' : 'var(--text-muted)';
 
   async function gerar() {
+    if (!hasAmmf) return;
     setLoading(true);
     setError('');
+    const ohlc = { abertura: Number(abertura), maximo: Number(maximo), minimo: Number(minimo), fechamento: Number(fechamento) };
     try {
+      localStorage.setItem(ammfKey, JSON.stringify(ohlc));
       const res  = await fetch('/api/mercado/resumo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ativo }),
+        body: JSON.stringify({ ativo, ohlc }),
       });
       const data = await res.json();
       if (data.error) { setError(data.error); return; }
       setResumo(data.resumo ?? '');
-      const today = new Date().toISOString().split('T')[0];
-      try { localStorage.setItem(`traderlog-resumo-${ativo}-${today}`, JSON.stringify({ resumo: data.resumo })); } catch {}
+      try { localStorage.setItem(resumoKey, JSON.stringify({ resumo: data.resumo })); } catch {}
     } finally {
       setLoading(false);
     }
   }
 
-  const hasContent = resumo || error;
-  const color      = ATIVO_COLOR[ativo];
-
-  const pctVar = ohlc && ohlc.abertura > 0
-    ? ((ohlc.fechamento - ohlc.abertura) / ohlc.abertura) * 100
-    : null;
-  const dir      = pctVar != null ? (pctVar > 0 ? 'alta' : pctVar < 0 ? 'baixa' : 'lateral') : null;
-  const dirColor = dir === 'alta' ? 'var(--gain)' : dir === 'baixa' ? 'var(--loss)' : 'var(--text-muted)';
-  const pctStr   = pctVar != null ? `${pctVar >= 0 ? '+' : ''}${pctVar.toFixed(2)}%` : null;
-  const range    = ohlc ? ohlc.maximo - ohlc.minimo : null;
-  const frase    = ohlc && pctStr
-    ? `Fechou em ${ohlc.fechamento.toLocaleString('pt-BR')} (${pctStr}). Máxima ${ohlc.maximo.toLocaleString('pt-BR')}, mínima ${ohlc.minimo.toLocaleString('pt-BR')}.`
-    : null;
+  const inputStyle: React.CSSProperties = {
+    width: '100%', background: 'var(--bg-surface)', border: '1px solid var(--border)',
+    borderRadius: 6, padding: '5px 8px', fontSize: 13, fontFamily: 'var(--font-mono)',
+    color: 'var(--text-primary)', outline: 'none', boxSizing: 'border-box',
+  };
 
   return (
     <div style={{ flex: 1, minWidth: 0, background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border)', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 0 }}>
 
-      {/* Ativo tag + variação + data */}
+      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', color: '#fff', background: color, borderRadius: 4, padding: '2px 8px', lineHeight: 1.7 }}>
           {ativo}
         </span>
-        {pctStr && (
-          <span style={{ fontSize: 13, fontWeight: 700, color: dirColor }}>{pctStr}</span>
+        {pctVar != null && (
+          <span style={{ fontSize: 13, fontWeight: 700, color: dirColor }}>
+            {pctVar >= 0 ? '+' : ''}{pctVar.toFixed(2)}%
+          </span>
         )}
-        {ohlc && (
-          <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 'auto' }}>{ohlc.data}</span>
-        )}
+        <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 'auto' }}>AMMF de ontem</span>
       </div>
 
-      {/* AMMF */}
-      {loadingOhlc && !ohlc && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-muted)', height: 64 }}>
-          <Loader2 size={11} className="spin" /> carregando...
-        </div>
-      )}
-
-      {ohlc && (
-        <>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px 16px', marginBottom: 8 }}>
-            {([
-              { label: 'Abertura',   val: ohlc.abertura,   color: undefined },
-              { label: 'Máxima',     val: ohlc.maximo,     color: 'var(--gain)' },
-              { label: 'Mínima',     val: ohlc.minimo,     color: 'var(--loss)' },
-              { label: 'Fechamento', val: ohlc.fechamento, color: dirColor },
-            ] as { label: string; val: number; color: string | undefined }[]).map(({ label, val, color: c }) => (
-              <div key={label}>
-                <span style={{ fontSize: 10, color: 'var(--text-muted)', display: 'block' }}>{label}</span>
-                <span style={{ fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-mono)', color: c ?? 'var(--text-primary)' }}>
-                  {val.toLocaleString('pt-BR')}
-                </span>
-              </div>
-            ))}
+      {/* Input grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 10px', marginBottom: 10 }}>
+        {([
+          { label: 'Abertura',   val: abertura,   set: setAbertura },
+          { label: 'Máxima',     val: maximo,     set: setMaximo },
+          { label: 'Mínima',     val: minimo,     set: setMinimo },
+          { label: 'Fechamento', val: fechamento, set: setFechamento },
+        ] as { label: string; val: string; set: (v: string) => void }[]).map(f => (
+          <div key={f.label}>
+            <span style={{ fontSize: 10, color: 'var(--text-muted)', display: 'block', marginBottom: 3 }}>{f.label}</span>
+            <input
+              type="number"
+              step="1"
+              placeholder={ativo === 'WIN' ? '130000' : '5750'}
+              value={f.val}
+              onChange={e => f.set(e.target.value)}
+              style={inputStyle}
+            />
           </div>
+        ))}
+      </div>
 
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8 }}>
-            Range: <strong style={{ color: 'var(--text-secondary)' }}>{range} pts</strong>
-          </div>
-
-          {frase && (
-            <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.5, borderTop: '1px solid var(--border)', paddingTop: 8, marginBottom: 12 }}>
-              {frase}
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Divisor + botão Gerar */}
+      {/* Botão gerar */}
       <div style={{ borderTop: '1px solid var(--border)', paddingTop: 10, marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Análise IA</span>
         <button
           className="btn btn-primary"
           style={{ fontSize: 'var(--text-xs)', padding: '4px 12px', whiteSpace: 'nowrap' }}
           onClick={gerar}
-          disabled={loading}
+          disabled={loading || !hasAmmf}
         >
           {loading
             ? <><Loader2 size={11} className="spin" /> Analisando...</>
-            : hasContent
+            : resumo
               ? <><RefreshCw size={11} /> Regerar</>
               : <><BarChart2 size={11} /> Gerar</>}
         </button>
       </div>
 
-      {/* Erro */}
       {error && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 'var(--text-sm)', color: 'var(--loss)', marginTop: 8 }}>
           <AlertCircle size={12} /> {error}
         </div>
       )}
 
-      {/* Carregando */}
       {loading && !resumo && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-muted)', marginTop: 8 }}>
           <Loader2 size={11} className="spin" /> Gerando análise...
         </div>
       )}
 
-      {/* Resumo IA */}
       {resumo && (
         <div style={{ marginTop: 10 }}>
           {renderResumo(resumo)}
@@ -184,27 +175,6 @@ function MercadoCard({ ativo, ohlc, loadingOhlc }: { ativo: Ativo; ohlc: OhlcDat
 }
 
 export default function MercadoResumo() {
-  const [loadingOhlc, setLoadingOhlc] = useState(false);
-  const [winOhlc,     setWinOhlc]     = useState<OhlcData | null>(null);
-  const [wdoOhlc,     setWdoOhlc]     = useState<OhlcData | null>(null);
-
-  useEffect(() => {
-    async function fetchBoth() {
-      setLoadingOhlc(true);
-      try {
-        const [winRes, wdoRes] = await Promise.allSettled([
-          fetch('/api/mercado/ohlc?ativo=WIN').then(r => r.json()),
-          fetch('/api/mercado/ohlc?ativo=WDO').then(r => r.json()),
-        ]);
-        if (winRes.status === 'fulfilled' && !winRes.value.error) setWinOhlc(winRes.value as OhlcData);
-        if (wdoRes.status === 'fulfilled' && !wdoRes.value.error) setWdoOhlc(wdoRes.value as OhlcData);
-      } finally {
-        setLoadingOhlc(false);
-      }
-    }
-    fetchBoth();
-  }, []);
-
   const today = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'short' });
 
   return (
@@ -215,14 +185,14 @@ export default function MercadoResumo() {
             <BarChart2 size={14} style={{ color: 'var(--gain)' }} /> Resumo do Mercado
           </div>
           <div className="dash-chart-sub">
-            {today.charAt(0).toUpperCase() + today.slice(1)} — AMMF de ontem + análise IA
+            {today.charAt(0).toUpperCase() + today.slice(1)} — insira o AMMF de ontem para gerar a análise
           </div>
         </div>
       </div>
 
       <div style={{ display: 'flex', gap: 12 }}>
-        <MercadoCard ativo="WIN" ohlc={winOhlc} loadingOhlc={loadingOhlc} />
-        <MercadoCard ativo="WDO" ohlc={wdoOhlc} loadingOhlc={loadingOhlc} />
+        <MercadoCard ativo="WIN" />
+        <MercadoCard ativo="WDO" />
       </div>
     </div>
   );

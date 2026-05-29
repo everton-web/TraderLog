@@ -149,7 +149,20 @@ export default function DiarioHubClient({ config, todayOps, initialEntry }: Prop
   async function handleBriefing() {
     setLoadingBriefing(true);
     setBriefingError('');
-    const res  = await fetch('/api/diario/briefing', { method: 'POST' });
+    // Lê AMMF do localStorage (salvo pelo MercadoResumo no dashboard)
+    const readAmmf = (ativo: string) => {
+      try {
+        const raw = localStorage.getItem(`traderlog-ammf-${ativo}-${today}`);
+        return raw ? JSON.parse(raw) : undefined;
+      } catch { return undefined; }
+    };
+    const ohlcWin = readAmmf('WIN');
+    const ohlcWdo = readAmmf('WDO');
+    const res  = await fetch('/api/diario/briefing', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ohlcWin, ohlcWdo }),
+    });
     const data = await res.json();
     setLoadingBriefing(false);
     if (data.error) { setBriefingError(data.error); return; }

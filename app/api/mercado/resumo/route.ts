@@ -1,36 +1,14 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
-type OhlcResult = { data: string; abertura: number; maximo: number; minimo: number; fechamento: number };
-type CalEvent   = { country: string; event: string; impact: string; estimate: string | null; unit: string | null };
-
-async function fetchOHLC(ativo: string): Promise<OhlcResult | null> {
-  const symbol = ativo === 'WIN' ? '^BVSP' : 'BRL=X';
-  const res = await fetch(
-    `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=10d`,
-    { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' } }
-  );
-  if (!res.ok) return null;
-  const json = await res.json() as {
-    chart: { result?: [{ timestamp: number[]; indicators: { quote: [{ open: (number|null)[]; high: (number|null)[]; low: (number|null)[]; close: (number|null)[] }] } }] };
-  };
-  const result = json.chart.result?.[0];
-  if (!result) return null;
-  const t = result.timestamp;
-  const q = result.indicators.quote[0];
-  let idx = t.length - 1;
-  while (idx >= 0 && q.close[idx] == null) idx--;
-  if (idx < 0) return null;
-  const mult = ativo === 'WDO' ? 1000 : 1;
-  const c = q.close[idx]!;
-  return {
-    data:       new Date(t[idx] * 1000).toISOString().split('T')[0],
-    abertura:   Math.round((q.open[idx]  ?? c) * mult),
-    maximo:     Math.round((q.high[idx]  ?? c) * mult),
-    minimo:     Math.round((q.low[idx]   ?? c) * mult),
-    fechamento: Math.round(c * mult),
-  };
+interface OhlcInput {
+  abertura:   number;
+  maximo:     number;
+  minimo:     number;
+  fechamento: number;
 }
+
+type CalEvent = { country: string; event: string; impact: string; estimate: string | null; unit: string | null };
 
 async function fetchCalendario(finnhubKey: string): Promise<CalEvent[]> {
   const hoje = new Date().toISOString().split('T')[0];
@@ -72,11 +50,13 @@ export async function POST(req: Request) {
     .eq('user_id', user.id)
     .maybeSingle();
 
-  if (!cfg?.gemini_key) {
+  if (!cfg?.gemini_key)
     return NextResponse.json({ error: 'Configure a API key do Groq em Integrações.' }, { status: 400 });
-  }
 
-  const { ativo = 'WIN' } = await req.json() as { ativo?: string };
+  const { ativo = 'WIN', ohlc } = await req.json() as { ativo?: string; ohlc?: OhlcInput };
+
+  if (!ohlc || !ohlc.abertura || !ohlc.maximo || !ohlc.minimo || !ohlc.fechamento)
+    return NextResponse.json({ error: 'Preencha todos os campos do AMMF.' }, { status: 400 });
 
   let finnhubKey: string | null = null;
   try {
@@ -88,14 +68,9 @@ export async function POST(req: Request) {
     finnhubKey = (fhCfg as Record<string, string | null> | null)?.finnhub_key ?? null;
   } catch {}
 
-  const [ohlc, eventos] = await Promise.all([
-    fetchOHLC(ativo).catch(() => null),
-    finnhubKey ? fetchCalendario(finnhubKey).catch(() => []) : Promise.resolve([] as CalEvent[]),
-  ]);
-
-  if (!ohlc) {
-    return NextResponse.json({ error: 'Não foi possível obter AMMF. Tente novamente.' }, { status: 502 });
-  }
+  const eventos = finnhubKey
+    ? await fetchCalendario(finnhubKey).catch(() => [] as CalEvent[])
+    : [] as CalEvent[];
 
   const range    = ohlc.maximo - ohlc.minimo;
   const direcao  = ohlc.fechamento > ohlc.abertura ? 'alta' : ohlc.fechamento < ohlc.abertura ? 'baixa' : 'lateral';
@@ -105,7 +80,7 @@ export async function POST(req: Request) {
 
   const prompt = `Sou trader de day trading de ${ativo} na B3. Gere um resumo do pregão de HOJE.
 
-AMMF de ontem (${ativo}) — ${ohlc.data}:
+AMMF de ontem (${ativo}):
 Abertura: ${ohlc.abertura.toLocaleString('pt-BR')} | Máxima: ${ohlc.maximo.toLocaleString('pt-BR')} | Mínima: ${ohlc.minimo.toLocaleString('pt-BR')} | Fechamento: ${ohlc.fechamento.toLocaleString('pt-BR')}
 Range: ${range} pts | Direção: ${direcao}
 
@@ -127,7 +102,7 @@ Máximo 150 palavras. Cite os números. Sem introdução ou conclusão.`;
 
   try {
     const resumo = await callGroq(cfg.gemini_key, prompt);
-    return NextResponse.json({ resumo, ohlc, eventos });
+    return NextResponse.json({ resumo });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Erro ao chamar o Groq';
     return NextResponse.json({ error: msg }, { status: 500 });

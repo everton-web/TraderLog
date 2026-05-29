@@ -19,35 +19,6 @@ interface FinnhubEvent {
   time:     string;
 }
 
-async function fetchOHLC(ativo: 'WIN' | 'WDO'): Promise<OhlcResult | null> {
-  const symbol = ativo === 'WIN' ? '^BVSP' : 'BRL=X';
-  try {
-    const res = await fetch(
-      `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=5d`,
-      { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' } }
-    );
-    if (!res.ok) return null;
-    const json = await res.json() as {
-      chart: { result?: [{ timestamp: number[]; indicators: { quote: [{ open: (number|null)[]; high: (number|null)[]; low: (number|null)[]; close: (number|null)[] }] } }] };
-    };
-    const result = json.chart.result?.[0];
-    if (!result) return null;
-    const t = result.timestamp;
-    const q = result.indicators.quote[0];
-    let idx = t.length - 1;
-    while (idx >= 0 && q.close[idx] == null) idx--;
-    if (idx < 0) return null;
-    const mult = ativo === 'WDO' ? 1000 : 1;
-    const c = q.close[idx]!;
-    return {
-      data:       new Date(t[idx] * 1000).toISOString().split('T')[0],
-      abertura:   Math.round((q.open[idx]  ?? c) * mult),
-      maximo:     Math.round((q.high[idx]  ?? c) * mult),
-      minimo:     Math.round((q.low[idx]   ?? c) * mult),
-      fechamento: Math.round(c * mult),
-    };
-  } catch { return null; }
-}
 
 async function fetchCalendario(finnhubKey: string): Promise<FinnhubEvent[]> {
   try {
@@ -87,7 +58,7 @@ async function callGroq(apiKey: string, system: string, prompt: string): Promise
   return data.choices?.[0]?.message?.content ?? '';
 }
 
-export async function POST() {
+export async function POST(req: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -101,12 +72,14 @@ export async function POST() {
   if (!cfg?.gemini_key)
     return NextResponse.json({ error: 'Configure a API key do Groq em Integrações primeiro.' }, { status: 400 });
 
-  // Busca tudo em paralelo — OHLC de ambos ativos, calendário e histórico do trader
-  const trinta  = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  // OHLC manual enviado pelo cliente (lido do localStorage)
+  const body    = await req.json().catch(() => ({})) as { ohlcWin?: OhlcResult; ohlcWdo?: OhlcResult };
+  const win     = body.ohlcWin ?? null;
+  const wdo     = body.ohlcWdo ?? null;
+
+  const trinta   = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
   const ambiente = await getAmbiente();
-  const [winRes, wdoRes, calRes, historicoRes, recentesRes] = await Promise.allSettled([
-    fetchOHLC('WIN'),
-    fetchOHLC('WDO'),
+  const [calRes, historicoRes, recentesRes] = await Promise.allSettled([
     cfg.finnhub_key ? fetchCalendario(cfg.finnhub_key as string) : Promise.resolve([] as FinnhubEvent[]),
     supabase
       .from('diario_entradas')
@@ -121,10 +94,7 @@ export async function POST() {
       .eq('ambiente', ambiente)
       .gte('data', trinta),
   ]);
-
-  const win       = winRes.status       === 'fulfilled' ? winRes.value       : null;
-  const wdo       = wdoRes.status       === 'fulfilled' ? wdoRes.value       : null;
-  const eventos   = calRes.status       === 'fulfilled' ? calRes.value       : [];
+  const eventos   = calRes.status       === 'fulfilled' ? calRes.value             : [];
   const historico = historicoRes.status === 'fulfilled' ? (historicoRes.value.data ?? []) : [];
   const recentes  = recentesRes.status  === 'fulfilled' ? (recentesRes.value.data ?? []) : [];
 
