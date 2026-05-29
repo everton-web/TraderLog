@@ -25,19 +25,20 @@ export async function cadastro(_: unknown, formData: FormData) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
   const nome = formData.get('nome') as string;
-  const { error } = await admin.auth.admin.createUser({
+  const { data: userData, error } = await admin.auth.admin.createUser({
     email: formData.get('email') as string,
     password: formData.get('password') as string,
     email_confirm: true,
     user_metadata: { nome },
   });
   if (error) return { error: error.message };
+  if (!userData?.user) return { error: 'Usuário não foi criado. Verifique as credenciais do Supabase.' };
   const supabase = await createClient();
   await supabase.auth.signInWithPassword({
     email: formData.get('email') as string,
     password: formData.get('password') as string,
   });
-  redirect('/onboarding');
+  redirect('/dashboard');
 }
 
 export async function logout() {

@@ -80,7 +80,8 @@
       "Read(//tmp/**)",
       "Bash(vercel --version)",
       "Bash(vercel whoami *)",
-      "Bash(npm list *)"
+      "Bash(npm list *)",
+      "Bash(xargs ls -la)"
     ]
   }
 }
