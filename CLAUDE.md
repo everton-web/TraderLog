@@ -13,7 +13,7 @@
 **TraderLog** é um diário de trading para day traders brasileiros operando contratos futuros WIN (mini índice) e WDO (mini dólar) na B3.
 
 - **URL produção:** `trader-log-2026.vercel.app`
-- **Deploy:** Vercel (CLI `vercel --prod`, deploy manual — sem CI/CD automático)
+- **Deploy:** Vercel — sempre fazer merge na `main` + push após completar uma feature. Após push na main, sempre rodar promote to production (merge na main = produção).
 - **Dev:** `Everton Brito` · `evertonbrito94@gmail.com`
 
 ---
