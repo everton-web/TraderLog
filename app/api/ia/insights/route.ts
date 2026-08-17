@@ -83,7 +83,7 @@ export async function POST(req: Request) {
 
   const recentStr = ops.slice(-5).map(o => o.situacao ?? '?').join(', ');
 
-  const prompt = `Sou trader de day trading (WIN/WDO na B3). Analise meu histórico e dê um insight rápido.
+  const prompt = `Sou trader de day trading (WIN/WDO/BIT na B3). Analise meu histórico e dê um insight rápido.
 
 RESUMO (${ops.length} operações):
 - Acerto: ${acerto ?? '—'}%

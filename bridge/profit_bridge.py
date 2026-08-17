@@ -34,6 +34,7 @@ except ImportError:
 # ─── Constantes ──────────────────────────────────────────────────────────────
 WIN_TICK    = 0.20
 WDO_TICK    = 10.00
+BIT_TICK    = 0.01
 DIAS_SEMANA = ['DOMINGO','SEGUNDA','TERÇA','QUARTA','QUINTA','SEXTA','SÁBADO']
 GREEN       = "#10b981"
 BG          = "#111111"
@@ -364,7 +365,7 @@ class BridgeApp:
                         tipo  = "Compra" if pos["fills"][0]["side"] == "BUY" else "Venda"
                         pe    = ab  if tipo == "Compra" else asl
                         saida = asl if tipo == "Compra" else ab
-                        tick  = WIN_TICK if ativo == "WIN" else WDO_TICK
+                        tick  = WIN_TICK if ativo == "WIN" else (BIT_TICK if ativo == "BIT" else WDO_TICK)
                         pts   = (saida - pe) if tipo == "Compra" else (pe - saida)
                         rs    = pts * qtde * tick
                         sit   = "Gain" if pts > 0 else ("Loss" if pts < 0 else "PE")

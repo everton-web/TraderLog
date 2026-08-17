@@ -11,7 +11,7 @@ interface ParsedOp {
   _key:       string;
   data:       string;
   dia_semana: string;
-  ativo:      'WIN' | 'WDO';
+  ativo:      'WIN' | 'WDO' | 'BIT';
   tipo:       'Compra' | 'Venda';
   pe:         number;
   stop:       number | null;
@@ -53,9 +53,10 @@ function parseProfit(text: string): { ops: ParsedOp[]; fileDate: string | null }
     if (c.length < 13) continue;
 
     const ticker = c[0].trim();
-    const ativo: 'WIN' | 'WDO' | null =
+    const ativo: 'WIN' | 'WDO' | 'BIT' | null =
       ticker.startsWith('WIN') ? 'WIN' :
-      ticker.startsWith('WDO') ? 'WDO' : null;
+      ticker.startsWith('WDO') ? 'WDO' :
+      ticker.startsWith('BIT') ? 'BIT' : null;
     if (!ativo) continue;
 
     // Parse entry datetime "26/05/2026 10:05:23"

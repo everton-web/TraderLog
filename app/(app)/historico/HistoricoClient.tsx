@@ -124,6 +124,7 @@ export default function HistoricoClient({
             <option value="">Todos</option>
             <option value="WIN">WIN</option>
             <option value="WDO">WDO</option>
+            <option value="BIT">BIT</option>
           </select>
         </div>
         <div className="filter-group">

@@ -1,6 +1,6 @@
 -- ─── TYPES ──────────────────────────────────────────────────────────────────
 create type public.role_type as enum ('estudante', 'admin');
-create type public.ativo_type as enum ('WIN', 'WDO');
+create type public.ativo_type as enum ('WIN', 'WDO', 'BIT');
 create type public.tipo_op as enum ('Compra', 'Venda');
 create type public.situacao_type as enum ('Gain', 'Loss', 'PE');
 

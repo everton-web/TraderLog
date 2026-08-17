@@ -1,5 +1,4 @@
 'use client';
-import { useRef } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS, CategoryScale, LinearScale,
@@ -14,19 +13,98 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, 
 export type ChartMode = 'operacao' | 'dia' | 'semana' | 'mes';
 
 const GREEN      = '#10b981';
-const GREEN_GLOW = 'rgba(16,185,129,0.40)';
-const GREEN_ZERO = 'rgba(16,185,129,0.00)';
+const RED        = '#ef4444';
+const ORANGE     = '#f59e0b';
 
-const gradientPlugin: Plugin<'line'> = {
-  id: 'capitalGradient',
+const dualColorPlugin: Plugin<'line'> = {
+  id: 'capitalDualColor',
   beforeDatasetDraw(chart) {
-    const { ctx, chartArea } = chart;
+    const { ctx, chartArea, scales } = chart;
     if (!chartArea) return;
-    const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-    gradient.addColorStop(0, GREEN_GLOW);
-    gradient.addColorStop(1, GREEN_ZERO);
+
+    const yScale = scales['y'];
+    const zeroY = yScale.getPixelForValue(0);
+    const clampedZero = Math.max(chartArea.top, Math.min(chartArea.bottom, zeroY));
+
+    const greenGrad = ctx.createLinearGradient(0, chartArea.top, 0, clampedZero);
+    greenGrad.addColorStop(0, 'rgba(16,185,129,0.35)');
+    greenGrad.addColorStop(1, 'rgba(16,185,129,0.03)');
+
+    const redGrad = ctx.createLinearGradient(0, clampedZero, 0, chartArea.bottom);
+    redGrad.addColorStop(0, 'rgba(239,68,68,0.03)');
+    redGrad.addColorStop(1, 'rgba(239,68,68,0.35)');
+
+    const ds = chart.data.datasets[0];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (chart.data.datasets[0] as any).backgroundColor = gradient;
+    const meta = chart.getDatasetMeta(0) as any;
+    const data = ds.data as number[];
+
+    const allAbove = data.every(v => v >= 0);
+    const allBelow = data.every(v => v <= 0);
+
+    if (allAbove) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (ds as any).backgroundColor = greenGrad;
+    } else if (allBelow) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (ds as any).backgroundColor = redGrad;
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (ds as any).backgroundColor = (context: any) => {
+        const { raw } = context;
+        return raw >= 0 ? greenGrad : redGrad;
+      };
+    }
+
+    const points = meta.data;
+    if (!points || points.length < 2) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (ds as any).segment = {
+      borderColor: (ctx: { p0: { parsed: { y: number } }; p1: { parsed: { y: number } } }) => {
+        const avg = (ctx.p0.parsed.y + ctx.p1.parsed.y) / 2;
+        if (avg > 0) return GREEN;
+        if (avg < 0) return RED;
+        return ORANGE;
+      },
+    };
+  },
+};
+
+const zeroLinePlugin: Plugin<'line'> = {
+  id: 'zeroLine',
+  afterDraw(chart) {
+    const { ctx, chartArea, scales } = chart;
+    if (!chartArea) return;
+    const yScale = scales['y'];
+    const data = chart.data.datasets[0]?.data as number[];
+    if (!data) return;
+
+    const hasPos = data.some(v => v > 0);
+    const hasNeg = data.some(v => v < 0);
+    if (!hasPos || !hasNeg) return;
+
+    const zeroY = yScale.getPixelForValue(0);
+    if (zeroY < chartArea.top || zeroY > chartArea.bottom) return;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(chartArea.left, zeroY);
+    ctx.lineTo(chartArea.right, zeroY);
+    ctx.strokeStyle = ORANGE;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 4]);
+    ctx.stroke();
+
+    ctx.shadowColor = ORANGE;
+    ctx.shadowBlur = 6;
+    ctx.beginPath();
+    ctx.moveTo(chartArea.left, zeroY);
+    ctx.lineTo(chartArea.right, zeroY);
+    ctx.strokeStyle = ORANGE;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
   },
 };
 
@@ -112,21 +190,33 @@ export default function CapitalChart({
   const gridColor = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.05)';
   const textColor = isDark ? '#666' : '#9ca3af';
 
+  const relCurve = curve.map(v => v - capitalInicial);
+
   const data: ChartData<'line'> = {
     labels,
     datasets: [{
-      label: 'Capital',
-      data: curve,
+      label: 'Resultado',
+      data: relCurve,
       borderColor: GREEN,
-      backgroundColor: GREEN_ZERO,
+      backgroundColor: 'transparent',
       fill: true,
-      tension: mode === 'operacao' ? 0.3 : 0.45,
-      pointBackgroundColor: GREEN,
+      tension: mode === 'operacao' ? 0.15 : 0.2,
+      pointBackgroundColor: relCurve.map(v => v > 0 ? GREEN : v < 0 ? RED : ORANGE),
       pointBorderColor: isDark ? '#141414' : '#ffffff',
       pointBorderWidth: 2,
       pointRadius: pointCount > 60 ? 0 : mode === 'operacao' ? 3 : 4,
       pointHoverRadius: 6,
       borderWidth: 2.5,
+      segment: {
+        borderColor: (ctx) => {
+          const y0 = ctx.p0.parsed.y ?? 0;
+          const y1 = ctx.p1.parsed.y ?? 0;
+          const avg = (y0 + y1) / 2;
+          if (avg > 0) return GREEN;
+          if (avg < 0) return RED;
+          return ORANGE;
+        },
+      },
     }],
   };
 
@@ -144,7 +234,16 @@ export default function CapitalChart({
         bodyColor: isDark ? '#e2e2e2' : '#111827',
         padding: 10,
         callbacks: {
-          label: (item) => ` R$ ${Number(item.raw).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+          label: (item) => {
+            const val = Number(item.raw);
+            const abs = Math.abs(val);
+            const sign = val >= 0 ? '+' : '-';
+            return ` ${sign} R$ ${abs.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+          },
+          afterLabel: (item) => {
+            const capital = curve[item.dataIndex];
+            return `  Capital: R$ ${capital.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+          },
         },
       },
     },
@@ -160,7 +259,7 @@ export default function CapitalChart({
           font: { size: 12 },
           callback: (v) => {
             const n = Number(v);
-            if (n >= 1000 || n <= -1000) return `R$${(n / 1000).toFixed(0)}k`;
+            if (n >= 1000 || n <= -1000) return `R$${(n / 1000).toFixed(1)}k`;
             return `R$${n.toFixed(0)}`;
           },
         },
@@ -172,7 +271,7 @@ export default function CapitalChart({
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <Line data={data} options={options} plugins={[gradientPlugin]} />
+      <Line data={data} options={options} plugins={[dualColorPlugin, zeroLinePlugin]} />
     </div>
   );
 }

@@ -2,7 +2,8 @@ import type { CalcResult, Ativo, TipoOp, Situacao, Estatisticas, Operacao } from
 
 export const WIN_TICK = 0.20;
 export const WDO_TICK = 10.00;
-export const tickValue = (ativo: Ativo) => ativo === 'WIN' ? WIN_TICK : WDO_TICK;
+export const BIT_TICK = 0.01;
+export const tickValue = (ativo: Ativo) => ativo === 'WIN' ? WIN_TICK : ativo === 'BIT' ? BIT_TICK : WDO_TICK;
 
 export interface CalcInput {
   ativo: Ativo;

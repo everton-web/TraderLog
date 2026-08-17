@@ -2,9 +2,9 @@
 import { useState, useEffect } from 'react';
 import { BarChart2, Loader2, RefreshCw, AlertCircle } from 'lucide-react';
 
-type Ativo = 'WIN' | 'WDO';
+type Ativo = 'WIN' | 'WDO' | 'BIT';
 
-const ATIVO_COLOR: Record<Ativo, string> = { WIN: '#2563eb', WDO: '#7c3aed' };
+const ATIVO_COLOR: Record<Ativo, string> = { WIN: '#2563eb', WDO: '#7c3aed', BIT: '#f59e0b' };
 
 function renderResumo(text: string) {
   return text.split('\n').map((line, i) => {
@@ -127,7 +127,7 @@ function MercadoCard({ ativo }: { ativo: Ativo }) {
             <input
               type="number"
               step="1"
-              placeholder={ativo === 'WIN' ? '130000' : '5750'}
+              placeholder={ativo === 'WIN' ? '130000' : ativo === 'BIT' ? '330000' : '5750'}
               value={f.val}
               onChange={e => f.set(e.target.value)}
               style={inputStyle}
@@ -190,9 +190,10 @@ export default function MercadoResumo() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 12 }}>
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
         <MercadoCard ativo="WIN" />
         <MercadoCard ativo="WDO" />
+        <MercadoCard ativo="BIT" />
       </div>
     </div>
   );

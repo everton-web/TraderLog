@@ -156,7 +156,7 @@ TraderLog/
 | user_id | uuid FK | |
 | data | date | |
 | dia_semana | text | |
-| ativo | text | 'WIN' \| 'WDO' |
+| ativo | text | 'WIN' \| 'WDO' \| 'BIT' |
 | tipo | text | 'Compra' \| 'Venda' |
 | pe | numeric | preço de entrada |
 | stop | numeric | |

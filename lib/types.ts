@@ -1,5 +1,5 @@
 export type Role = 'estudante' | 'admin';
-export type Ativo = 'WIN' | 'WDO';
+export type Ativo = 'WIN' | 'WDO' | 'BIT';
 export type TipoOp = 'Compra' | 'Venda';
 export type Situacao = 'Gain' | 'Loss' | 'PE';
 

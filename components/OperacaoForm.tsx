@@ -117,6 +117,7 @@ export default function OperacaoForm({ config, onSuccess, operacaoId, initialDat
           <div className="toggle-group">
             <button type="button" className={`toggle-btn${ativo === 'WIN' ? ' active' : ''}`} onClick={() => setAtivo('WIN')}>WIN</button>
             <button type="button" className={`toggle-btn${ativo === 'WDO' ? ' active' : ''}`} onClick={() => setAtivo('WDO')}>WDO</button>
+            <button type="button" className={`toggle-btn${ativo === 'BIT' ? ' active' : ''}`} onClick={() => setAtivo('BIT')}>BIT</button>
           </div>
         </div>
         <div className="form-group">
