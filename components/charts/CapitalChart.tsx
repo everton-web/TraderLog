@@ -12,65 +12,39 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, 
 
 export type ChartMode = 'operacao' | 'dia' | 'semana' | 'mes';
 
-const GREEN      = '#10b981';
-const RED        = '#ef4444';
-const ORANGE     = '#f59e0b';
+const GREEN  = '#10b981';
+const RED    = '#ef4444';
+const ORANGE = '#f59e0b';
 
-const dualColorPlugin: Plugin<'line'> = {
-  id: 'capitalDualColor',
+const fillPlugin: Plugin<'line'> = {
+  id: 'capitalFill',
   beforeDatasetDraw(chart) {
     const { ctx, chartArea, scales } = chart;
     if (!chartArea) return;
 
-    const yScale = scales['y'];
-    const zeroY = yScale.getPixelForValue(0);
-    const clampedZero = Math.max(chartArea.top, Math.min(chartArea.bottom, zeroY));
+    const zeroY = scales['y'].getPixelForValue(0);
+    const clamped = Math.max(chartArea.top, Math.min(chartArea.bottom, zeroY));
 
-    const greenGrad = ctx.createLinearGradient(0, chartArea.top, 0, clampedZero);
-    greenGrad.addColorStop(0, 'rgba(16,185,129,0.35)');
-    greenGrad.addColorStop(1, 'rgba(16,185,129,0.03)');
+    const grad = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
 
-    const redGrad = ctx.createLinearGradient(0, clampedZero, 0, chartArea.bottom);
-    redGrad.addColorStop(0, 'rgba(239,68,68,0.03)');
-    redGrad.addColorStop(1, 'rgba(239,68,68,0.35)');
+    const range = chartArea.bottom - chartArea.top;
+    if (range <= 0) return;
+    const zeroStop = (clamped - chartArea.top) / range;
 
-    const ds = chart.data.datasets[0];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const meta = chart.getDatasetMeta(0) as any;
-    const data = ds.data as number[];
-
-    const allAbove = data.every(v => v >= 0);
-    const allBelow = data.every(v => v <= 0);
-
-    if (allAbove) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (ds as any).backgroundColor = greenGrad;
-    } else if (allBelow) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (ds as any).backgroundColor = redGrad;
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (ds as any).backgroundColor = (context: any) => {
-        const { raw } = context;
-        return raw >= 0 ? greenGrad : redGrad;
-      };
+    if (zeroStop > 0.01) {
+      grad.addColorStop(0, 'rgba(16,185,129,0.40)');
+      grad.addColorStop(Math.max(0, zeroStop - 0.01), 'rgba(16,185,129,0.08)');
+    }
+    grad.addColorStop(zeroStop, 'rgba(0,0,0,0)');
+    if (zeroStop < 0.99) {
+      grad.addColorStop(Math.min(1, zeroStop + 0.01), 'rgba(239,68,68,0.08)');
+      grad.addColorStop(1, 'rgba(239,68,68,0.40)');
     }
 
-    const points = meta.data;
-    if (!points || points.length < 2) return;
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (ds as any).segment = {
-      borderColor: (ctx: { p0: { parsed: { y: number } }; p1: { parsed: { y: number } } }) => {
-        const avg = (ctx.p0.parsed.y + ctx.p1.parsed.y) / 2;
-        if (avg > 0) return GREEN;
-        if (avg < 0) return RED;
-        return ORANGE;
-      },
-    };
+    (chart.data.datasets[0] as any).backgroundColor = grad;
   },
 };
-
 
 const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
@@ -163,7 +137,7 @@ export default function CapitalChart({
       data: relCurve,
       borderColor: GREEN,
       backgroundColor: 'transparent',
-      fill: true,
+      fill: 'origin',
       tension: mode === 'operacao' ? 0.15 : 0.2,
       pointBackgroundColor: relCurve.map(v => v > 0 ? GREEN : v < 0 ? RED : ORANGE),
       pointBorderColor: isDark ? '#141414' : '#ffffff',
@@ -235,7 +209,7 @@ export default function CapitalChart({
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <Line data={data} options={options} plugins={[dualColorPlugin]} />
+      <Line data={data} options={options} plugins={[fillPlugin]} />
     </div>
   );
 }
