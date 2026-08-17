@@ -9,35 +9,43 @@ import { AMBIENTE_COOKIE, type Ambiente } from './ambiente';
 
 // ─── AUTH ───────────────────────────────────────────────
 export async function login(_: unknown, formData: FormData) {
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  });
-  if (error) return { error: error.message };
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email: formData.get('email') as string,
+      password: formData.get('password') as string,
+    });
+    if (error) return { error: error.message };
+  } catch {
+    return { error: 'Servidor indisponível. Tente novamente em alguns minutos.' };
+  }
   redirect('/dashboard');
 }
 
 export async function cadastro(_: unknown, formData: FormData) {
-  const { createClient: createAdminClient } = await import('@supabase/supabase-js');
-  const admin = createAdminClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
-  const nome = formData.get('nome') as string;
-  const { data: userData, error } = await admin.auth.admin.createUser({
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-    email_confirm: true,
-    user_metadata: { nome },
-  });
-  if (error) return { error: error.message };
-  if (!userData?.user) return { error: 'Usuário não foi criado. Verifique as credenciais do Supabase.' };
-  const supabase = await createClient();
-  await supabase.auth.signInWithPassword({
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  });
+  try {
+    const { createClient: createAdminClient } = await import('@supabase/supabase-js');
+    const admin = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    );
+    const nome = formData.get('nome') as string;
+    const { data: userData, error } = await admin.auth.admin.createUser({
+      email: formData.get('email') as string,
+      password: formData.get('password') as string,
+      email_confirm: true,
+      user_metadata: { nome },
+    });
+    if (error) return { error: error.message };
+    if (!userData?.user) return { error: 'Usuário não foi criado. Verifique as credenciais do Supabase.' };
+    const supabase = await createClient();
+    await supabase.auth.signInWithPassword({
+      email: formData.get('email') as string,
+      password: formData.get('password') as string,
+    });
+  } catch {
+    return { error: 'Servidor indisponível. Tente novamente em alguns minutos.' };
+  }
   redirect('/dashboard');
 }
 
