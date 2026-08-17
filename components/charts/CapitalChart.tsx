@@ -25,20 +25,22 @@ const fillPlugin: Plugin<'line'> = {
     const zeroY = scales['y'].getPixelForValue(0);
     const clamped = Math.max(chartArea.top, Math.min(chartArea.bottom, zeroY));
 
-    const grad = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-
     const range = chartArea.bottom - chartArea.top;
     if (range <= 0) return;
     const zeroStop = (clamped - chartArea.top) / range;
 
+    const grad = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+
     if (zeroStop > 0.01) {
-      grad.addColorStop(0, 'rgba(16,185,129,0.40)');
-      grad.addColorStop(Math.max(0, zeroStop - 0.01), 'rgba(16,185,129,0.08)');
+      grad.addColorStop(0, 'rgba(16,185,129,0.18)');
+      grad.addColorStop(Math.max(0, zeroStop * 0.5), 'rgba(16,185,129,0.06)');
+      grad.addColorStop(Math.max(0, zeroStop - 0.005), 'rgba(16,185,129,0.0)');
     }
     grad.addColorStop(zeroStop, 'rgba(0,0,0,0)');
     if (zeroStop < 0.99) {
-      grad.addColorStop(Math.min(1, zeroStop + 0.01), 'rgba(239,68,68,0.08)');
-      grad.addColorStop(1, 'rgba(239,68,68,0.40)');
+      grad.addColorStop(Math.min(1, zeroStop + 0.005), 'rgba(239,68,68,0.0)');
+      grad.addColorStop(Math.min(1, zeroStop + (1 - zeroStop) * 0.5), 'rgba(239,68,68,0.06)');
+      grad.addColorStop(1, 'rgba(239,68,68,0.18)');
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
