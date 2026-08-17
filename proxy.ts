@@ -4,7 +4,12 @@ import { NextResponse, type NextRequest } from 'next/server';
 export async function proxy(request: NextRequest) {
   const defaultResponse = NextResponse.next({ request });
   const { pathname } = request.nextUrl;
-  const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/cadastro');
+  const isAuthRoute = pathname.startsWith('/login')
+    || pathname.startsWith('/cadastro')
+    || pathname.startsWith('/esqueci-senha')
+    || pathname.startsWith('/redefinir-senha')
+    || pathname.startsWith('/auth/callback')
+    || pathname.startsWith('/onboarding');
 
   try {
     let supabaseResponse = NextResponse.next({ request });
@@ -35,7 +40,9 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    if (user && isAuthRoute) {
+    const skipRedirectWhenLoggedIn = pathname.startsWith('/redefinir-senha')
+      || pathname.startsWith('/auth/callback');
+    if (user && isAuthRoute && !skipRedirectWhenLoggedIn) {
       const url = request.nextUrl.clone();
       url.pathname = '/dashboard';
       return NextResponse.redirect(url);
