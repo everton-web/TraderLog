@@ -71,42 +71,6 @@ const dualColorPlugin: Plugin<'line'> = {
   },
 };
 
-const zeroLinePlugin: Plugin<'line'> = {
-  id: 'zeroLine',
-  afterDraw(chart) {
-    const { ctx, chartArea, scales } = chart;
-    if (!chartArea) return;
-    const yScale = scales['y'];
-    const data = chart.data.datasets[0]?.data as number[];
-    if (!data) return;
-
-    const hasPos = data.some(v => v > 0);
-    const hasNeg = data.some(v => v < 0);
-    if (!hasPos || !hasNeg) return;
-
-    const zeroY = yScale.getPixelForValue(0);
-    if (zeroY < chartArea.top || zeroY > chartArea.bottom) return;
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(chartArea.left, zeroY);
-    ctx.lineTo(chartArea.right, zeroY);
-    ctx.strokeStyle = ORANGE;
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([6, 4]);
-    ctx.stroke();
-
-    ctx.shadowColor = ORANGE;
-    ctx.shadowBlur = 6;
-    ctx.beginPath();
-    ctx.moveTo(chartArea.left, zeroY);
-    ctx.lineTo(chartArea.right, zeroY);
-    ctx.strokeStyle = ORANGE;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.restore();
-  },
-};
 
 const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
@@ -271,7 +235,7 @@ export default function CapitalChart({
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <Line data={data} options={options} plugins={[dualColorPlugin, zeroLinePlugin]} />
+      <Line data={data} options={options} plugins={[dualColorPlugin]} />
     </div>
   );
 }
