@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import AnthropicKeyForm  from '@/components/AnthropicKeyForm';
+import TelegramVinculo   from '@/components/TelegramVinculo';
 
 export default async function IntegracoesPage() {
   const supabase = await createClient();
@@ -15,17 +16,37 @@ export default async function IntegracoesPage() {
     geminiKey = data?.gemini_key ?? null;
   } catch {}
 
+  const { data: vinculo } = await supabase
+    .from('telegram_vinculos')
+    .select('criado_em, revogado_em')
+    .eq('user_id', user!.id)
+    .maybeSingle();
+
   return (
-    <div className="card" style={{ maxWidth: 560 }}>
-      <div className="card-header">
-        <h2 className="card-title">Groq — Chave de API</h2>
-        <p className="card-desc" style={{ marginTop: 4 }}>
-          Necessária para o <a href="/diario" style={{ color: 'var(--gain)' }}>Diário com IA</a>.
-          Gratuito em console.groq.com. Sua chave nunca é compartilhada.
-        </p>
+    <div style={{ display: 'grid', gap: 16, maxWidth: 560 }}>
+      <div className="card">
+        <div className="card-header">
+          <h2 className="card-title">Groq — Chave de API</h2>
+          <p className="card-desc" style={{ marginTop: 4 }}>
+            Necessária para o <a href="/diario" style={{ color: 'var(--gain)' }}>Diário com IA</a>.
+            Gratuito em console.groq.com. Sua chave nunca é compartilhada.
+          </p>
+        </div>
+        <div className="card-body">
+          <AnthropicKeyForm hasKey={!!geminiKey} />
+        </div>
       </div>
-      <div className="card-body">
-        <AnthropicKeyForm hasKey={!!geminiKey} />
+
+      <div className="card">
+        <div className="card-header">
+          <h2 className="card-title">Telegram — leitura de mercado</h2>
+          <p className="card-desc" style={{ marginTop: 4 }}>
+            Ligue seu Telegram à sua conta para receber a leitura de mercado e o resumo das suas operações.
+          </p>
+        </div>
+        <div className="card-body">
+          <TelegramVinculo vinculoInicial={vinculo ?? null} />
+        </div>
       </div>
     </div>
   );
